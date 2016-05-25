@@ -11,7 +11,7 @@ AxisView = require('./axisView')
 class GraphView extends Backbone.View
   @ORIGIN_OFFSET_X : 40
   @ORIGIN_OFFSET_Y : 20
-  @NUMBER_FONT_SIZE : 12
+  @FONT_SIZE : 12
 
   tagName: "canvas"
 

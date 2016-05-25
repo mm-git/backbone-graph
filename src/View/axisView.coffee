@@ -24,7 +24,7 @@ class AxisView extends Backbone.View
 
     #axis
     context.clearRect(0, 0, w, h)
-    context.font = "#{GraphView.NUMBER_FONT_SIZE}px Arial"
+    context.font = "#{GraphView.FONT_SIZE}px Arial"
     context.fillStyle = @_axisColor
     context.strokeStyle = @_axisColor
 
