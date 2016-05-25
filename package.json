@@ -1,6 +1,6 @@
 {
   "name": "backbone-graph",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "This is Backbone.js view, model and collection class for drawing HTML5(canvas) line graph.",
   "main": "index.js",
   "scripts": {
