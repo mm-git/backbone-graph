@@ -1,3 +1,6 @@
+engines:
+  coffeelint:
+    enabled: true
 exclude_paths:
 - index.js
 - example/*
