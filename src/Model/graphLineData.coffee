@@ -1,27 +1,25 @@
 __ = require('underscore')
-GraphData = require('./graphData.coffee')
-GraphPoint = require('./graphPoint.coffee')
+GraphData = require('./graphData')
+GraphPoint = require('./graphPoint')
 
 class GraphLineData extends GraphData
-  _lineDataOption = ['_lineColor', '_peakColor']
-
+  # options = {lineColor: "#RRGGBB", peakColor: "#RRGGBB"}
   initialize: (options) ->
     super(options)
-    __.extend(@, __.pick(options, _lineDataOption))
+    @set('type', GraphData.TYPE.LINE)
 
-    @_type = GraphData.TYPE.LINE
-    @_smoothList = []   # 一定間隔でリサンプリングし平坦化したポイントデータ
+    @_smoothList = []
     @_peakList = []
     @_totalGain = 0
     @_totalDrop = 0
 
   @property "lineColor",
     get: ->
-      @_lineColor
+      @get('lineColor')
 
   @property "peakColor",
     get: ->
-      @_peakColor
+      @get('peakColor')
 
   @property "pointList",
     get: ->
@@ -45,6 +43,8 @@ class GraphLineData extends GraphData
     super()
     @_smoothList = []
     @_peakList = []
+    @_totalGain = 0
+    @_totalDrop = 0
 
   smoothing: (interval, range) ->
     # interval 間隔でグラフデータをリサンプリングする
@@ -71,7 +71,7 @@ class GraphLineData extends GraphData
 
     return
 
-  calculateLocalMinMax: (xyRatio, threshold) ->
+  calculatePeak: (xyRatio, threshold) ->
     # @_smoothListに対して計算を行うので、事前にsmoothingを実行している必要がある
     if @_smoothList.length < 1
       return
@@ -120,7 +120,7 @@ class GraphLineData extends GraphData
 
     return
 
-  calculateTotalGainDrop: ->
+  calculateTotalGainAndDrop: ->
     # 事前にcalculateLocalMinMaxを実行している必要がある
     if @_peakList.length < 1
       return

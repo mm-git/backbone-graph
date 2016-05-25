@@ -1,10 +1,10 @@
 $ = require('jquery')
 Backbone = require('backbone')
-AxisData = require('../Model/axisData.coffee')
+AxisData = require('../Model/axisData')
 
 class GraphPointView extends Backbone.View
   initialize: (options) ->
-    @_axis = options._axis
+    @_axis = options.axis
     @listenTo(@_axis, AxisData.EVENT_AXIS_REDRAW, => @render())
 
   render: ->
@@ -14,7 +14,7 @@ class GraphPointView extends Backbone.View
     if @model.pointList.length == 0
       return
 
-    GraphView = require('./graphView.coffee')
+    GraphView = require('./graphView')
 
     context = @$el[0].getContext('2d')
     w = @$el[0].width

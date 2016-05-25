@@ -1,17 +1,14 @@
 __ = require('underscore')
-GraphData = require('./graphData.coffee')
+GraphData = require('./graphData')
 
 class GraphPointData extends GraphData
-  _pointDataOption = ['_pointColor']
-
+  # options = {pointColor: "#RRGGBB"}
   initialize: (options) ->
     super(options)
-    __.extend(@, __.pick(options, _pointDataOption))
-
-    @_type = GraphData.TYPE.POINT
+    @set('type', GraphData.TYPE.POINT)
 
   @property "pointColor",
     get: ->
-      @_pointColor
+      @get('pointColor')
 
 module.exports = GraphPointData

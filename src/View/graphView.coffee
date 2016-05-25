@@ -1,12 +1,12 @@
 __ = require('underscore')
 $ = require('jquery')
 Backbone = require('backbone')
-GraphData = require('../Model/graphData.coffee')
-GraphDataCollection = require('../Model/graphDataCollection.coffee')
-AxisData = require('../Model/axisData.coffee')
-GraphLineView = require('./graphLineView.coffee')
-GraphPointView = require('./graphPointView.coffee')
-AxisView = require('./axisView.coffee')
+GraphData = require('../Model/graphData')
+GraphDataCollection = require('../Model/graphDataCollection')
+AxisData = require('../Model/axisData')
+GraphLineView = require('./graphLineView')
+GraphPointView = require('./graphPointView')
+AxisView = require('./axisView')
 
 class GraphView extends Backbone.View
   @ORIGIN_OFFSET_X : 40
@@ -15,20 +15,21 @@ class GraphView extends Backbone.View
 
   tagName: "canvas"
 
-  _graphOptions = ['_pos', '_xAxis', '_yAxis', '_axisColor']
+  _graphOptions = ['pos', 'xAxis', 'yAxis', 'axisColor']
 
+  #options = {pos: [x, y, width, height], xAxis:AxisClassObject, yAxis:AxisClassObject, axisColor: "#RRGGBB"}
   initialize: (options) ->
     __.extend(@, __.pick(options, _graphOptions))
     @render()
 
     @_axisData = new AxisData({
-      _xAxis: @_xAxis
-      _yAxis: @_yAxis
+      xAxis: @xAxis
+      yAxis: @yAxis
     })
     @_axisView = new AxisView({
       el: @$el
       model: @_axisData
-      _axisColor: @_axisColor
+      axisColor: @axisColor
     })
     @_subView = @collection.map((model) =>
       subView = null
@@ -37,13 +38,13 @@ class GraphView extends Backbone.View
           subView = new GraphLineView({
             el: @$el
             model: model
-            _axis: @_axisData
+            axis: @_axisData
           })
         when GraphData.TYPE.POINT
           subView = new GraphPointView({
             el: @$el
             model: model
-            _axis: @_axisData
+            axis: @_axisData
           })
       return subView
     )
@@ -54,9 +55,15 @@ class GraphView extends Backbone.View
 
   render: ->
     @$el
-    .position(@_pos)
-    @$el[0].width = @_pos[2]
-    @$el[0].height = @_pos[3]
+    .css({
+      position: "absolute"
+      left: @pos[0]
+      top: @pos[1]
+      width: @pos[2]
+      height: @pos[3]
+    })
+    @$el[0].width = @pos[2]
+    @$el[0].height = @pos[3]
 
     @
 

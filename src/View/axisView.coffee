@@ -1,10 +1,10 @@
 $ = require('jquery')
 Backbone = require('backbone')
-AxisData = require('../Model/axisData.coffee')
+AxisData = require('../Model/axisData')
 
 class AxisView extends Backbone.View
   initialize: (options) ->
-    @_axisColor = options._axisColor
+    @_axisColor = options.axisColor
     @render()
     @listenTo(@model, AxisData.EVENT_AXIS_CHANGED, (model) =>
       @render()
@@ -12,7 +12,7 @@ class AxisView extends Backbone.View
     )
 
   render: ->
-    GraphView = require('./graphView.coffee')
+    GraphView = require('./graphView')
 
     context = @$el[0].getContext('2d')
     w = @$el[0].width

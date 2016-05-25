@@ -1,13 +1,13 @@
 'use strict';
 
 var Graph = {
-  Collection: require('./src/Model/graphDataCollection.coffee'),
-  LineData: require('./src/Model/graphLineData.coffee'),
-  PointData: require('./src/Model/graphPointData.coffee'),
-  Point: require('./src/Model/graphPoint.coffee'),
-  Axis: require('./src/Model/axis.coffee'),
-  GraphView: require('./src/View/graphView.coffee'),
-  AxisView: require('./src/View/axisView.coffee')
+  Collection: require('./lib/Model/graphDataCollection'),
+  LineData: require('./lib/Model/graphLineData'),
+  PointData: require('./lib/Model/graphPointData'),
+  Point: require('./lib/Model/graphPoint'),
+  Axis: require('./lib/Model/axis'),
+  GraphView: require('./lib/View/graphView'),
+  AxisView: require('./lib/View/axisView')
 };
 
 module.exports = Graph;

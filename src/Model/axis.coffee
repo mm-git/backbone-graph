@@ -1,7 +1,8 @@
+require('./property')
+
 class Axis
   constructor: (@_max, @_interval, @_subInterval) ->
-    if @_interval < @_subInterval
-      @_subInterval = @_interval
+    @_adjustProperty()
 
   @property "max",
     get: ->
@@ -14,12 +15,19 @@ class Axis
       @_interval
     set: (interval) ->
       @_interval = interval
+      @_adjustProperty()
 
   @property "subInterval",
     get: ->
       @_subInterval
     set: (subInterval) ->
       @_subInterval = subInterval
+      @_adjustProperty()
+
+  _adjustProperty: ->
+    if @_interval < @_subInterval
+      @_subInterval = @_interval
+
 
 
 module.exports = Axis

@@ -4,8 +4,9 @@
   "description": "This is Backbone.js view, model and collection class for drawing HTML5(canvas) line graph.",
   "main": "index.js",
   "scripts": {
-    "build": "browserify -t coffeeify example/example.js > example/example-build.js",
-    "test": "mocha"
+    "prepublish": "coffee -o lib -c src",
+    "test": "mocha",
+    "build": "webpack example/example.js example/example-build.js"
   },
   "repository": {
     "type": "git",
@@ -33,7 +34,7 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "browserify": "^13.0.1",
-    "coffeeify": "^2.0.1"
+    "mocha": "^2.4.5",
+    "webpack": "^1.13.1"
   }
 }

@@ -1,3 +1,5 @@
+require('./property')
+
 class GraphPoint
   constructor: (@_x, @_y) ->
 

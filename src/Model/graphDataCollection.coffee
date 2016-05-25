@@ -1,6 +1,6 @@
 Backbone = require('backbone')
-require('./property.coffee')
-GraphData = require('./graphData.coffee')
+require('./property')
+GraphData = require('./graphData')
 
 class GraphDataCollection extends Backbone.Collection
   @EVENT_GRAPHDATA_CHANGED: "graphDataChanged"

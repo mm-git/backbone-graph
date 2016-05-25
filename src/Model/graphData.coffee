@@ -6,20 +6,19 @@ class GraphData extends Backbone.Model
     POINT : 1
 
   initialize: (options) ->
-    @_type = 0
-    @_pointList = []    # 生のポイントデータ
+    @set('type', GraphData.TYPE.LINE)
+
+    @_pointList = []
     @_min =
       x: 0
       y: 0
-    @_minDistance = 0
     @_max =
       x: 0
       y: 0
-    @_maxDistance = 0
 
   @property "type",
     get: ->
-      @_type
+      @get('type')
 
   @property "pointList",
     get: ->
@@ -41,6 +40,12 @@ class GraphData extends Backbone.Model
 
   clear: ->
     @_pointList = []
+    @_min =
+      x: 0
+      y: 0
+    @_max =
+      x: 0
+      y: 0
 
   addPoint: (point) ->
     @_pointList.push(point)

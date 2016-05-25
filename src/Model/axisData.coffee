@@ -1,37 +1,44 @@
 Backbone = require('backbone')
-require('./property.coffee')
+require('./property')
 
 class AxisData extends Backbone.Model
   @EVENT_AXIS_CHANGED: "axisDataChanged"
   @EVENT_AXIS_REDRAW: "axisDataRedraw"
 
+  # options = {xAxis: AxisClassObject, yAxis: AxisClassObject}
   initialize: (options) ->
-    @_xAxis = options._xAxis
-    @_yAxis = options._yAxis
-    @_xMax = @_xAxis.max
-    @_yMax = @_yAxis.max
+    @_xMax = @get('xAxis').max
+    @_yMax = @get('yAxis').max
 
   @property "xAxis",
     get: ->
-      @_xAxis
+      @get('xAxis')
 
   @property "yAxis",
     get: ->
-      @_yAxis
+      @get('yAxis')
 
   @property "xMax",
     get: ->
       @_xMax
+    set: (max) ->
+      if @get('xAxis').max > max
+        @_xMax = @get('xAxis').max
+      else
+        @_xMax = max
 
   @property "yMax",
     get: ->
       @_yMax
+    set: (max) ->
+      if @get('yAxis').max > max
+        @_yMax = @get('yAxis').max
+      else
+        @_yMax = max
 
   setMaximum: (xMax, yMax) ->
-    if @_xAxis.max < xMax
-      @_xMax = xMax
-    if @_yAxis.max < yMax
-      @_yMax = yMax
+    @xMax = xMax
+    @yMax = yMax
 
     @trigger AxisData.EVENT_AXIS_CHANGED, @
     return
