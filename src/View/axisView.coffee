@@ -48,13 +48,13 @@ class AxisView extends Backbone.View
     for x in [@model.xAxis.subInterval ... @model.xMax] by @model.xAxis.subInterval
       xp = xs + (xe - xs) * x / @model.xMax
       if x % @model.xAxis.interval == 0
-        context.fillText("#{x}", xp, h - 3);
+        context.fillText("#{x}", xp, h - 3)
         context.beginPath()
         context.moveTo(xp, ys)
         context.lineTo(xp, ye)
         context.stroke()
       else if drawSub
-        context.fillText("#{x}", xp, h - 3);
+        context.fillText("#{x}", xp, h - 3)
         context.beginPath()
         context.moveTo(xp, ys)
         context.lineTo(xp, ys-4)
@@ -75,13 +75,13 @@ class AxisView extends Backbone.View
     for y in [@model.yAxis.subInterval ... @model.yMax] by @model.yAxis.subInterval
       yp = ys + (ye - ys) * y / @model.yMax
       if y % @model.yAxis.interval == 0
-        context.fillText("#{y}", xs-3, yp);
+        context.fillText("#{y}", xs-3, yp)
         context.beginPath()
         context.moveTo(xs, yp)
         context.lineTo(xe, yp)
         context.stroke()
       else if drawSub
-        context.fillText("#{y}", xs-3, yp);
+        context.fillText("#{y}", xs-3, yp)
         context.beginPath()
         context.moveTo(xs, yp)
         context.lineTo(xs+4, yp)

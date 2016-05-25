@@ -62,7 +62,7 @@ class GraphLineView extends Backbone.View
       xp = xs + (xe - xs) * peak.point.x / @_axis.xMax
       yp = ys + (ye - ys) * peak.point.y / @_axis.yMax
       context.beginPath()
-      context.arc(xp, yp, 1.5, 0, Math.PI*2, false);
+      context.arc(xp, yp, 1.5, 0, Math.PI*2, false)
       context.fill()
     )
 module.exports = GraphLineView

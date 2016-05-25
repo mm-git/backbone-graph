@@ -1,0 +1,4 @@
+exclude_paths:
+- index.js
+- example/*
+- test/**/*
