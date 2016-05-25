@@ -1,6 +1,6 @@
-engines:
-  coffeelint:
-    enabled: true
+languages:
+  JavaScript: true
+  coffee-script: true
 exclude_paths:
 - index.js
 - example/*
