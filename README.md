@@ -67,7 +67,7 @@ Normal graph
 ![Graph sample](./example/graph.png?raw=true "Graph sample")
 
 Smoothed graph
-![Graph sample](./example/smoothedgraph.png?raw=true "Smoothed graph sample")
+![Graph sample](./example/smoothgraph.png?raw=true "Smoothed graph sample")
 
 ## Other functions
 
