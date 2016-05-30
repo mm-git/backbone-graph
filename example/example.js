@@ -4,7 +4,7 @@ var $ = require('jquery');
 var Graph = require('../index.js');
 
 var LINE_COLOR = "#ffcc00";
-var PEAK_COLOR = "#ffffff";
+var PEAK_COLOR = "#ff0000";
 var AXIS_COLOR = "#7bbcd8";
 
 var lineGraph = new Graph.LineData({
@@ -28,7 +28,6 @@ var graphSample = [
   [100, 300]
 ];
 
-lineGraph.clear();
 graphSample.forEach(function (point){
   lineGraph.addPoint(new Graph.Point(point[0], point[1]));
 });
@@ -43,3 +42,18 @@ var graphView = new Graph.GraphView({
 
 graphView.$el.appendTo($('#graphsample'));
 graphCollection.change();
+
+var toggleButton = $("#togglesmooth")
+toggleButton.on('click', function(){
+  if(lineGraph.isSmooth){
+    toggleButton.val("Smooth");
+    lineGraph.unsmooth();
+    graphCollection.change()
+  }
+  else{
+    toggleButton.val("Unsmooth");
+    lineGraph.smooth(1, 5);
+    lineGraph.calculatePeak(1000, 0.01)
+    graphCollection.change()
+  }
+});

@@ -62,11 +62,16 @@ graphCollection.change();
 ```
 
 ## Graph sample
+
+Normal graph
 ![Graph sample](./example/graph.png?raw=true "Graph sample")
+
+Smoothed graph
+![Graph sample](./example/smoothedgraph.png?raw=true "Smoothed graph sample")
 
 ## Other functions
 
-### Graph.LineData.smoothing(interval, range)
+### Graph.LineData.smooth(interval, range)
 
   `interval` : Before smoothing graph data, each data should have same interval. So this function re-sample the data with interval parameter.
   `range` : This function calculate moving average to smooth the graph data. `range` is the range of moving average.  
@@ -74,12 +79,12 @@ graphCollection.change();
 ```javascript
 // First this function re-sample the data with interval 1, 
 // Next function calcurate moving average.  
-lineData.smoothing(1, 10); 
+lineData.smooth(1, 10); 
 ```
 
 ### Graph.LineData.calculatePeak(xyRatio, threshold)
 
-  Before using this function, it is necessary to call `smoothing()`
+  Before using this function, it is necessary to call `smooth()`
   `xyRatio` : Ratio of x axis unit and y axis unit. For instance, if x axis unit is **KM** and y is **m** then xyRatio should be 1000. 
   `threshold` : This function calculate peak of the graph by checking change of inclination. `threshold` is limit value of inclination.
   
@@ -97,3 +102,12 @@ lineData.calculateTotalGainAndDrop();
 console.log(lineData.totalGain);     // you can get total gain
 console.log(lineData.totalDrop);     // you can get total drop
 ```
+
+### Graph.LineData.unsmooth()
+
+  clear the calculated smooth data, peak, total gain and drop.
+
+```javascript
+lineData.unsmooth(); 
+```
+
