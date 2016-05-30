@@ -3,8 +3,6 @@ require('./property')
 GraphData = require('./graphData')
 
 class GraphDataCollection extends Backbone.Collection
-  @EVENT_GRAPHDATA_CHANGED: "graphDataChanged"
-
   model: GraphData
 
   @property "xMax",
@@ -20,6 +18,6 @@ class GraphDataCollection extends Backbone.Collection
       ))
 
   change: ->
-    @trigger GraphDataCollection.EVENT_GRAPHDATA_CHANGED, @
+    @trigger("change", @)
 
 module.exports = GraphDataCollection

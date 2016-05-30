@@ -39,6 +39,10 @@ class GraphLineData extends GraphData
     get: ->
       @_totalDrop
 
+  @property "isSmooth",
+    get: ->
+      return @_smoothList.length > 0
+
   clear: ->
     super()
     @_smoothList = []
@@ -46,7 +50,7 @@ class GraphLineData extends GraphData
     @_totalGain = 0
     @_totalDrop = 0
 
-  smoothing: (interval, range) ->
+  smooth: (interval, range) ->
     # interval 間隔でグラフデータをリサンプリングする
     xp = 0
     newPointList = []
@@ -70,6 +74,12 @@ class GraphLineData extends GraphData
       @_smoothList.push(new GraphPoint(newPointList[index].x, yTotal/(end-start+1)))
 
     return
+
+  unsmooth: ->
+    @_smoothList = []
+    @_peakList = []
+    @_totalGain = 0
+    @_totalDrop = 0
 
   calculatePeak: (xyRatio, threshold) ->
     # @_smoothListに対して計算を行うので、事前にsmoothingを実行している必要がある

@@ -2,7 +2,6 @@ __ = require('underscore')
 $ = require('jquery')
 Backbone = require('backbone')
 GraphData = require('../Model/graphData')
-GraphDataCollection = require('../Model/graphDataCollection')
 AxisData = require('../Model/axisData')
 GraphLineView = require('./graphLineView')
 GraphPointView = require('./graphPointView')
@@ -49,7 +48,7 @@ class GraphView extends Backbone.View
       return subView
     )
 
-    @listenTo(@collection, GraphDataCollection.EVENT_GRAPHDATA_CHANGED, (collection) =>
+    @listenTo(@collection, "change", (collection) =>
       @_axisData.setMaximum(collection.xMax, collection.yMax)
     )
 

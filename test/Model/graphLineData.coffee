@@ -88,7 +88,7 @@ describe 'GraphLineData Class Test', ->
     assert.equal(pointData.totalGain, 0)
     assert.equal(pointData.totalDrop, 0)
 
-  it 'function test smoothing()', ->
+  it 'function test smooth()', ->
     pointData = new GraphLineData({
       pointColor: "#0000ff"
     })
@@ -105,7 +105,7 @@ describe 'GraphLineData Class Test', ->
     pointData.addPoint(new GraphPoint(9,  200))
     pointData.addPoint(new GraphPoint(10, 50))
 
-    pointData.smoothing(0.1, 10)
+    pointData.smooth(0.1, 10)
     assert.equal(pointData.pointList.length, 101)
 
     pointData.calculatePeak(1000, 0.01)
@@ -120,3 +120,30 @@ describe 'GraphLineData Class Test', ->
     pointData.calculateTotalGainAndDrop()
     assert.equal(Math.floor(pointData.totalGain), 163)
     assert.equal(Math.floor(pointData.totalDrop), 188)
+
+  it 'function test unsmooth()', ->
+    pointData = new GraphLineData({
+      pointColor: "#0000ff"
+    })
+
+    pointData.addPoint(new GraphPoint(0,  100))
+    pointData.addPoint(new GraphPoint(1,  200))
+    pointData.addPoint(new GraphPoint(2,  150))
+    pointData.addPoint(new GraphPoint(3,  250))
+    pointData.addPoint(new GraphPoint(4,  200))
+    pointData.addPoint(new GraphPoint(5,  300))
+    pointData.addPoint(new GraphPoint(6,  250))
+    pointData.addPoint(new GraphPoint(7,  350))
+    pointData.addPoint(new GraphPoint(8,  300))
+    pointData.addPoint(new GraphPoint(9,  200))
+    pointData.addPoint(new GraphPoint(10, 50))
+
+    pointData.smooth(0.1, 10)
+    pointData.calculatePeak(1000, 0.01)
+    pointData.calculateTotalGainAndDrop()
+
+    pointData.unsmooth()
+    assert.equal(pointData.pointList.length, 11)
+    assert.equal(pointData.peakList.length, 0)
+    assert.equal(Math.floor(pointData.totalGain), 0)
+    assert.equal(Math.floor(pointData.totalDrop), 0)

@@ -64,7 +64,7 @@ describe 'GraphDataCollection Class Test', ->
     graphCollection.change()
 
     assert.equal(trigger.calledOnce, true)
-    assert.equal(trigger.getCall(0).args[0], "graphDataChanged")
+    assert.equal(trigger.getCall(0).args[0], "change")
     assert.equal(trigger.getCall(0).args[1], graphCollection)
 
     trigger.restore()
