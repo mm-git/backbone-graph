@@ -6,6 +6,7 @@ var Graph = require('../index.js');
 var LINE_COLOR = "#ffcc00";
 var PEAK_COLOR = "#ff0000";
 var AXIS_COLOR = "#7bbcd8";
+var SCALE_COLOR = "#666666";
 
 var lineGraph = new Graph.LineData({
   lineColor: LINE_COLOR,
@@ -35,9 +36,10 @@ graphSample.forEach(function (point){
 var graphView = new Graph.GraphView({
   collection: graphCollection,
   pos: [0, 0, 600, 400],
-  xAxis: new Graph.Axis(10, 50, 10),
+  xAxis: new Graph.Axis(100, 50, 10),
   yAxis: new Graph.Axis(1000, 100, 100),
-  axisColor : AXIS_COLOR
+  axisColor: AXIS_COLOR,
+  scaleColor: SCALE_COLOR
 });
 
 graphView.$el.appendTo($('#graphsample'));

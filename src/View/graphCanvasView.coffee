@@ -7,11 +7,7 @@ GraphLineView = require('./graphLineView')
 GraphPointView = require('./graphPointView')
 AxisView = require('./axisView')
 
-class GraphView extends Backbone.View
-  @ORIGIN_OFFSET_X : 40
-  @ORIGIN_OFFSET_Y : 20
-  @FONT_SIZE : 12
-
+class GraphCanvasView extends Backbone.View
   tagName: "canvas"
 
   _graphOptions = ['pos', 'xAxis', 'yAxis', 'axisColor']
@@ -66,4 +62,4 @@ class GraphView extends Backbone.View
 
     @
 
-module.exports = GraphView
+module.exports = GraphCanvasView
