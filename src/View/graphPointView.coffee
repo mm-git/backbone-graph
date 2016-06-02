@@ -3,31 +3,32 @@ Backbone = require('backbone')
 AxisData = require('../Model/axisData')
 
 class GraphPointView extends Backbone.View
+  _graphPointOptions = ['xAxis', 'yAxis']
+
   initialize: (options) ->
-    @_axis = options.axis
-    @listenTo(@_axis, AxisData.EVENT_AXIS_REDRAW, => @render())
+    __.extend(@, __.pick(options, _graphPointOptions))
 
   render: ->
-    @_drawPoint()
-
-  _drawPoint: ->
-    if @model.pointList.length == 0
-      return
-
     GraphView = require('./graphView')
 
     context = @$el[0].getContext('2d')
     w = @$el[0].width
     h = @$el[0].height
-    xs = GraphView.ORIGIN_OFFSET_X      # x start
+    xs = 0                              # x start
     xe = w - GraphView.ORIGIN_OFFSET_Y  # x end
-    ys = h - GraphView.ORIGIN_OFFSET_Y  # y start
+    ys = h                              # y start
     ye = GraphView.ORIGIN_OFFSET_Y      # y end
+
+    @_drawPoint(context, xs, xe, ys, ye)
+
+  _drawPoint: (context, xs, xe, ys, ye) ->
+    if @model.pointList.length == 0
+      return
 
     context.fillStyle = @model.pointColor
     @model.pointList.forEach((point) =>
-      xp = xs + (xe - xs) * point.x / @_axis.xMax
-      yp = ys + (ye - ys) * point.y / @_axis.yMax
+      xp = xs + (xe - xs) * point.x / @xAxis.max
+      yp = ys + (ye - ys) * point.y / @yAxis.max
       context.beginPath()
       context.moveTo(xp-5, yp-7)
       context.lineTo(xp+5, yp-7)

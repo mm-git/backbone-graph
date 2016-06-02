@@ -1,49 +1,38 @@
-Backbone = require('backbone')
 require('./property')
+Backbone = require('backbone')
 
 class AxisData extends Backbone.Model
-  @EVENT_AXIS_CHANGED: "axisDataChanged"
-  @EVENT_AXIS_REDRAW: "axisDataRedraw"
-
-  # options = {xAxis: AxisClassObject, yAxis: AxisClassObject}
+  # options = {max: mx, interval:i, subInterval:s, axisColor:"#RRGGBB"}
   initialize: (options) ->
-    @_xMax = @get('xAxis').max
-    @_yMax = @get('yAxis').max
+    @_adjustProperty()
 
-  @property "xAxis",
+  @property "max",
     get: ->
-      @get('xAxis')
-
-  @property "yAxis",
-    get: ->
-      @get('yAxis')
-
-  @property "xMax",
-    get: ->
-      @_xMax
+      @get('max')
     set: (max) ->
-      if @get('xAxis').max > max
-        @_xMax = @get('xAxis').max
-      else
-        @_xMax = max
+      if @max < max
+        @set('max', max)
 
-  @property "yMax",
+  @property "interval",
     get: ->
-      @_yMax
-    set: (max) ->
-      if @get('yAxis').max > max
-        @_yMax = @get('yAxis').max
-      else
-        @_yMax = max
+      @get('interval')
+    set: (interval) ->
+      @set('interval', interval)
+      @_adjustProperty()
 
-  setMaximum: (xMax, yMax) ->
-    @xMax = xMax
-    @yMax = yMax
+  @property "subInterval",
+    get: ->
+      @get('subInterval')
+    set: (subInterval) ->
+      @set('subInterval', subInterval)
+      @_adjustProperty()
 
-    @trigger AxisData.EVENT_AXIS_CHANGED, @
-    return
+  @property "axisColor",
+    get: ->
+      @get('axisColor')
 
-  notifyRedraw: ->
-    @trigger AxisData.EVENT_AXIS_REDRAW, @
+  _adjustProperty: ->
+    if @interval < @subInterval
+      @subInterval = @interval
 
 module.exports = AxisData

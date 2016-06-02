@@ -8,6 +8,7 @@
     "test": "mocha",
     "build": "webpack example/example.js example/example-build.js"
   },
+  "style": "dist/css/backbone-graph.css",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mm-git/backbone-graph.git"
