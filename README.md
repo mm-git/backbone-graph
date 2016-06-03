@@ -15,6 +15,8 @@ npm install backbone-graph
 
 ## How to use it
 
+### javascript
+
 ```javascript
 // require
 var $ = require('jquery');
@@ -50,10 +52,10 @@ var graphCollection = new Graph.Collection([lineData]);
 // initialize graph view
 var graphView = new Graph.GraphView({
   collection: graphCollection,
-  pos: [0, 0, 600, 400],                    // left, top, width, height
-  xAxis: new Graph.Axis(10, 50, 10),        // max, scale interval, sub scale interval
-  yAxis: new Graph.Axis(1000, 100, 100),    // max, scale interval, sub scale interval
-  axisColor : "#7bbcd8"
+  width: 600,
+  height: 400,
+  xAxis: new Graph.Axis({max:100, interval:50, subInterval:10, axisColor: AXIS_COLOR}),
+  yAxis: new Graph.Axis({max:1000, interval:100, subInterval:100, axisColor: AXIS_COLOR}),
 });
 graphView.$el.appendTo($('#graphelement'));
 
@@ -61,13 +63,56 @@ graphView.$el.appendTo($('#graphelement'));
 graphCollection.change();
 ```
 
+### style sheet (css)
+
+- backbone-graph.css
+
+    link backbone-graph.css or backbone-graph.min.css in the header section of your html file.
+    
+    '<link rel="stylesheet" href="dist/css/backbone-graph.css">`
+
+- user customize
+
+```css
+/* You can change the magnification button position */
+.backbone_graph_scale {
+    left: 485px;
+    top: 0;
+}
+
+/* You can change the magnification button appearance */
+.backbone_graph_scale_button {
+    background: #7bbcd8;
+    color: #fff;
+}
+
+/* You can change the magnification number appearance */
+.backbone_graph_scale_number {
+    background: #fcfcfc;
+    color: #000;
+}
+```
+
 ## Graph sample
 
 Normal graph
+
 ![Graph sample](./example/graph.png?raw=true "Graph sample")
 
 Smoothed graph
+
 ![Graph sample](./example/smoothgraph.png?raw=true "Smoothed graph sample")
+
+## How to operate the Graph 
+
+- Magnification
+
+    You can change the graph magnification to click the plus / minus button at top of the graph.
+    The magnification can be changed every 50%, and maximum is 800%.
+
+- Scroll
+
+    You can scroll the graph to drag around the x axis.
 
 ## Other functions
 

@@ -34,24 +34,24 @@ graphSample.forEach(function (point){
 
 var graphView = new Graph.GraphView({
   collection: graphCollection,
-  pos: [0, 0, 600, 400],
-  xAxis: new Graph.Axis(10, 50, 10),
-  yAxis: new Graph.Axis(1000, 100, 100),
-  axisColor : AXIS_COLOR
+  width: 600,
+  height: 400,
+  xAxis: new Graph.Axis({max:100, interval:50, subInterval:10, axisColor: AXIS_COLOR}),
+  yAxis: new Graph.Axis({max:1000, interval:100, subInterval:100, axisColor: AXIS_COLOR}),
 });
 
 graphView.$el.appendTo($('#graphsample'));
 graphCollection.change();
 
-var toggleButton = $("#togglesmooth")
+var toggleButton = $("#togglesmooth");
 toggleButton.on('click', function(){
   if(lineGraph.isSmooth){
-    toggleButton.val("Smooth");
+    toggleButton.html("Smooth");
     lineGraph.unsmooth();
     graphCollection.change()
   }
   else{
-    toggleButton.val("Unsmooth");
+    toggleButton.html("Unsmooth");
     lineGraph.smooth(1, 5);
     lineGraph.calculatePeak(1000, 0.01)
     graphCollection.change()

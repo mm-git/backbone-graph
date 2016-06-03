@@ -1,0 +1,42 @@
+.backbone_graph_scale_private {
+    position: absolute;
+}
+
+.backbone_graph_scale_button_private {
+    position: relative;
+    margin-right: 1px;
+    width: 20px;
+    height: 20px;
+    line-height: 14px;
+    outline: 0;
+    border: none;
+    background: #333333;
+    color: #fff;
+    font-size: 10px;
+    text-align: center;
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.backbone_graph_scale_button_private:active {
+    left: 1px;
+    top: 1px;
+}
+
+.backbone_graph_scale_number_private {
+    position: relative;
+    margin-right: 1px;
+    width: 45px;
+    height: 14px;
+    line-height: 14px;
+    font-size: 10px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

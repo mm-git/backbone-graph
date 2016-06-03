@@ -1,0 +1,47 @@
+/* example css */
+body {
+    padding: 0;
+    margin: 0;
+}
+
+.graph {
+    position: relative;
+    width: 600px;
+    height: 400px;
+}
+
+.smooth_button {
+    position: relative;
+    margin-top: 30px;
+    left: 210px;
+    width: 200px;
+    height: 40px;
+    line-height: 36px;
+    outline: 0;
+    border: none;
+    background: #7bbcd8;
+    color: #fff;
+    font-size: 1.4em;
+    cursor: pointer;
+}
+
+.smooth_button:active {
+    left: 211px;
+    top: 1px;
+}
+
+/* backbone-graph user customize css */
+.backbone_graph_scale {
+    left: 485px;
+    top: 0;
+}
+
+.backbone_graph_scale_button {
+    background: #7bbcd8;
+    color: #fff;
+}
+
+.backbone_graph_scale_number {
+    background: #fcfcfc;
+    color: #000;
+}
