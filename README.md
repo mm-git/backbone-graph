@@ -69,7 +69,7 @@ graphCollection.change();
 
     link backbone-graph.css or backbone-graph.min.css in the header section of your html file.
     
-    '<link rel="stylesheet" href="dist/css/backbone-graph.css">`
+    `<link rel="stylesheet" href="dist/css/backbone-graph.css">`
 
 - user customize
 
