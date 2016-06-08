@@ -1,5 +1,4 @@
 __ = require('underscore')
-$ = require('jquery')
 CanvasView = require('./canvasView')
 
 class XAxisView extends CanvasView

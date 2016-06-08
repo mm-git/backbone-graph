@@ -1,6 +1,5 @@
 require('../Model/property')
 __ = require('underscore')
-$ = require('jquery')
 Backbone = require('backbone')
 HiddenView = require('./hiddenView')
 

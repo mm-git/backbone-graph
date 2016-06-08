@@ -1,6 +1,5 @@
-$ = require('jquery')
+__ = require('underscore')
 Backbone = require('backbone')
-AxisData = require('../Model/axisData')
 
 class GraphPointView extends Backbone.View
   _graphPointOptions = ['xAxis', 'yAxis']

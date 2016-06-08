@@ -1,5 +1,4 @@
 __ = require('underscore')
-$ = require('jquery')
 Backbone = require('backbone')
 ScaleButtonView = require('./scaleButtonView')
 ScaleNumberView = require('./scaleNumberView')
