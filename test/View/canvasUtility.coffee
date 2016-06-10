@@ -1,16 +1,25 @@
 fs = require('fs')
 
 class CanvasUtility
-  @save: (canvasData, filename) ->
-    fs.writeFileSync(filename, CanvasUtility.convertBuffer(canvasData))
+  @save: (canvasElement, filename) ->
+    fs.writeFileSync(filename, CanvasUtility.convertBuffer(canvasElement))
 
-  @compare: (canvasData, filename) ->
-    src = CanvasUtility.convertBuffer(canvasData)
+  @compare: (canvasElement, filename) ->
+    src = CanvasUtility.convertBuffer(canvasElement)
     dist = fs.readFileSync(filename)
     return src.equals(dist)
-    
-  @convertBuffer: (canvasData) ->
-    base64 = canvasData.toDataURL().split(',')[1]
+
+  @getPixel: (canvasElement, x, y) ->
+    context = canvasElement.getContext('2d')
+    pixel = context.getImageData(x,y,1,1)
+    colorCode = "#"
+    pixel.data.forEach((color) ->
+      colorCode = colorCode + ("0" + color.toString(16)).slice(-2)
+    )
+    return colorCode
+
+  @convertBuffer: (canvasElement) ->
+    base64 = canvasElement.toDataURL().split(',')[1]
     return new Buffer(base64, 'base64')    
-    
+  
 module.exports = CanvasUtility

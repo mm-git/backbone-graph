@@ -4,6 +4,8 @@
 #
 require('./viewTest')
 assert = require('assert')
+fs = require('fs')
+phash = require('phash')
 canvasUtility = require('./canvasUtility')
 
 ScaleData = require('../../src/Model/scaleData')
@@ -184,6 +186,8 @@ describe 'GraphCanvasView Class Test', ->
       {xScale: 400, width: 2400}
     ]
 
+    fs.mkdirSync('./test/result')
+
     expectList.forEach((expect) =>
       @xScaleData.scale = expect.xScale
 
@@ -197,8 +201,13 @@ describe 'GraphCanvasView Class Test', ->
       assert.equal(@graphCanvas.$el[0].width, expect.width)
       assert.equal(@graphCanvas.$el[0].height, 400)
 
-      #canvasUtility.save(@graphCanvas.$el[0], "./test/result/graphCanvas_#{expect.width}.png")
-      assert.equal(canvasUtility.compare(@graphCanvas.$el[0], "./test/result/graphCanvas_#{expect.width}.png"), true)
+      #canvasUtility.save(@graphCanvas.$el[0], "./test/expect/graphCanvas_#{expect.width}.png")
+
+      canvasUtility.save(@graphCanvas.$el[0], "./test/result/graphCanvas_#{expect.width}.png")
+      expectHash = phash.imageHashSync("./test/expect/graphCanvas_#{expect.width}.png")
+      resultHash = phash.imageHashSync("./test/result/graphCanvas_#{expect.width}.png")
+
+      assert.equal(phash.hammingDistance(expectHash, resultHash) , 0)
     )
 
   it 'function test render() after scrollX()', ->
