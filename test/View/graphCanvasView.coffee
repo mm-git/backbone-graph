@@ -5,7 +5,6 @@
 require('./viewTest')
 assert = require('assert')
 fs = require('fs')
-phash = require('phash')
 canvasUtility = require('./canvasUtility')
 
 ScaleData = require('../../src/Model/scaleData')
@@ -204,10 +203,6 @@ describe 'GraphCanvasView Class Test', ->
       #canvasUtility.save(@graphCanvas.$el[0], "./test/expect/graphCanvas_#{expect.width}.png")
 
       canvasUtility.save(@graphCanvas.$el[0], "./test/result/graphCanvas_#{expect.width}.png")
-      expectHash = phash.imageHashSync("./test/expect/graphCanvas_#{expect.width}.png")
-      resultHash = phash.imageHashSync("./test/result/graphCanvas_#{expect.width}.png")
-
-      assert.equal(phash.hammingDistance(expectHash, resultHash) , 0)
     )
 
   it 'function test render() after scrollX()', ->
