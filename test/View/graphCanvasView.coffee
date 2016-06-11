@@ -15,7 +15,7 @@ GraphPoint = require('../../src/Model/graphPoint')
 GraphDataCollection = require('../../src/Model/graphDataCollection')
 graphCanvasView = require('../../src/View/graphCanvasView')
 
-describe 'GraphCanvasView Class Test', ->
+describe 'GraphCanvasView/GraphLineView/GraphPointView Class Test', ->
   beforeEach ->
     lineGraph = new GraphLineData({
       lineColor: "#ffcc00",
@@ -38,7 +38,7 @@ describe 'GraphCanvasView Class Test', ->
       [90, 50],
       [100, 300]
     ]
-    .forEach((point) ->
+    .forEach((point) =>
       lineGraph.addPoint(new GraphPoint(point[0], point[1]))
       pointGraph.addPoint(new GraphPoint(point[0], point[1]))
     )
@@ -73,7 +73,12 @@ describe 'GraphCanvasView Class Test', ->
     assert.equal(@graphCanvas.$el.parent()[0], @graphCanvas.$wrap[0])
 
     assert.equal(@graphCanvas._offsetX, 0)
+
     assert.equal(@graphCanvas._subView.length, 2)
+    assert.equal(@graphCanvas._subView[0].xAxis, @xAxis)
+    assert.equal(@graphCanvas._subView[0].yAxis, @yAxis)
+    assert.equal(@graphCanvas._subView[1].xAxis, @xAxis)
+    assert.equal(@graphCanvas._subView[1].yAxis, @yAxis)
 
   it 'function test scroolX()', ->
     # canvas can not scroll now,

@@ -6,7 +6,7 @@ require('./viewTest')
 assert = require('assert')
 CanvasView = require('../../src/View/canvasView')
 
-describe 'CanvasView Class Test', ->
+describe 'CanvasView/HiddenView Class Test', ->
   it 'constructor test', ->
     canvas = new CanvasView({pos:[0, 0, 400, 600]})
 

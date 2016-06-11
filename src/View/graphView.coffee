@@ -1,5 +1,5 @@
 __ = require('underscore')
-$ = require('jquery')
+$ = global.$ || require('jquery')
 Backbone = require('backbone')
 XAxisView = require('./xAxisView')
 YAxisView = require('./yAxisView')
