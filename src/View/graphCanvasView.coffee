@@ -71,7 +71,7 @@ class GraphCanvasView extends CanvasView
     @
 
   _drawAxis: (context, xs, xe, ys, ye) ->
-    context.lineWidth = 1.0
+    context.lineWidth = 0.5
 
     #x axis
     context.strokeStyle = @xAxis.axisColor
