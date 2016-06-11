@@ -1,5 +1,3 @@
-__ = require('underscore')
-$ = require('jquery')
 Backbone = require('backbone')
 
 class ScaleNumberView extends Backbone.View

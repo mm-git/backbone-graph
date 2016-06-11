@@ -77,7 +77,7 @@ class GraphCanvasView extends CanvasView
     context.strokeStyle = @xAxis.axisColor
     context.fillStyle = @xAxis.axisColor
 
-    for x in [0 ... @xAxis.max] by @xAxis.interval / @xScale.adjustInterval
+    for x in [0 .. @xAxis.max] by @xAxis.interval / @xScale.adjustInterval
       xp = xs + (xe - xs) * x / @xAxis.max
       context.beginPath()
       context.moveTo(xp, ys)
@@ -88,7 +88,7 @@ class GraphCanvasView extends CanvasView
     context.strokeStyle = @yAxis.axisColor
     context.fillStyle = @yAxis.axisColor
 
-    for y in [0 ... @yAxis.max] by @yAxis.interval / @yScale.adjustInterval
+    for y in [0 .. @yAxis.max] by @yAxis.interval / @yScale.adjustInterval
       yp = ys + (ye - ys) * y / @yAxis.max
       context.beginPath()
       context.moveTo(xs, yp)

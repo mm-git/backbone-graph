@@ -1,5 +1,4 @@
 __ = require('underscore')
-$ = require('jquery')
 Backbone = require('backbone')
 
 class GraphLineView extends Backbone.View
