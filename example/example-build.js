@@ -13688,7 +13688,7 @@
 	      newPointList = [];
 	      for (index = i = 1, ref = this._pointList.length; 1 <= ref ? i < ref : i > ref; index = 1 <= ref ? ++i : --i) {
 	        incline = (this._pointList[index].y - this._pointList[index - 1].y) / (this._pointList[index].x - this._pointList[index - 1].x);
-	        while (xp < this._pointList[index].x) {
+	        while (xp <= this._pointList[index].x) {
 	          yp = this._pointList[index - 1].y + incline * (xp - this._pointList[index - 1].x);
 	          newPointList.push(new GraphPoint(xp, yp));
 	          xp += interval;

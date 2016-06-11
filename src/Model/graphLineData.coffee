@@ -56,7 +56,7 @@ class GraphLineData extends GraphData
     newPointList = []
     for index in [1 ... @_pointList.length]
       incline = (@_pointList[index].y - @_pointList[index-1].y) / (@_pointList[index].x - @_pointList[index-1].x)
-      while xp < @_pointList[index].x
+      while xp <= @_pointList[index].x
         yp = @_pointList[index-1].y + incline * (xp - @_pointList[index-1].x)
         newPointList.push(new GraphPoint(xp, yp))
         xp += interval
