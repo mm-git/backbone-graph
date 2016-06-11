@@ -43,18 +43,17 @@ describe 'GraphCanvasView Class Test', ->
       pointGraph.addPoint(new GraphPoint(point[0], point[1]))
     )
 
-
     collection = new GraphDataCollection([lineGraph, pointGraph]);
     @xScaleData = new ScaleData({title: "X"})
     @yScaleData = new ScaleData({title: "Y"})
-    xAxis = new AxisData({max:100,  interval:50,  subInterval:10,  axisColor: "#7bbcd8"})
-    yAxis = new AxisData({max:1000, interval:100, subInterval:100, axisColor: "#7bbcd8"})
+    @xAxis = new AxisData({max:100,  interval:50,  subInterval:10,  axisColor: "#7bbcd8"})
+    @yAxis = new AxisData({max:1000, interval:100, subInterval:100, axisColor: "#7bbcd8"})
 
     @graphCanvas = new graphCanvasView({
       collection: collection
       pos: [0, 0, 600, 400]
-      xAxis: xAxis
-      yAxis: yAxis
+      xAxis: @xAxis
+      yAxis: @yAxis
       xScale: @xScaleData
       yScale: @yScaleData
     })
@@ -64,6 +63,10 @@ describe 'GraphCanvasView Class Test', ->
     assert.equal(@graphCanvas.pos[1], 0)
     assert.equal(@graphCanvas.pos[2], 600)
     assert.equal(@graphCanvas.pos[3], 400)
+    assert.equal(@graphCanvas.xAxis, @xAxis)
+    assert.equal(@graphCanvas.yAxis, @yAxis)
+    assert.equal(@graphCanvas.xScale, @xScaleData)
+    assert.equal(@graphCanvas.yScale, @yScaleData)
 
     assert.equal(@graphCanvas.$el.prop('tagName'), 'CANVAS')
     assert.equal(@graphCanvas.$wrap.prop('tagName'), 'DIV')
@@ -185,7 +188,9 @@ describe 'GraphCanvasView Class Test', ->
       {xScale: 400, width: 2400}
     ]
 
-    fs.mkdirSync('./test/result')
+    try
+      fs.mkdirSync('./test/result')
+    catch e
 
     expectList.forEach((expect) =>
       @xScaleData.scale = expect.xScale
