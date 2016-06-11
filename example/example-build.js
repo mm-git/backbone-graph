@@ -14516,7 +14516,7 @@
 
 	    GraphCanvasView.prototype._drawAxis = function(context, xs, xe, ys, ye) {
 	      var i, j, ref, ref1, ref2, ref3, results, x, xp, y, yp;
-	      context.lineWidth = 1.0;
+	      context.lineWidth = 0.5;
 	      context.strokeStyle = this.xAxis.axisColor;
 	      context.fillStyle = this.xAxis.axisColor;
 	      for (x = i = 0, ref = this.xAxis.max, ref1 = this.xAxis.interval / this.xScale.adjustInterval; ref1 > 0 ? i <= ref : i >= ref; x = i += ref1) {
