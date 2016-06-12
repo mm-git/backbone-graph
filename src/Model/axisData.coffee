@@ -2,7 +2,7 @@ require('./property')
 Backbone = require('backbone')
 
 class AxisData extends Backbone.Model
-  # options = {max: mx, interval:i, subInterval:s, axisColor:"#RRGGBB"}
+  # options = {max:max, interval:i, subInterval:s, axisColor:"#RRGGBB"}
   initialize: (options) ->
     @_adjustProperty()
 

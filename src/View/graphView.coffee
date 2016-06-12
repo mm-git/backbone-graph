@@ -1,11 +1,13 @@
 __ = require('underscore')
 $ = global.$ || require('jquery')
 Backbone = require('backbone')
+
 XAxisView = require('./xAxisView')
 YAxisView = require('./yAxisView')
 GraphCanvasView = require('./graphCanvasView')
 ScaleChangeView = require('./scaleChangeView')
 ScaleData = require('../Model/scaleData')
+OffsetData = require('../Model/offsetData')
 
 class GraphView extends Backbone.View
   @ORIGIN_OFFSET_X : 40
@@ -18,6 +20,7 @@ class GraphView extends Backbone.View
     mousedown: "_onMouseDown"
     mousemove: "_onMouseMove"
     mouseup: "_onMouseUp"
+    dblclick: "_onDoubleClick"
 
   _graphOptions = ['width', 'height', 'xAxis', 'yAxis']
     
@@ -34,6 +37,10 @@ class GraphView extends Backbone.View
 
     @_xScaleData = new ScaleData({title: "X"})
     @_yScaleData = new ScaleData({title: "Y"})
+    @_xOffsetData = new OffsetData({
+      width: @width - GraphView.ORIGIN_OFFSET_X
+      scale: @_xScaleData
+    })
 
     @_yAxisView = new YAxisView({
       model: @yAxis
@@ -49,6 +56,7 @@ class GraphView extends Backbone.View
       yAxis: @yAxis
       xScale: @_xScaleData
       yScale: @_yScaleData
+      xOffset: @_xOffsetData
     })
     @_graphCanvasView.$wrap.appendTo(@$el)
 
@@ -56,6 +64,7 @@ class GraphView extends Backbone.View
       model: options.xAxis
       pos: [GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y, @width - GraphView.ORIGIN_OFFSET_X, GraphView.ORIGIN_OFFSET_Y]
       xScale: @_xScaleData
+      xOffset: @_xOffsetData
     })
     @_xAxisView.$wrap.appendTo(@$el)
 
@@ -72,7 +81,7 @@ class GraphView extends Backbone.View
       height: @height
     })
 
-    __.bindAll(@, "_onMouseDown", "_onMouseMove", "_onMouseUp")
+    __.bindAll(@, "_onMouseDown", "_onMouseMove", "_onMouseUp", "_onDoubleClick")
     $(document).on('mousemove', (event) => @_onMouseMove(event))
     $(document).on('mouseup', (event) => @_onMouseUp(event))
     $(document).on('dragend', (event) => @_onMouseUp(event))
@@ -86,8 +95,14 @@ class GraphView extends Backbone.View
     )
 
     @listenTo(@_xScaleData, "change", =>
+      @_xOffsetData.scroll(0, true)
       @_graphCanvasView.render()
       @_xAxisView.render()
+    )
+
+    @listenTo(@_xOffsetData, "change", =>
+      @_graphCanvasView.scroolX()
+      @_xAxisView.scroolX()
     )
 
   _onMouseDown: (event) ->
@@ -98,15 +113,20 @@ class GraphView extends Backbone.View
   _onMouseMove: (event) ->
     if @_scrolling
       offset = event.clientX - @_startX
-      @_graphCanvasView.scrollX(offset, false)
-      @_xAxisView.scrollX(offset, false)
+      @_xOffsetData.scroll(offset, false)
 
   _onMouseUp: (event) ->
     if @_scrolling
       offset = event.clientX - @_startX
-      @_graphCanvasView.scrollX(offset, true)
-      @_xAxisView.scrollX(offset, true)
+      @_xOffsetData.scroll(offset, true)
     @_scrolling = false
+
+  _onDoubleClick: (event) ->
+    if clientX < GraphView.ORIGIN_OFFSET_X || clientX > @width - GraphView.ORIGIN_OFFSET_X
+      return
+
+    if event.clientY > @height - GraphView.ORIGIN_OFFSET_Y * 2
+      return
 
 module.exports = GraphView
 

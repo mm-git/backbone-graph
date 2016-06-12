@@ -1,4 +1,4 @@
-# Drawing line graph for Backbone.js
+# Backbone.js module of drawing line graph 
 [![NPM](https://nodei.co/npm/backbone-graph.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/backbone-graph/)
 
 [![npm version](https://badge.fury.io/js/backbone-graph.svg)](https://badge.fury.io/js/backbone-graph)

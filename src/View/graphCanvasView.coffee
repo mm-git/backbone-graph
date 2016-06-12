@@ -5,13 +5,12 @@ GraphLineView = require('./graphLineView')
 GraphPointView = require('./graphPointView')
 
 class GraphCanvasView extends CanvasView
-  _graphCanvasOptions = ['xAxis', 'yAxis', 'xScale', 'yScale']
+  _graphCanvasOptions = ['xAxis', 'yAxis', 'xScale', 'yScale', 'xOffset']
 
   initialize: (options) ->
     super(options)
     __.extend(@, __.pick(options, _graphCanvasOptions))
-    @_offsetX = 0
-        
+
     @_subView = @collection.map((model) =>
       subView = null
       switch model.type
@@ -35,17 +34,13 @@ class GraphCanvasView extends CanvasView
     @render()
 
   render: ->
-    scrollXMax = @pos[2] - @pos[2] * @xScale.scale / 100
-    if @_offsetX < scrollXMax
-      @_offsetX = scrollXMax
-
     w = @pos[2] * @xScale.scale / 100
     h = @pos[3] * @yScale.scale / 100
     
     @$el
     .css({
       position: "relative"
-      left: @_offsetX
+      left: @xOffset.offset
       top: 0
       width: w
       height: h
@@ -95,34 +90,10 @@ class GraphCanvasView extends CanvasView
       context.lineTo(xe, yp)
       context.stroke()
            
-  scrollX: (offset, refresh) ->
-    scrollXMax = @pos[2] - @pos[2] * @xScale.scale / 100
-
-    if @_offsetX + offset > 0
-      @$el
-      .css({
-        left: 0
-      })
-
-      if refresh
-        @_offsetX = 0
-
-    else if @_offsetX + offset < scrollXMax
-      @$el
-      .css({
-        left: scrollXMax
-      })
-
-      if refresh
-        @_offsetX = scrollXMax
-
-    else
-      @$el
-      .css({
-        left: @_offsetX + offset
-      })
-
-      if refresh
-        @_offsetX += offset
+  scrollX: ->
+    @$el
+    .css({
+      left: @xOffset.offset
+    })
 
 module.exports = GraphCanvasView
