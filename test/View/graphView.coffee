@@ -42,16 +42,20 @@ describe 'GraphView Class Test', ->
       pointGraph.addPoint(new GraphPoint(point[0], point[1]))
     )
 
-    collection = new GraphDataCollection([lineGraph, pointGraph]);
+    @collection = new GraphDataCollection([lineGraph, pointGraph]);
     @xAxis = new AxisData({max:100,  interval:50,  subInterval:10,  axisColor: "#7bbcd8"})
     @yAxis = new AxisData({max:1000, interval:100, subInterval:100, axisColor: "#7bbcd8"})
 
     @graphView = new graphView({
-      collection: collection
+      collection: @collection
       width: 600
       height: 400
       xAxis: @xAxis
       yAxis: @yAxis
+      range: {
+        color: "#7bbcd8",
+        opacity: 0.5
+      }
     })
     
   it 'constructor test', ->
@@ -66,24 +70,25 @@ describe 'GraphView Class Test', ->
     assert.equal(@graphView.$el.css('width'), '600px')
     assert.equal(@graphView.$el.css('height'), '400px')
 
-    assert.equal(@graphView.$el[0].childNodes.length, 4)
+    assert.equal(@graphView.$el[0].childNodes.length, 5)
     assert.equal(@graphView.$el[0].childNodes[0].tagName, "DIV")
     assert.equal(@graphView.$el[0].childNodes[1].tagName, "DIV")
     assert.equal(@graphView.$el[0].childNodes[2].tagName, "DIV")
     assert.equal(@graphView.$el[0].childNodes[3].tagName, "DIV")
+    assert.equal(@graphView.$el[0].childNodes[4].tagName, "DIV")
 
   it 'event test mousedown(out of scroll range)', ->
     event = $.Event("mousedown", {
-      clientX: 0
-      clientY: 0
+      pageX: 0
+      pageY: 0
     })
     @graphView.$el.trigger(event)
 
     assert.equal(@graphView._scrolling, false)
 
     event = $.Event("mousedown", {
-      clientX: 0
-      clientY: 360
+      pageX: 0
+      pageY: 360
     })
     @graphView.$el.trigger(event)
 
@@ -93,8 +98,8 @@ describe 'GraphView Class Test', ->
     @graphView._xScaleData.scale = 200
 
     event = $.Event("mousedown", {
-      clientX: 100
-      clientY: 361
+      pageX: 100
+      pageY: 361
     })
     @graphView.$el.trigger(event)
 
@@ -102,8 +107,8 @@ describe 'GraphView Class Test', ->
     assert.equal(@graphView._startX, 100)
 
     event = $.Event("mousemove", {
-      clientX: 80
-      clientY: 361
+      pageX: 80
+      pageY: 361
     })
     @graphView.$el.trigger(event)
 
@@ -111,13 +116,11 @@ describe 'GraphView Class Test', ->
     assert.equal(@graphView._startX, 100)
 
     assert.equal(@graphView._graphCanvasView.$el.css("left"), "-20px")
-    assert.equal(@graphView._graphCanvasView._offsetX, 0)
     assert.equal(@graphView._xAxisView.$el.css("left"), "-20px")
-    assert.equal(@graphView._xAxisView._offsetX, 0)
 
     event = $.Event("mousemove", {
-      clientX: 120
-      clientY: 361
+      pageX: 120
+      pageY: 361
     })
     @graphView.$el.trigger(event)
 
@@ -125,14 +128,12 @@ describe 'GraphView Class Test', ->
     assert.equal(@graphView._startX, 100)
 
     assert.equal(@graphView._graphCanvasView.$el.css("left"), "0px")
-    assert.equal(@graphView._graphCanvasView._offsetX, 0)
     assert.equal(@graphView._xAxisView.$el.css("left"), "0px")
-    assert.equal(@graphView._xAxisView._offsetX, 0)
 
 
     event = $.Event("mouseup", {
-      clientX: 60
-      clientY: 361
+      pageX: 60
+      pageY: 361
     })
     @graphView.$el.trigger(event)
 
@@ -140,6 +141,55 @@ describe 'GraphView Class Test', ->
     assert.equal(@graphView._startX, 100)
 
     assert.equal(@graphView._graphCanvasView.$el.css("left"), "-40px")
-    assert.equal(@graphView._graphCanvasView._offsetX, -40)
     assert.equal(@graphView._xAxisView.$el.css("left"), "-40px")
-    assert.equal(@graphView._xAxisView._offsetX, -40)
+
+  it 'event test dblclick', ->
+    @collection.models[0].smooth(1, 5)
+    @collection.models[0].calculatePeak(1000, 0.01)
+    @collection.models[0].calculateTotalGainAndDrop()
+
+    event = $.Event("dblclick", {
+      pageX: 0
+      pageY: 0
+    })
+    @graphView.$el.trigger(event)
+
+    assert.equal(@graphView._xRangeData.selected, false)
+
+    event = $.Event("dblclick", {
+      pageX: 581
+      pageY: 0
+    })
+    @graphView.$el.trigger(event)
+
+    assert.equal(@graphView._xRangeData.selected, false)
+
+    event = $.Event("dblclick", {
+      pageX: 40
+      pageY: 0
+    })
+    @graphView.$el.trigger(event)
+
+    assert.equal(@graphView._xRangeData.start, 0)
+    assert.equal(@graphView._xRangeData.end, 68)
+    assert.equal(@graphView._xRangeData.selected, true)
+
+    event = $.Event("dblclick", {
+      pageX: 421
+      pageY: 361
+    })
+    @graphView.$el.trigger(event)
+
+    assert.equal(@graphView._xRangeData.start, 0)
+    assert.equal(@graphView._xRangeData.end, 68)
+    assert.equal(@graphView._xRangeData.selected, true)
+
+    event = $.Event("dblclick", {
+      pageX: 421
+      pageY: 360
+    })
+    @graphView.$el.trigger(event)
+
+    assert.equal(@graphView._xRangeData.start, 68)
+    assert.equal(@graphView._xRangeData.end, 89)
+    assert.equal(@graphView._xRangeData.selected, true)

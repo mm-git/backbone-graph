@@ -147,4 +147,23 @@ class GraphLineData extends GraphData
         preY = peak.point.y
     )
 
+  getAutoRange: (x) ->
+    if @_peakList.length < 1
+      return null
+
+    result =
+      start: 0
+      end : 0
+    @_peakList.some((peak, index) =>
+      if peak.point.x > x || index == @_peakList.length - 1
+        result.end = peak.point.x
+        return true
+
+      result.start = peak.point.x
+      return false
+    )
+
+    return result
+
+
 module.exports = GraphLineData

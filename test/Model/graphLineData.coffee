@@ -149,3 +149,52 @@ describe 'GraphLineData Class Test', ->
     assert.equal(pointData.peakList.length, 0)
     assert.equal(Math.floor(pointData.totalGain), 0)
     assert.equal(Math.floor(pointData.totalDrop), 0)
+
+  it 'function test getAutoRange()', ->
+    pointData = new GraphLineData({
+      pointColor: "#0000ff"
+    })
+
+    pointData.addPoint(new GraphPoint(0,  100))
+    pointData.addPoint(new GraphPoint(10,  200))
+    pointData.addPoint(new GraphPoint(20,  400))
+    pointData.addPoint(new GraphPoint(30,  350))
+    pointData.addPoint(new GraphPoint(40,  500))
+    pointData.addPoint(new GraphPoint(50,  600))
+    pointData.addPoint(new GraphPoint(60,  550))
+    pointData.addPoint(new GraphPoint(70,  1000))
+    pointData.addPoint(new GraphPoint(80,  200))
+    pointData.addPoint(new GraphPoint(90,  50))
+    pointData.addPoint(new GraphPoint(100, 300))
+
+    pointData.smooth(1, 5)
+    pointData.calculatePeak(1000, 0.01)
+    pointData.calculateTotalGainAndDrop()
+
+    result = pointData.getAutoRange(0)
+    assert.equal(result.start, 0)
+    assert.equal(result.end, 68)
+
+    result = pointData.getAutoRange(67)
+    assert.equal(result.start, 0)
+    assert.equal(result.end, 68)
+
+    result = pointData.getAutoRange(68)
+    assert.equal(result.start, 68)
+    assert.equal(result.end, 89)
+
+    result = pointData.getAutoRange(88)
+    assert.equal(result.start, 68)
+    assert.equal(result.end, 89)
+
+    result = pointData.getAutoRange(89)
+    assert.equal(result.start, 89)
+    assert.equal(result.end, 100)
+
+    result = pointData.getAutoRange(99)
+    assert.equal(result.start, 89)
+    assert.equal(result.end, 100)
+
+    result = pointData.getAutoRange(100)
+    assert.equal(result.start, 89)
+    assert.equal(result.end, 100)

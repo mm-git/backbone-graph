@@ -12,7 +12,7 @@ class OffsetData extends Backbone.Model
       @get('offset')
 
   scroll: (offset, refresh) ->
-    scrollMax = @get('width') * (1 - @scale.scale / 100)
+    scrollMax = @get('width') * (1 - @get('scale').scale / 100)
 
     if @_offsetBase + offset > 0
       @set('offset', 0)

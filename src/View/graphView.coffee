@@ -6,8 +6,10 @@ XAxisView = require('./xAxisView')
 YAxisView = require('./yAxisView')
 GraphCanvasView = require('./graphCanvasView')
 ScaleChangeView = require('./scaleChangeView')
+RangeView = require('./rangeView')
 ScaleData = require('../Model/scaleData')
 OffsetData = require('../Model/offsetData')
+RangeData = require('../Model/rangeData')
 
 class GraphView extends Backbone.View
   @ORIGIN_OFFSET_X : 40
@@ -22,7 +24,7 @@ class GraphView extends Backbone.View
     mouseup: "_onMouseUp"
     dblclick: "_onDoubleClick"
 
-  _graphOptions = ['width', 'height', 'xAxis', 'yAxis']
+  _graphOptions = ['width', 'height', 'xAxis', 'yAxis', 'range']
     
   #options =
   #  collection: GraphDataCollectionClassObject
@@ -30,6 +32,9 @@ class GraphView extends Backbone.View
   #  height: h
   #  xAxis:AxisDataClassObject
   #  yAxis:AxisDataClassObject
+  #  range:
+  #    color: "##RRGGBB"
+  #    opacity: o
   initialize: (options) ->
     __.extend(@, __.pick(options, _graphOptions))
     @_scrolling = false
@@ -40,6 +45,15 @@ class GraphView extends Backbone.View
     @_xOffsetData = new OffsetData({
       width: @width - GraphView.ORIGIN_OFFSET_X
       scale: @_xScaleData
+    })
+    @_xRangeData = new RangeData({
+      width: @width - GraphView.ORIGIN_OFFSET_X
+      scale: @_xScaleData
+      axis: @xAxis
+      offset: @_xOffsetData
+      targetGraph: @collection.models[0]
+      rangeColor: @range.color
+      rangeOpacity: @range.opacity
     })
 
     @_yAxisView = new YAxisView({
@@ -61,12 +75,21 @@ class GraphView extends Backbone.View
     @_graphCanvasView.$wrap.appendTo(@$el)
 
     @_xAxisView = new XAxisView({
-      model: options.xAxis
+      model: @xAxis
       pos: [GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y, @width - GraphView.ORIGIN_OFFSET_X, GraphView.ORIGIN_OFFSET_Y]
       xScale: @_xScaleData
       xOffset: @_xOffsetData
     })
     @_xAxisView.$wrap.appendTo(@$el)
+
+    @_RangeView = new RangeView({
+      model: @_xRangeData
+      pos: [GraphView.ORIGIN_OFFSET_X, 0, @width - GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y]
+      xAxis: @xAxis
+      xScale: @_xScaleData
+      xOffset: @_xOffsetData
+    })
+    @_RangeView.$wrap.appendTo(@$el)
 
     @_xScaleChangeView = new ScaleChangeView({
       model: @_xScaleData
@@ -92,41 +115,63 @@ class GraphView extends Backbone.View
       @_yAxisView.render()
       @_graphCanvasView.render()
       @_xAxisView.render()
+      @_RangeView.render()
     )
 
     @listenTo(@_xScaleData, "change", =>
       @_xOffsetData.scroll(0, true)
       @_graphCanvasView.render()
       @_xAxisView.render()
+      @_RangeView.render()
     )
 
     @listenTo(@_xOffsetData, "change", =>
-      @_graphCanvasView.scroolX()
-      @_xAxisView.scroolX()
+      @_graphCanvasView.scrollX()
+      @_xAxisView.scrollX()
+      @_RangeView.scrollX()
+    )
+
+    @listenTo(@_xRangeData, "change", =>
+      @_RangeView.render()
     )
 
   _onMouseDown: (event) ->
-    if event.clientY > @height - GraphView.ORIGIN_OFFSET_Y * 2
+    mousePos = @_getMousePos(event)
+
+    if mousePos.y > @height - GraphView.ORIGIN_OFFSET_Y * 2
       @_scrolling = true
-      @_startX = event.clientX
+      @_startX = mousePos.x
 
   _onMouseMove: (event) ->
     if @_scrolling
-      offset = event.clientX - @_startX
+      mousePos = @_getMousePos(event)
+      offset = mousePos.x - @_startX
       @_xOffsetData.scroll(offset, false)
 
   _onMouseUp: (event) ->
     if @_scrolling
-      offset = event.clientX - @_startX
+      mousePos = @_getMousePos(event)
+      offset = mousePos.x - @_startX
       @_xOffsetData.scroll(offset, true)
     @_scrolling = false
 
   _onDoubleClick: (event) ->
-    if clientX < GraphView.ORIGIN_OFFSET_X || clientX > @width - GraphView.ORIGIN_OFFSET_X
+    mousePos = @_getMousePos(event)
+
+    if mousePos.x < GraphView.ORIGIN_OFFSET_X || mousePos.x > @width
       return
 
-    if event.clientY > @height - GraphView.ORIGIN_OFFSET_Y * 2
+    if mousePos.y > @height - GraphView.ORIGIN_OFFSET_Y * 2
       return
+
+    @_xRangeData.autoSelect(mousePos.x - GraphView.ORIGIN_OFFSET_X)
+
+  _getMousePos: (event) ->
+    elementPos = @$el[0].getBoundingClientRect()
+    return {
+      x : event.pageX - elementPos.left - window.pageXOffset
+      y : event.pageY - elementPos.top - window.pageYOffset
+    }
 
 module.exports = GraphView
 
