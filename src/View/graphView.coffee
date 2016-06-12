@@ -13,7 +13,7 @@ RangeData = require('../Model/rangeData')
 
 class GraphView extends Backbone.View
   @ORIGIN_OFFSET_X : 40
-  @ORIGIN_OFFSET_Y : 20
+  @ORIGIN_OFFSET_Y : 30
   @FONT_SIZE : 12
 
   tagName: "div"
@@ -38,6 +38,7 @@ class GraphView extends Backbone.View
   initialize: (options) ->
     __.extend(@, __.pick(options, _graphOptions))
     @_scrolling = false
+    @_selecting = false
     @_startX = 0
 
     @_xScaleData = new ScaleData({title: "X"})
@@ -138,21 +139,32 @@ class GraphView extends Backbone.View
   _onMouseDown: (event) ->
     mousePos = @_getMousePos(event)
 
-    if mousePos.y > @height - GraphView.ORIGIN_OFFSET_Y * 2
+    if mousePos.y > GraphView.ORIGIN_OFFSET_Y && mousePos.y < @height - GraphView.ORIGIN_OFFSET_Y * 2
+      @_selecting = true
+      @_xRangeData.selectStartX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
+    else if mousePos.y > @height - GraphView.ORIGIN_OFFSET_Y * 2
       @_scrolling = true
       @_startX = mousePos.x
 
   _onMouseMove: (event) ->
-    if @_scrolling
+    if @_selecting
+      mousePos = @_getMousePos(event)
+      @_xRangeData.selectEndX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
+    else if @_scrolling
       mousePos = @_getMousePos(event)
       offset = mousePos.x - @_startX
       @_xOffsetData.scroll(offset, false)
 
   _onMouseUp: (event) ->
-    if @_scrolling
+    if @_selecting
+      mousePos = @_getMousePos(event)
+      @_xRangeData.selectEndX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
+    else if @_scrolling
       mousePos = @_getMousePos(event)
       offset = mousePos.x - @_startX
       @_xOffsetData.scroll(offset, true)
+
+    @_selecting = false
     @_scrolling = false
 
   _onDoubleClick: (event) ->
@@ -161,10 +173,10 @@ class GraphView extends Backbone.View
     if mousePos.x < GraphView.ORIGIN_OFFSET_X || mousePos.x > @width
       return
 
-    if mousePos.y > @height - GraphView.ORIGIN_OFFSET_Y * 2
+    if mousePos.y < GraphView.ORIGIN_OFFSET_Y || mousePos.y > @height - GraphView.ORIGIN_OFFSET_Y * 2
       return
 
-    @_xRangeData.autoSelect(mousePos.x - GraphView.ORIGIN_OFFSET_X)
+    @_xRangeData.autoSelectX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
 
   _getMousePos: (event) ->
     elementPos = @$el[0].getBoundingClientRect()

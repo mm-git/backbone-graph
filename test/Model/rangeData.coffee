@@ -56,123 +56,123 @@ describe 'RangeData Class Test', ->
     assert.equal(@rangeData.rangeColor, "#7bbcd8")
     assert.equal(@rangeData.rangeOpacity, 0.5)
 
-  it 'function test autoautoSelect() scale=100', ->
-    @rangeData.autoSelect(0)
+  it 'function test autoSelectX() scale=100', ->
+    @rangeData.autoSelectX(0)
     assert.equal(@rangeData.start, 0)
     assert.equal(@rangeData.end, 68)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(600)
+    @rangeData.autoSelectX(600)
     assert.equal(@rangeData.start, 0)
     assert.equal(@rangeData.end, 68)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(580)
+    @rangeData.autoSelectX(570)
     assert.equal(@rangeData.start, 89)
     assert.equal(@rangeData.end, 100)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(394)
+    @rangeData.autoSelectX(387)
     assert.equal(@rangeData.start, 0)
     assert.equal(@rangeData.end, 68)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(395)
+    @rangeData.autoSelectX(389)
     assert.equal(@rangeData.start, 68)
     assert.equal(@rangeData.end, 89)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(0)
-    @rangeData.autoSelect(516)
+    @rangeData.autoSelectX(0)
+    @rangeData.autoSelectX(507)
     assert.equal(@rangeData.start, 68)
     assert.equal(@rangeData.end, 89)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(517)
+    @rangeData.autoSelectX(508)
     assert.equal(@rangeData.start, 89)
     assert.equal(@rangeData.end, 100)
     assert.equal(@rangeData.selected, true)
 
-  it 'function test autoautoSelect() scale=400', ->
+  it 'function test autoSelectX() scale=400', ->
     @xScaleData.scale = 400
 
-    @rangeData.autoSelect(0)
+    @rangeData.autoSelectX(0)
     assert.equal(@rangeData.start, 0)
     assert.equal(@rangeData.end, 68)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(2400)
+    @rangeData.autoSelectX(2400)
     assert.equal(@rangeData.start, 0)
     assert.equal(@rangeData.end, 68)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(2380)
+    @rangeData.autoSelectX(2370)
     assert.equal(@rangeData.start, 89)
     assert.equal(@rangeData.end, 100)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(1618)
+    @rangeData.autoSelectX(1611)
     assert.equal(@rangeData.start, 0)
     assert.equal(@rangeData.end, 68)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(1619)
+    @rangeData.autoSelectX(1612)
     assert.equal(@rangeData.start, 68)
     assert.equal(@rangeData.end, 89)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(0)
-    @rangeData.autoSelect(2118)
+    @rangeData.autoSelectX(0)
+    @rangeData.autoSelectX(2109)
     assert.equal(@rangeData.start, 68)
     assert.equal(@rangeData.end, 89)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(2119)
+    @rangeData.autoSelectX(2110)
     assert.equal(@rangeData.start, 89)
     assert.equal(@rangeData.end, 100)
     assert.equal(@rangeData.selected, true)
 
-  it 'function test autoautoSelect() scale=400 offset=-400', ->
+  it 'function test autoSelectX() scale=400 offset=-400', ->
     @xScaleData.scale = 400
     @xOffsetData.scroll(-400, true)
 
-    @rangeData.autoSelect(-400)
+    @rangeData.autoSelectX(-400)
     assert.equal(@rangeData.start, 0)
     assert.equal(@rangeData.end, 68)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(0)
+    @rangeData.autoSelectX(0)
     assert.equal(@rangeData.start, 0)
     assert.equal(@rangeData.end, 68)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(2000)
+    @rangeData.autoSelectX(2000)
     assert.equal(@rangeData.start, 0)
     assert.equal(@rangeData.end, 68)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(1980)
+    @rangeData.autoSelectX(1970)
     assert.equal(@rangeData.start, 89)
     assert.equal(@rangeData.end, 100)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(1218)
+    @rangeData.autoSelectX(1211)
     assert.equal(@rangeData.start, 0)
     assert.equal(@rangeData.end, 68)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(1219)
+    @rangeData.autoSelectX(1212)
     assert.equal(@rangeData.start, 68)
     assert.equal(@rangeData.end, 89)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(0)
-    @rangeData.autoSelect(1718)
+    @rangeData.autoSelectX(0)
+    @rangeData.autoSelectX(1709)
     assert.equal(@rangeData.start, 68)
     assert.equal(@rangeData.end, 89)
     assert.equal(@rangeData.selected, true)
 
-    @rangeData.autoSelect(1719)
+    @rangeData.autoSelectX(1710)
     assert.equal(@rangeData.start, 89)
     assert.equal(@rangeData.end, 100)
     assert.equal(@rangeData.selected, true)

@@ -39,7 +39,7 @@ class XAxisView extends CanvasView
     # draw origin
     context.textAlign="left"
     context.textBaseline="bottom"
-    context.fillText("0", xs + 3, h - 3)
+    context.fillText("0", xs + 3, ye + 17)
 
     # draw x axis
     context.lineWidth = 1
@@ -56,9 +56,9 @@ class XAxisView extends CanvasView
     for x in [@model.subInterval / adjustXInterval .. @model.max] by @model.subInterval / adjustXInterval
       xp = xs + (xe - xs) * x / @model.max
       if x % (@model.interval / adjustXInterval) == 0
-        context.fillText("#{x}", xp, ys - 3)
+        context.fillText("#{x}", xp, ye + 17)
       else if drawSub
-        context.fillText("#{x}", xp, ys - 3)
+        context.fillText("#{x}", xp, ye + 17)
 
     return
 

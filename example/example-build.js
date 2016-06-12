@@ -14025,7 +14025,7 @@
 
 	    GraphView.ORIGIN_OFFSET_X = 40;
 
-	    GraphView.ORIGIN_OFFSET_Y = 20;
+	    GraphView.ORIGIN_OFFSET_Y = 30;
 
 	    GraphView.FONT_SIZE = 12;
 
@@ -14043,6 +14043,7 @@
 	    GraphView.prototype.initialize = function(options) {
 	      __.extend(this, __.pick(options, _graphOptions));
 	      this._scrolling = false;
+	      this._selecting = false;
 	      this._startX = 0;
 	      this._xScaleData = new ScaleData({
 	        title: "X"
@@ -14155,7 +14156,10 @@
 	    GraphView.prototype._onMouseDown = function(event) {
 	      var mousePos;
 	      mousePos = this._getMousePos(event);
-	      if (mousePos.y > this.height - GraphView.ORIGIN_OFFSET_Y * 2) {
+	      if (mousePos.y > GraphView.ORIGIN_OFFSET_Y && mousePos.y < this.height - GraphView.ORIGIN_OFFSET_Y * 2) {
+	        this._selecting = true;
+	        return this._xRangeData.selectStartX(mousePos.x - GraphView.ORIGIN_OFFSET_X);
+	      } else if (mousePos.y > this.height - GraphView.ORIGIN_OFFSET_Y * 2) {
 	        this._scrolling = true;
 	        return this._startX = mousePos.x;
 	      }
@@ -14163,7 +14167,10 @@
 
 	    GraphView.prototype._onMouseMove = function(event) {
 	      var mousePos, offset;
-	      if (this._scrolling) {
+	      if (this._selecting) {
+	        mousePos = this._getMousePos(event);
+	        return this._xRangeData.selectEndX(mousePos.x - GraphView.ORIGIN_OFFSET_X);
+	      } else if (this._scrolling) {
 	        mousePos = this._getMousePos(event);
 	        offset = mousePos.x - this._startX;
 	        return this._xOffsetData.scroll(offset, false);
@@ -14172,11 +14179,15 @@
 
 	    GraphView.prototype._onMouseUp = function(event) {
 	      var mousePos, offset;
-	      if (this._scrolling) {
+	      if (this._selecting) {
+	        mousePos = this._getMousePos(event);
+	        this._xRangeData.selectEndX(mousePos.x - GraphView.ORIGIN_OFFSET_X);
+	      } else if (this._scrolling) {
 	        mousePos = this._getMousePos(event);
 	        offset = mousePos.x - this._startX;
 	        this._xOffsetData.scroll(offset, true);
 	      }
+	      this._selecting = false;
 	      return this._scrolling = false;
 	    };
 
@@ -14186,10 +14197,10 @@
 	      if (mousePos.x < GraphView.ORIGIN_OFFSET_X || mousePos.x > this.width) {
 	        return;
 	      }
-	      if (mousePos.y > this.height - GraphView.ORIGIN_OFFSET_Y * 2) {
+	      if (mousePos.y < GraphView.ORIGIN_OFFSET_Y || mousePos.y > this.height - GraphView.ORIGIN_OFFSET_Y * 2) {
 	        return;
 	      }
-	      return this._xRangeData.autoSelect(mousePos.x - GraphView.ORIGIN_OFFSET_X);
+	      return this._xRangeData.autoSelectX(mousePos.x - GraphView.ORIGIN_OFFSET_X);
 	    };
 
 	    GraphView.prototype._getMousePos = function(event) {
@@ -14266,7 +14277,7 @@
 	      context.strokeStyle = this.model.axisColor;
 	      context.textAlign = "left";
 	      context.textBaseline = "bottom";
-	      context.fillText("0", xs + 3, h - 3);
+	      context.fillText("0", xs + 3, ye + 17);
 	      context.lineWidth = 1;
 	      context.beginPath();
 	      context.moveTo(xs, ye);
@@ -14279,9 +14290,9 @@
 	      for (x = i = ref = this.model.subInterval / adjustXInterval, ref1 = this.model.max, ref2 = this.model.subInterval / adjustXInterval; ref2 > 0 ? i <= ref1 : i >= ref1; x = i += ref2) {
 	        xp = xs + (xe - xs) * x / this.model.max;
 	        if (x % (this.model.interval / adjustXInterval) === 0) {
-	          context.fillText("" + x, xp, ys - 3);
+	          context.fillText("" + x, xp, ye + 17);
 	        } else if (drawSub) {
-	          context.fillText("" + x, xp, ys - 3);
+	          context.fillText("" + x, xp, ye + 17);
 	        }
 	      }
 	    };
@@ -15237,24 +15248,70 @@
 	      }
 	    });
 
-	    RangeData.prototype.autoSelect = function(offset) {
-	      var GraphView, clickPos, range, width, x;
-	      GraphView = __webpack_require__(12);
+	    RangeData.prototype.autoSelectX = function(offset) {
+	      var graphX, range;
 	      if (this.get('targetGraph').type !== GraphData.TYPE.LINE) {
+	        return null;
+	      }
+	      graphX = this._getGraphX(offset);
+	      if (graphX.rangeOver === true) {
 	        return;
 	      }
-	      width = this.get('width') * this.get('scale').scale / 100 - GraphView.ORIGIN_OFFSET_Y;
-	      clickPos = offset - this.get('offset').offset;
-	      if (clickPos > width) {
-	        return;
-	      }
-	      x = clickPos * this.get('axis').max / width;
-	      range = this.get('targetGraph').getAutoRange(x);
+	      range = this.get('targetGraph').getAutoRange(graphX.x);
 	      if (range === null) {
 	        return;
 	      }
 	      range.selected = true;
 	      return this.set(range);
+	    };
+
+	    RangeData.prototype.selectStartX = function(offset) {
+	      var graphX;
+	      if (this.get('targetGraph').type !== GraphData.TYPE.LINE) {
+	        return null;
+	      }
+	      graphX = this._getGraphX(offset);
+	      if (graphX.rangeOver === true) {
+	        return;
+	      }
+	      return this.set({
+	        start: graphX.x,
+	        end: graphX.x,
+	        selected: true
+	      });
+	    };
+
+	    RangeData.prototype.selectEndX = function(offset) {
+	      var graphX;
+	      if (this.get('targetGraph').type !== GraphData.TYPE.LINE) {
+	        return null;
+	      }
+	      graphX = this._getGraphX(offset);
+	      return this.set({
+	        end: graphX.x
+	      });
+	    };
+
+	    RangeData.prototype._getGraphX = function(offset) {
+	      var GraphView, clickPos, width;
+	      GraphView = __webpack_require__(12);
+	      width = this.get('width') * this.get('scale').scale / 100 - GraphView.ORIGIN_OFFSET_Y;
+	      clickPos = offset - this.get('offset').offset;
+	      if (clickPos > width) {
+	        return {
+	          x: this.get('axis').max,
+	          rangeOver: true
+	        };
+	      } else if (clickPos < 0) {
+	        return {
+	          x: 0,
+	          rangeOver: true
+	        };
+	      }
+	      return {
+	        x: clickPos * this.get('axis').max / width,
+	        rangeOver: false
+	      };
 	    };
 
 	    return RangeData;

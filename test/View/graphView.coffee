@@ -88,7 +88,7 @@ describe 'GraphView Class Test', ->
 
     event = $.Event("mousedown", {
       pageX: 0
-      pageY: 360
+      pageY: 340
     })
     @graphView.$el.trigger(event)
 
@@ -99,7 +99,7 @@ describe 'GraphView Class Test', ->
 
     event = $.Event("mousedown", {
       pageX: 100
-      pageY: 361
+      pageY: 341
     })
     @graphView.$el.trigger(event)
 
@@ -108,7 +108,7 @@ describe 'GraphView Class Test', ->
 
     event = $.Event("mousemove", {
       pageX: 80
-      pageY: 361
+      pageY: 341
     })
     @graphView.$el.trigger(event)
 
@@ -120,7 +120,7 @@ describe 'GraphView Class Test', ->
 
     event = $.Event("mousemove", {
       pageX: 120
-      pageY: 361
+      pageY: 341
     })
     @graphView.$el.trigger(event)
 
@@ -133,7 +133,7 @@ describe 'GraphView Class Test', ->
 
     event = $.Event("mouseup", {
       pageX: 60
-      pageY: 361
+      pageY: 341
     })
     @graphView.$el.trigger(event)
 
@@ -157,7 +157,7 @@ describe 'GraphView Class Test', ->
     assert.equal(@graphView._xRangeData.selected, false)
 
     event = $.Event("dblclick", {
-      pageX: 581
+      pageX: 571
       pageY: 0
     })
     @graphView.$el.trigger(event)
@@ -170,13 +170,11 @@ describe 'GraphView Class Test', ->
     })
     @graphView.$el.trigger(event)
 
-    assert.equal(@graphView._xRangeData.start, 0)
-    assert.equal(@graphView._xRangeData.end, 68)
-    assert.equal(@graphView._xRangeData.selected, true)
+    assert.equal(@graphView._xRangeData.selected, false)
 
     event = $.Event("dblclick", {
-      pageX: 421
-      pageY: 361
+      pageX: 40
+      pageY: 30
     })
     @graphView.$el.trigger(event)
 
@@ -185,8 +183,18 @@ describe 'GraphView Class Test', ->
     assert.equal(@graphView._xRangeData.selected, true)
 
     event = $.Event("dblclick", {
-      pageX: 421
-      pageY: 360
+      pageX: 401
+      pageY: 341
+    })
+    @graphView.$el.trigger(event)
+
+    assert.equal(@graphView._xRangeData.start, 0)
+    assert.equal(@graphView._xRangeData.end, 68)
+    assert.equal(@graphView._xRangeData.selected, true)
+
+    event = $.Event("dblclick", {
+      pageX: 401
+      pageY: 340
     })
     @graphView.$el.trigger(event)
 

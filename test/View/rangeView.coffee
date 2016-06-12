@@ -79,7 +79,7 @@ describe 'RangeView Class Test', ->
       {xScale: 400, width: 2400}
     ]
 
-    @rangeData.autoSelect(0)
+    @rangeData.autoSelectX(0)
     expectList.forEach((expect) =>
       @xScaleData.scale = expect.xScale
       @rangeView.render()
