@@ -15008,7 +15008,7 @@
 	      xs = 0;
 	      xe = w - GraphView.ORIGIN_OFFSET_Y;
 	      ys = h;
-	      ye = 0;
+	      ye = GraphView.ORIGIN_OFFSET_Y;
 	      context.clearRect(0, 0, w, h);
 	      if (this.model.selected === false) {
 	        return;
@@ -15018,7 +15018,7 @@
 	      context.globalAlpha = this.model.rangeOpacity;
 	      xStart = xs + (xe - xs) * this.model.start / this.xAxis.max;
 	      xEnd = xs + (xe - xs) * this.model.end / this.xAxis.max;
-	      context.fillRect(xStart, ye, xEnd - xStart, h);
+	      context.fillRect(xStart, ye, xEnd - xStart, ys - ye);
 	    };
 
 	    RangeView.prototype.scrollX = function() {

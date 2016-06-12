@@ -29,7 +29,7 @@ class RangeView extends CanvasView
     xs = 0                              # x start
     xe = w - GraphView.ORIGIN_OFFSET_Y  # x end
     ys = h                              # y start
-    ye = 0                              # y end
+    ye = GraphView.ORIGIN_OFFSET_Y      # y end
 
     context.clearRect(0, 0, w, h)
 
@@ -43,7 +43,7 @@ class RangeView extends CanvasView
 
     xStart = xs + (xe - xs) * @model.start / @xAxis.max
     xEnd = xs + (xe - xs) * @model.end / @xAxis.max
-    context.fillRect(xStart, ye, xEnd-xStart, h)
+    context.fillRect(xStart, ye, xEnd-xStart, ys - ye)
 
     return
 
