@@ -104,7 +104,7 @@ describe 'GraphView Class Test', ->
     @graphView.$el.trigger(event)
 
     assert.equal(@graphView._scrolling, true)
-    assert.equal(@graphView._startX, 100)
+    assert.equal(@graphView._lastX, 100)
 
     event = $.Event("mousemove", {
       pageX: 80
@@ -113,7 +113,7 @@ describe 'GraphView Class Test', ->
     @graphView.$el.trigger(event)
 
     assert.equal(@graphView._scrolling, true)
-    assert.equal(@graphView._startX, 100)
+    assert.equal(@graphView._lastX, 80)
 
     assert.equal(@graphView._graphCanvasView.$el.css("left"), "-20px")
     assert.equal(@graphView._xAxisView.$el.css("left"), "-20px")
@@ -125,7 +125,7 @@ describe 'GraphView Class Test', ->
     @graphView.$el.trigger(event)
 
     assert.equal(@graphView._scrolling, true)
-    assert.equal(@graphView._startX, 100)
+    assert.equal(@graphView._lastX, 120)
 
     assert.equal(@graphView._graphCanvasView.$el.css("left"), "0px")
     assert.equal(@graphView._xAxisView.$el.css("left"), "0px")
@@ -138,10 +138,9 @@ describe 'GraphView Class Test', ->
     @graphView.$el.trigger(event)
 
     assert.equal(@graphView._scrolling, false)
-    assert.equal(@graphView._startX, 100)
 
-    assert.equal(@graphView._graphCanvasView.$el.css("left"), "-40px")
-    assert.equal(@graphView._xAxisView.$el.css("left"), "-40px")
+    assert.equal(@graphView._graphCanvasView.$el.css("left"), "-60px")
+    assert.equal(@graphView._xAxisView.$el.css("left"), "-60px")
 
   it 'event test dblclick', ->
     @collection.models[0].smooth(1, 5)

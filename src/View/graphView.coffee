@@ -15,6 +15,8 @@ class GraphView extends Backbone.View
   @ORIGIN_OFFSET_X : 40
   @ORIGIN_OFFSET_Y : 30
   @FONT_SIZE : 12
+  @SELECT__SCROLL_WIDTH : 20
+  @SELECT__SCROLL_INTERVAL : 200
 
   tagName: "div"
 
@@ -39,7 +41,8 @@ class GraphView extends Backbone.View
     __.extend(@, __.pick(options, _graphOptions))
     @_scrolling = false
     @_selecting = false
-    @_startX = 0
+    @_lastX = 0
+    @_selectScrollTimer = null
 
     @_xScaleData = new ScaleData({title: "X"})
     @_yScaleData = new ScaleData({title: "Y"})
@@ -144,25 +147,45 @@ class GraphView extends Backbone.View
       @_xRangeData.selectStartX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
     else if mousePos.y > @height - GraphView.ORIGIN_OFFSET_Y * 2
       @_scrolling = true
-      @_startX = mousePos.x
+      @_lastX = mousePos.x
 
   _onMouseMove: (event) ->
+    mousePos = @_getMousePos(event)
+
     if @_selecting
-      mousePos = @_getMousePos(event)
-      @_xRangeData.selectEndX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
+      if mousePos.x < GraphView.ORIGIN_OFFSET_X
+        @_xRangeData.selectEndX(0)
+        @_startSelectScrolling(GraphView.SELECT__SCROLL_WIDTH, 0)
+      else if mousePos.x > @width - GraphView.ORIGIN_OFFSET_Y
+        offsetX = mousePos.x - GraphView.ORIGIN_OFFSET_X
+        if mousePos.x > @width
+          offsetX = @width - GraphView.ORIGIN_OFFSET_X
+
+        @_xRangeData.selectEndX(offsetX)
+        @_startSelectScrolling(-GraphView.SELECT__SCROLL_WIDTH, offsetX)
+      else
+        @_stopSelectScrolling()
+        @_xRangeData.selectEndX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
     else if @_scrolling
-      mousePos = @_getMousePos(event)
-      offset = mousePos.x - @_startX
-      @_xOffsetData.scroll(offset, false)
+      offset = mousePos.x - @_lastX
+      @_lastX = mousePos.x
+      @_xOffsetData.scroll(offset)
 
   _onMouseUp: (event) ->
+    mousePos = @_getMousePos(event)
+
     if @_selecting
-      mousePos = @_getMousePos(event)
-      @_xRangeData.selectEndX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
+      @_stopSelectScrolling()
+      offsetX = mousePos.x - GraphView.ORIGIN_OFFSET_X
+      if mousePos.x < GraphView.ORIGIN_OFFSET_X
+        offsetX = 0
+      else if mousePos.x > @width
+        offsetX = @width - GraphView.ORIGIN_OFFSET_X
+
+      @_xRangeData.selectEndX(offsetX)
     else if @_scrolling
-      mousePos = @_getMousePos(event)
-      offset = mousePos.x - @_startX
-      @_xOffsetData.scroll(offset, true)
+      offset = mousePos.x - @_lastX
+      @_xOffsetData.scroll(offset)
 
     @_selecting = false
     @_scrolling = false
@@ -177,6 +200,24 @@ class GraphView extends Backbone.View
       return
 
     @_xRangeData.autoSelectX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
+
+  _selectX = 0
+  _startSelectScrolling: (scrollAmount, selectX) ->
+    _selectX = selectX
+    if @_selectScrollTimer == null
+      @_selectScrollTimer = setInterval( =>
+        @_xOffsetData.scroll(scrollAmount)
+        @_xRangeData.selectEndX(_selectX)
+      , GraphView.SELECT__SCROLL_INTERVAL
+      )
+
+  _stopSelectScrolling: ->
+    if @_selectScrollTimer != null
+      clearTimeout(@_selectScrollTimer)
+      @_selectScrollTimer = null
+
+  _selectScrolling: ->
+    @_xOffsetData.scroll(offset)
 
   _getMousePos: (event) ->
     elementPos = @$el[0].getBoundingClientRect()

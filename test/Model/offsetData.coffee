@@ -17,124 +17,69 @@ describe 'OffsetData Class Test', ->
     
   it 'constructor test', ->
     assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, 0)
 
   it 'function test scroll', ->
 # canvas can not scroll now,
 # because div width and canvas width is same
-    @offsetData.scroll(-10, false)
+    @offsetData.scroll(-1)
     assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, 0)
 
-    @offsetData.scroll(10, false)
+    @offsetData.scroll(1)
     assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, 0)
-
-    @offsetData.scroll(-10, true)
-    assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, 0)
-
-    @offsetData.scroll(10, true)
-    assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, 0)
 
     # canvas can scroll
     @scaleData.scale = 200
 
-    @offsetData.scroll(0, false)
+    @offsetData.scroll(0)
     assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, 0)
 
-    @offsetData.scroll(-10, false)
+    @offsetData.scroll(-10)
     assert.equal(@offsetData.offset, -10)
-    assert.equal(@offsetData._offsetBase, 0)
 
-    @offsetData.scroll(-600, false)
+    @offsetData.scroll(-590)
     assert.equal(@offsetData.offset, -600)
-    assert.equal(@offsetData._offsetBase, 0)
 
-    @offsetData.scroll(-601, false)
+    @offsetData.scroll(-1)
     assert.equal(@offsetData.offset, -600)
-    assert.equal(@offsetData._offsetBase, 0)
 
-    @offsetData.scroll(10, false)
+    @offsetData.scroll(600)
     assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, 0)
 
-    @offsetData.scroll(600, false)
+    @offsetData.scroll(1)
     assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, 0)
 
-    @offsetData.scroll(-300, true)
+    @offsetData.scroll(-300)
     assert.equal(@offsetData.offset, -300)
-    assert.equal(@offsetData._offsetBase, -300)
 
-    @offsetData.scroll(0, false)
+    @offsetData.scroll(0)
     assert.equal(@offsetData.offset, -300)
-    assert.equal(@offsetData._offsetBase, -300)
 
-    @offsetData.scroll(-10, false)
+    @offsetData.scroll(-10)
     assert.equal(@offsetData.offset, -310)
-    assert.equal(@offsetData._offsetBase, -300)
 
-    @offsetData.scroll(-300, false)
+    @offsetData.scroll(-300)
     assert.equal(@offsetData.offset, -600)
-    assert.equal(@offsetData._offsetBase, -300)
 
-    @offsetData.scroll(-301, false)
+    @offsetData.scroll(-1)
     assert.equal(@offsetData.offset, -600)
-    assert.equal(@offsetData._offsetBase, -300)
 
-    @offsetData.scroll(10, false)
-    assert.equal(@offsetData.offset, -290)
-    assert.equal(@offsetData._offsetBase, -300)
+    @offsetData.scroll(300)
+    assert.equal(@offsetData.offset, -300)
 
-    @offsetData.scroll(300, false)
+    @offsetData.scroll(300)
     assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, -300)
 
-    @offsetData.scroll(301, false)
+    @offsetData.scroll(1)
     assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, -300)
-
-    @offsetData.scroll(-300, true)
-    assert.equal(@offsetData.offset, -600)
-    assert.equal(@offsetData._offsetBase, -600)
-
-    @offsetData.scroll(0, false)
-    assert.equal(@offsetData.offset, -600)
-    assert.equal(@offsetData._offsetBase, -600)
-
-    @offsetData.scroll(-1, false)
-    assert.equal(@offsetData.offset, -600)
-    assert.equal(@offsetData._offsetBase, -600)
-
-    @offsetData.scroll(10, false)
-    assert.equal(@offsetData.offset, -590)
-    assert.equal(@offsetData._offsetBase, -600)
-
-    @offsetData.scroll(600, false)
-    assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, -600)
-
-    @offsetData.scroll(601, false)
-    assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, -600)
-
-    @offsetData.scroll(600, true)
-    assert.equal(@offsetData.offset, 0)
-    assert.equal(@offsetData._offsetBase, 0)
 
   it 'function test scroll() after scale changing', ->
     @scaleData.scale = 400
-    @offsetData.scroll(-1800, true)
+    @offsetData.scroll(-1800)
 
     assert.equal(@offsetData.offset, -1800)
-    assert.equal(@offsetData._offsetBase, -1800)
 
     @scaleData.scale = 200
-    @offsetData.scroll(0, true)
+    @offsetData.scroll(0)
 
     assert.equal(@offsetData.offset, -600)
-    assert.equal(@offsetData._offsetBase, -600)
 
