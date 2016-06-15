@@ -2,12 +2,11 @@ require('./property')
 Backbone = require('backbone')
 
 class GestureData extends Backbone.Model
-
   # options
-  #
+  #   region: RectRegion Object
+  #   cursor: cursor name string
+  #   repeat: [RectRegion Object, ..]
   initialize: (options) ->
-    @_handlers = {}
-    @
 
   @property "cursor",
     get: ->

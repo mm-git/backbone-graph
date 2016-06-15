@@ -176,6 +176,7 @@ class GraphView extends Backbone.View
     scrollGesture = new GestureData({
       region: new RectRegion(GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y * 2, @width - 1, @height - 1)
       cursor: "move"
+      repeat: []
     })
     .on({
       dragging: (mousePos) =>

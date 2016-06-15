@@ -14195,7 +14195,8 @@
 	      });
 	      scrollGesture = new GestureData({
 	        region: new RectRegion(GraphView.ORIGIN_OFFSET_X, this.height - GraphView.ORIGIN_OFFSET_Y * 2, this.width - 1, this.height - 1),
-	        cursor: "move"
+	        cursor: "move",
+	        repeat: []
 	      }).on({
 	        dragging: (function(_this) {
 	          return function(mousePos) {

@@ -14,13 +14,22 @@ class GestureDataCollection extends Backbone.Collection
   selectCurrentModel: (x, y) ->
     if @_currentGesture?
       return
-    @_currentGesture = @models.find((model) ->
+    @_currentGesture = @models.slice().reverse().find((model) ->
       model.isInsideRegion(x, y)
     )
 
   deselectCurrentModel: ->
     @_stopRepeat()
     @_currentGesture = undefined
+
+  getCursor: (x, y) ->
+    if @_currentGesture?
+      return @_currentGesture.cursor
+
+    targetModel = @models.slice().reverse().find((model) ->
+      model.isInsideRegion(x, y)
+    )
+    return targetModel?.cursor || "auto"
 
   click: (mousePos) ->
     if @_currentGesture?
@@ -30,7 +39,7 @@ class GestureDataCollection extends Backbone.Collection
     if @_currentGesture?
       @_currentGesture.trigger("dragStart", mousePos)
     else
-      targetModel = @models.find((model) ->
+      targetModel = @models.slice().reverse().find((model) ->
         model.isInsideRegion(mousePos.currentPos.x, mousePos.currentPos.y)
       )
       targetModel?.trigger("over", mousePos)
@@ -46,19 +55,10 @@ class GestureDataCollection extends Backbone.Collection
         @_stopRepeat()
       
     else
-      targetModel = @models.find((model) ->
+      targetModel = @models.slice().reverse().find((model) ->
         model.isInsideRegion(mousePos.currentPos.x, mousePos.currentPos.y)
       )
       targetModel?.trigger("over", mousePos)
-      
-  getCursor: (x, y) ->
-    if @_currentGesture?
-      return @_currentGesture.cursor
-
-    targetModel = @models.find((model) ->
-      model.isInsideRegion(x, y)
-    )
-    return targetModel?.cursor || "auto"
 
   _startRepeat: (mousePos, index) ->
     @_repeatMousePos = mousePos
