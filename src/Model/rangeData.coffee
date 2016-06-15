@@ -28,6 +28,8 @@ class RangeData extends Backbone.Model
   @property "selected",
     get: ->
       @get('selected')
+    set: (status) ->
+      @set('selected', status)
 
   @property "rangeColor",
     get: ->
@@ -36,6 +38,14 @@ class RangeData extends Backbone.Model
   @property "rangeOpacity",
     get: ->
       @get('rangeOpacity')
+
+  @property "screenStart",
+    get: ->
+      @_getScreenX(@get('start'))
+
+  @property "screenEnd",
+    get: ->
+      @_getScreenX(@get('end'))
 
   autoSelectX: (offset) ->
     if @get('targetGraph').type != GraphData.TYPE.LINE
@@ -73,6 +83,9 @@ class RangeData extends Backbone.Model
     graphX = @_getGraphX(offset)
     @set({end: graphX.x})
 
+  deselect: ->
+    @selected = false
+
   _getGraphX: (offset) ->
     GraphView = require('../View/graphView')
 
@@ -94,6 +107,11 @@ class RangeData extends Backbone.Model
       rangeOver: false
     }
 
+  _getScreenX: (graphX) ->
+    GraphView = require('../View/graphView')
+
+    width = @get('width') * @get('scale').scale / 100 - GraphView.ORIGIN_OFFSET_Y
+    return width * graphX / @get('axis').max + @get('offset').offset
 
 
 module.exports = RangeData

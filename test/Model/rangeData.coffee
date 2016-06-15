@@ -55,6 +55,8 @@ describe 'RangeData Class Test', ->
     assert.equal(@rangeData.selected, false)
     assert.equal(@rangeData.rangeColor, "#7bbcd8")
     assert.equal(@rangeData.rangeOpacity, 0.5)
+    assert.equal(@rangeData.screenStart, 0)
+    assert.equal(@rangeData.screenEnd, 0)
 
   it 'function test autoSelectX() scale=100', ->
     @rangeData.autoSelectX(0)
@@ -177,3 +179,48 @@ describe 'RangeData Class Test', ->
     assert.equal(@rangeData.end, 100)
     assert.equal(@rangeData.selected, true)
 
+  it 'function test selectStartX()/selectEndX()/deselect()', ->
+    @rangeData.selectStartX(200)
+    assert.equal(Math.floor(@rangeData.start), 35) # 200 * 100 / (600 - 30)
+    assert.equal(Math.floor(@rangeData.end), 35)
+    assert.equal(@rangeData.selected, true)
+
+    @rangeData.selectEndX(400)
+    assert.equal(Math.floor(@rangeData.start), 35)
+    assert.equal(Math.floor(@rangeData.end), 70)   # 400 * 100 / (600 - 30)
+    assert.equal(@rangeData.selected, true)
+
+    @rangeData.selectEndX(-10)
+    assert.equal(Math.floor(@rangeData.end), 0)
+
+    @rangeData.selectEndX(600)
+    assert.equal(Math.floor(@rangeData.end), 100)  
+
+    @xScaleData.scale = 400
+    @xOffsetData.scroll(-400, true)
+
+    @rangeData.selectStartX(200)
+    assert.equal(Math.floor(@rangeData.start), 25) #(200 + 400) * 100 / (600 * 4 -30)
+    assert.equal(Math.floor(@rangeData.end), 25)
+    assert.equal(@rangeData.selected, true)
+
+    @rangeData.selectEndX(400)
+    assert.equal(Math.floor(@rangeData.start), 25)
+    assert.equal(Math.floor(@rangeData.end), 33)   #(400 + 400) * 100 / (600 * 4 -30)
+    assert.equal(@rangeData.selected, true)
+
+    @rangeData.deselect()
+    assert.equal(@rangeData.selected, false)
+
+  it 'parameter test screenStart/screenEnd', ->
+    @rangeData.selectStartX(200)
+    @rangeData.selectEndX(400)
+
+    assert.equal(@rangeData.screenStart, 200)
+    assert.equal(@rangeData.screenEnd, 400)
+
+    @xScaleData.scale = 400
+    @xOffsetData.scroll(-400, true)
+
+    assert.equal(Math.floor(@rangeData.screenStart), 431)  # (600 * 4 - 30) * 35.09 / 100 - 400
+    assert.equal(Math.floor(@rangeData.screenEnd), 1263)   # (600 * 4 - 30) * 70.18 / 100 - 400

@@ -1,5 +1,4 @@
 __ = require('underscore')
-$ = global.$ || require('jquery')
 Backbone = require('backbone')
 
 XAxisView = require('./xAxisView')
@@ -7,27 +6,21 @@ YAxisView = require('./yAxisView')
 GraphCanvasView = require('./graphCanvasView')
 ScaleChangeView = require('./scaleChangeView')
 RangeView = require('./rangeView')
+GestureView = require('./gestureView')
 ScaleData = require('../Model/scaleData')
 OffsetData = require('../Model/offsetData')
 RangeData = require('../Model/rangeData')
-RectRegion = reauire('../Model/rectRegion')
-GestureData = require('../Mofel/gestureData')
-GestureDataCollection = require('../Mofel/gestureDataCollection')
+RectRegion = require('../Model/rectRegion')
+GestureData = require('../Model/gestureData')
+GestureDataCollection = require('../Model/gestureDataCollection')
 
 class GraphView extends Backbone.View
   @ORIGIN_OFFSET_X : 40
   @ORIGIN_OFFSET_Y : 30
   @FONT_SIZE : 12
-  @SELECT__SCROLL_WIDTH : 20
-  @SELECT__SCROLL_INTERVAL : 200
+  @SELECT_SCROLL_WIDTH : 20
 
   tagName: "div"
-
-  events:
-    mousedown: "_onMouseDown"
-    mousemove: "_onMouseMove"
-    mouseup: "_onMouseUp"
-    dblclick: "_onDoubleClick"
 
   _graphOptions = ['width', 'height', 'xAxis', 'yAxis', 'range']
     
@@ -42,10 +35,6 @@ class GraphView extends Backbone.View
   #    opacity: o
   initialize: (options) ->
     __.extend(@, __.pick(options, _graphOptions))
-    @_scrolling = false
-    @_selecting = false
-    @_lastX = 0
-    @_selectScrollTimer = null
 
     @_xScaleData = new ScaleData({title: "X"})
     @_yScaleData = new ScaleData({title: "Y"})
@@ -119,11 +108,6 @@ class GraphView extends Backbone.View
     @
 
   _registerEvent: ->
-    __.bindAll(@, "_onMouseDown", "_onMouseMove", "_onMouseUp", "_onDoubleClick")
-    $(document).on('mousemove', (event) => @_onMouseMove(event))
-    $(document).on('mouseup', (event) => @_onMouseUp(event))
-    $(document).on('dragend', (event) => @_onMouseUp(event))
-
     @listenTo(@collection, "change", =>
       @xAxis.max = @collection.xMax
       @yAxis.max = @collection.yMax
@@ -155,135 +139,62 @@ class GraphView extends Backbone.View
     )
 
   _registerDefaultGesture: ->
-    rengeGesture = new GestureData({
-      region: new RectRegion(x1,y1,x2,=> hoge.x)
-      cursor: "move"
+    rangeGesture = new GestureData({
+      region: new RectRegion(
+        GraphView.ORIGIN_OFFSET_X
+      , GraphView.ORIGIN_OFFSET_Y
+      , =>
+        divWidth = (@width - GraphView.ORIGIN_OFFSET_X) * @_xScaleData.scale / 100 - GraphView.ORIGIN_OFFSET_Y + GraphView.ORIGIN_OFFSET_X
+        return Math.min(divWidth + @_xOffsetData.offset, @width) - 1
+      , @height - GraphView.ORIGIN_OFFSET_Y * 2 - 1
+      )
+      cursor: "crosshair"
       repeat: [
-        new RectRegion(x1,  null,null,null)
-        new RectRegion(null,null,x2,  null)
+        new RectRegion(null, null, GraphView.ORIGIN_OFFSET_X - 1, null)
+        new RectRegion(@width - GraphView.ORIGIN_OFFSET_Y + 1, null, null, null)
       ]
     })
     .on({
-      click: (event) =>
-
-      over: (event) =>
-
-      drag: (event) =>
-
-      repeat: (event, index) =>
-
+      click: (mousePos) =>
+        @_xRangeData.autoSelectX(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X)
+      dragStart: (mousePos) =>
+        @_xRangeData.selectStartX(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X)
+      dragging: (mousePos) =>
+        if mousePos.currentPos.x < GraphView.ORIGIN_OFFSET_X
+          @_xRangeData.selectEndX(0)
+        else
+          @_xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, @width - GraphView.ORIGIN_OFFSET_X))
+      repeat: (mousePos, index) =>
+        if index == 0
+          @_xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH)
+          @_xRangeData.selectEndX(0)
+        else
+          @_xOffsetData.scroll(-GraphView.SELECT_SCROLL_WIDTH)
+          @_xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, @width - GraphView.ORIGIN_OFFSET_X))
     })
 
     scrollGesture = new GestureData({
-      region: new RectRegion(x1,y1,x2,=> hoge.x)
+      region: new RectRegion(GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y * 2, @width - 1, @height - 1)
       cursor: "move"
     })
     .on({
-      drag: (event) =>
-
+      dragging: (mousePos) =>
+        @_xOffsetData.scroll(mousePos.differencePos.x)
     })
 
-    @_gestureCollection = new GestureDataCollection([rengeGesture, scrollGesture])
+    @_gestureCollection = new GestureDataCollection([rangeGesture, scrollGesture])
     @_gestureView = new GestureView({
       el: @$el
       collection: @_gestureCollection
     })
 
-  _rengeGestures = []
+  _rangeGestures = []
   _registerRangeGesture: ->
-    @_gestureCollection.remove(_rengeGestures)
-    _rengeGestures = []
+    #@_gestureCollection.remove(_rangeGestures)
+    _rangeGestures = []
 
     if @_xRangeData.selected
-      _rengeGestures = []
-
-
-  _onMouseDown: (event) ->
-    mousePos = @_getMousePos(event)
-
-    if mousePos.y > GraphView.ORIGIN_OFFSET_Y && mousePos.y < @height - GraphView.ORIGIN_OFFSET_Y * 2
-      @_selecting = true
-      @_xRangeData.selectStartX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
-    else if mousePos.y > @height - GraphView.ORIGIN_OFFSET_Y * 2
-      @_scrolling = true
-      @_lastX = mousePos.x
-
-  _onMouseMove: (event) ->
-    mousePos = @_getMousePos(event)
-
-    if @_selecting
-      if mousePos.x < GraphView.ORIGIN_OFFSET_X
-        @_xRangeData.selectEndX(0)
-        @_startSelectScrolling(GraphView.SELECT__SCROLL_WIDTH, 0)
-      else if mousePos.x > @width - GraphView.ORIGIN_OFFSET_Y
-        offsetX = mousePos.x - GraphView.ORIGIN_OFFSET_X
-        if mousePos.x > @width
-          offsetX = @width - GraphView.ORIGIN_OFFSET_X
-
-        @_xRangeData.selectEndX(offsetX)
-        @_startSelectScrolling(-GraphView.SELECT__SCROLL_WIDTH, offsetX)
-      else
-        @_stopSelectScrolling()
-        @_xRangeData.selectEndX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
-    else if @_scrolling
-      offset = mousePos.x - @_lastX
-      @_lastX = mousePos.x
-      @_xOffsetData.scroll(offset)
-
-  _onMouseUp: (event) ->
-    mousePos = @_getMousePos(event)
-
-    if @_selecting
-      @_stopSelectScrolling()
-      offsetX = mousePos.x - GraphView.ORIGIN_OFFSET_X
-      if mousePos.x < GraphView.ORIGIN_OFFSET_X
-        offsetX = 0
-      else if mousePos.x > @width
-        offsetX = @width - GraphView.ORIGIN_OFFSET_X
-
-      @_xRangeData.selectEndX(offsetX)
-    else if @_scrolling
-      offset = mousePos.x - @_lastX
-      @_xOffsetData.scroll(offset)
-
-    @_selecting = false
-    @_scrolling = false
-
-  _onDoubleClick: (event) ->
-    mousePos = @_getMousePos(event)
-
-    if mousePos.x < GraphView.ORIGIN_OFFSET_X || mousePos.x > @width
-      return
-
-    if mousePos.y < GraphView.ORIGIN_OFFSET_Y || mousePos.y > @height - GraphView.ORIGIN_OFFSET_Y * 2
-      return
-
-    @_xRangeData.autoSelectX(mousePos.x - GraphView.ORIGIN_OFFSET_X)
-
-  _selectX = 0
-  _startSelectScrolling: (scrollAmount, selectX) ->
-    _selectX = selectX
-    if @_selectScrollTimer == null
-      @_selectScrollTimer = setInterval( =>
-        @_xOffsetData.scroll(scrollAmount)
-        @_xRangeData.selectEndX(_selectX)
-      , GraphView.SELECT__SCROLL_INTERVAL
-      )
-
-  _stopSelectScrolling: ->
-    if @_selectScrollTimer != null
-      clearTimeout(@_selectScrollTimer)
-      @_selectScrollTimer = null
-
-  _selectScrolling: ->
-    @_xOffsetData.scroll(offset)
-
-  _getMousePos: (event) ->
-    elementPos = @$el[0].getBoundingClientRect()
-    return {
-      x : event.pageX - elementPos.left - window.pageXOffset
-      y : event.pageY - elementPos.top - window.pageYOffset
-    }
+      _rangeGestures = []
 
 module.exports = GraphView
 
