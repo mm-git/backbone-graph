@@ -10,6 +10,9 @@ RangeView = require('./rangeView')
 ScaleData = require('../Model/scaleData')
 OffsetData = require('../Model/offsetData')
 RangeData = require('../Model/rangeData')
+RectRegion = reauire('../Model/rectRegion')
+GestureData = require('../Mofel/gestureData')
+GestureDataCollection = require('../Mofel/gestureDataCollection')
 
 class GraphView extends Backbone.View
   @ORIGIN_OFFSET_X : 40
@@ -60,6 +63,11 @@ class GraphView extends Backbone.View
       rangeOpacity: @range.opacity
     })
 
+    @render()
+    @_registerEvent()
+    @_registerDefaultGesture()
+
+  render: ->
     @_yAxisView = new YAxisView({
       model: @yAxis
       pos: [0, 0, GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y]
@@ -108,6 +116,9 @@ class GraphView extends Backbone.View
       height: @height
     })
 
+    @
+
+  _registerEvent: ->
     __.bindAll(@, "_onMouseDown", "_onMouseMove", "_onMouseUp", "_onDoubleClick")
     $(document).on('mousemove', (event) => @_onMouseMove(event))
     $(document).on('mouseup', (event) => @_onMouseUp(event))
@@ -120,6 +131,7 @@ class GraphView extends Backbone.View
       @_graphCanvasView.render()
       @_xAxisView.render()
       @_RangeView.render()
+      @_registerRangeGesture()
     )
 
     @listenTo(@_xScaleData, "change", =>
@@ -127,17 +139,64 @@ class GraphView extends Backbone.View
       @_graphCanvasView.render()
       @_xAxisView.render()
       @_RangeView.render()
+      @_registerRangeGesture()
     )
 
     @listenTo(@_xOffsetData, "change", =>
       @_graphCanvasView.scrollX()
       @_xAxisView.scrollX()
       @_RangeView.scrollX()
+      @_registerRangeGesture()
     )
 
     @listenTo(@_xRangeData, "change", =>
       @_RangeView.render()
+      @_registerRangeGesture()
     )
+
+  _registerDefaultGesture: ->
+    rengeGesture = new GestureData({
+      region: new RectRegion(x1,y1,x2,=> hoge.x)
+      cursor: "move"
+      repeat: [
+        new RectRegion(x1,  null,null,null)
+        new RectRegion(null,null,x2,  null)
+      ]
+    })
+    .on({
+      click: (event) =>
+
+      over: (event) =>
+
+      drag: (event) =>
+
+      repeat: (event, index) =>
+
+    })
+
+    scrollGesture = new GestureData({
+      region: new RectRegion(x1,y1,x2,=> hoge.x)
+      cursor: "move"
+    })
+    .on({
+      drag: (event) =>
+
+    })
+
+    @_gestureCollection = new GestureDataCollection([rengeGesture, scrollGesture])
+    @_gestureView = new GestureView({
+      el: @$el
+      collection: @_gestureCollection
+    })
+
+  _rengeGestures = []
+  _registerRangeGesture: ->
+    @_gestureCollection.remove(_rengeGestures)
+    _rengeGestures = []
+
+    if @_xRangeData.selected
+      _rengeGestures = []
+
 
   _onMouseDown: (event) ->
     mousePos = @_getMousePos(event)
