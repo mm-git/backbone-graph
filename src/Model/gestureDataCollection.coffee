@@ -11,14 +11,14 @@ class GestureDataCollection extends Backbone.Collection
     @_repeatMousePos = undefined 
     @_repeatTimer = undefined
 
-  selectCurrentModel: (x, y) ->
+  selectCurrentGesture: (x, y) ->
     if @_currentGesture?
       return
     @_currentGesture = @models.slice().reverse().find((model) ->
       model.isInsideRegion(x, y)
     )
 
-  deselectCurrentModel: ->
+  deselectCurrentGesture: ->
     @_stopRepeat()
     @_currentGesture = undefined
 
@@ -38,6 +38,10 @@ class GestureDataCollection extends Backbone.Collection
   moveStart: (mousePos) ->
     if @_currentGesture?
       @_currentGesture.trigger("dragStart", mousePos)
+
+      index = @_currentGesture.getInsideRepeatIndex(mousePos.currentPos.x, mousePos.currentPos.y)
+      if index >= 0
+        @_startRepeat(mousePos, index)
     else
       targetModel = @models.slice().reverse().find((model) ->
         model.isInsideRegion(mousePos.currentPos.x, mousePos.currentPos.y)

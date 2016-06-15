@@ -31,37 +31,37 @@ describe 'GestureDataCollection Class Test', ->
     assert.equal(@gestureDataCollection._repeatMousePos, undefined)
     assert.equal(@gestureDataCollection._repeatTimer, undefined)
 
-  it 'function test selectCurrentModel()/deselectCurrentModel()', ->
-    @gestureDataCollection.selectCurrentModel(-1, -1)
+  it 'function test selectCurrentGesture()/deselectCurrentGesture()', ->
+    @gestureDataCollection.selectCurrentGesture(-1, -1)
     assert.equal(@gestureDataCollection._currentGesture, undefined)
 
-    @gestureDataCollection.selectCurrentModel(0, 0)
+    @gestureDataCollection.selectCurrentGesture(0, 0)
     assert.equal(@gestureDataCollection._currentGesture, @gesture1)
 
-    @gestureDataCollection.deselectCurrentModel()
+    @gestureDataCollection.deselectCurrentGesture()
     assert.equal(@gestureDataCollection._currentGesture, undefined)
 
-    @gestureDataCollection.selectCurrentModel(0, 299)
+    @gestureDataCollection.selectCurrentGesture(0, 299)
     assert.equal(@gestureDataCollection._currentGesture, @gesture1)
 
-    @gestureDataCollection.deselectCurrentModel()
+    @gestureDataCollection.deselectCurrentGesture()
     assert.equal(@gestureDataCollection._currentGesture, undefined)
 
-    @gestureDataCollection.selectCurrentModel(0, 300)
+    @gestureDataCollection.selectCurrentGesture(0, 300)
     assert.equal(@gestureDataCollection._currentGesture, @gesture2)
-    @gestureDataCollection.selectCurrentModel(0, 0)
+    @gestureDataCollection.selectCurrentGesture(0, 0)
     assert.equal(@gestureDataCollection._currentGesture, @gesture2)
 
-    @gestureDataCollection.deselectCurrentModel()
+    @gestureDataCollection.deselectCurrentGesture()
     assert.equal(@gestureDataCollection._currentGesture, undefined)
 
-    @gestureDataCollection.selectCurrentModel(0, 500)
+    @gestureDataCollection.selectCurrentGesture(0, 500)
     assert.equal(@gestureDataCollection._currentGesture, @gesture2)
 
-    @gestureDataCollection.deselectCurrentModel()
+    @gestureDataCollection.deselectCurrentGesture()
     assert.equal(@gestureDataCollection._currentGesture, undefined)
 
-    @gestureDataCollection.selectCurrentModel(0, 501)
+    @gestureDataCollection.selectCurrentGesture(0, 501)
     assert.equal(@gestureDataCollection._currentGesture, undefined)
 
   it 'function test getCursor()', ->
@@ -72,7 +72,7 @@ describe 'GestureDataCollection Class Test', ->
     assert.equal(@gestureDataCollection.getCursor(0,500), "move")
     assert.equal(@gestureDataCollection.getCursor(0,501), "auto")
 
-    @gestureDataCollection.selectCurrentModel(0, 300)
+    @gestureDataCollection.selectCurrentGesture(0, 300)
     assert.equal(@gestureDataCollection.getCursor(-1,-1), "move")
     assert.equal(@gestureDataCollection.getCursor(0,0),   "move")
     assert.equal(@gestureDataCollection.getCursor(0,299), "move")
@@ -94,7 +94,7 @@ describe 'GestureDataCollection Class Test', ->
     @gestureDataCollection.click(mousePos)
     assert.equal(trigger.callCount, 0)
 
-    @gestureDataCollection.selectCurrentModel(0, 0)
+    @gestureDataCollection.selectCurrentGesture(0, 0)
     @gestureDataCollection.click(mousePos)
     assert.equal(trigger.callCount, 1)
     assert.equal(trigger.getCall(0).args.length, 2)
@@ -139,7 +139,7 @@ describe 'GestureDataCollection Class Test', ->
         x: -10
         y: -20
 
-    @gestureDataCollection.selectCurrentModel(0, 0)
+    @gestureDataCollection.selectCurrentGesture(0, 0)
     @gestureDataCollection.moveStart(mousePos)
     assert.equal(trigger.callCount, 2)
     assert.equal(trigger.getCall(1).args.length, 2)
@@ -177,7 +177,7 @@ describe 'GestureDataCollection Class Test', ->
     assert.equal(trigger.getCall(0).args[0], "over")
     assert.equal(trigger.getCall(0).args[1], mousePos)
 
-    @gestureDataCollection.selectCurrentModel(0, 0)
+    @gestureDataCollection.selectCurrentGesture(0, 0)
     @gestureDataCollection.move(mousePos)
     assert.equal(trigger.callCount, 2)
     assert.equal(trigger.getCall(1).args.length, 2)

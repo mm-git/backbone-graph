@@ -83,14 +83,14 @@ class GraphView extends Backbone.View
     })
     @_xAxisView.$wrap.appendTo(@$el)
 
-    @_RangeView = new RangeView({
+    @_rangeView = new RangeView({
       model: @_xRangeData
       pos: [GraphView.ORIGIN_OFFSET_X, 0, @width - GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y]
       xAxis: @xAxis
       xScale: @_xScaleData
       xOffset: @_xOffsetData
     })
-    @_RangeView.$wrap.appendTo(@$el)
+    @_rangeView.$wrap.appendTo(@$el)
 
     @_xScaleChangeView = new ScaleChangeView({
       model: @_xScaleData
@@ -114,27 +114,27 @@ class GraphView extends Backbone.View
       @_yAxisView.render()
       @_graphCanvasView.render()
       @_xAxisView.render()
-      @_RangeView.render()
+      @_rangeView.render()
       @_registerRangeGesture()
     )
 
     @listenTo(@_xScaleData, "change", =>
-      @_xOffsetData.scroll(0, true)
+      @_xOffsetData.scroll(0)
       @_graphCanvasView.render()
       @_xAxisView.render()
-      @_RangeView.render()
+      @_rangeView.render()
       @_registerRangeGesture()
     )
 
     @listenTo(@_xOffsetData, "change", =>
       @_graphCanvasView.scrollX()
       @_xAxisView.scrollX()
-      @_RangeView.scrollX()
+      @_rangeView.scrollX()
       @_registerRangeGesture()
     )
 
     @listenTo(@_xRangeData, "change", =>
-      @_RangeView.render()
+      @_rangeView.render()
       @_registerRangeGesture()
     )
 

@@ -14,7 +14,7 @@ class GestureView extends Backbone.View
 
   initialize: (options) ->
     @_mouseMoving = false
-    @_lastMousePos = null
+    @_lastMousePos = undefined
 
     __.bindAll(@, "_onMouseDown", "_onMouseMove", "_onMouseUp")
     $(document).on('mousemove', (event) => @_onMouseMove(event))
@@ -24,7 +24,7 @@ class GestureView extends Backbone.View
   _onMouseDown: (event) ->
     mousePos = @_getMousePos(event)
     @_mouseMoving = false
-    @collection.selectCurrentModel(mousePos.currentPos.x, mousePos.currentPos.y)
+    @collection.selectCurrentGesture(mousePos.currentPos.x, mousePos.currentPos.y)
 
   _onMouseMove: (event) ->
     mousePos = @_getMousePos(event)
@@ -41,7 +41,7 @@ class GestureView extends Backbone.View
     if @_mouseMoving == false
       @collection.click(mousePos)
 
-    @collection.deselectCurrentModel()
+    @collection.deselectCurrentGesture()
     document.body.style.cursor = @collection.getCursor(mousePos.currentPos.x, mousePos.currentPos.y)
 
   _getMousePos: (event) ->
@@ -60,16 +60,17 @@ class GestureView extends Backbone.View
     }
 
   _getDifference: (currentPos) ->
-    if @_lastMousePos == null
+    if @_lastMousePos?
       return {
-        x: 0
-        y: 0
+        x: currentPos.x - @_lastMousePos.x
+        y: currentPos.y - @_lastMousePos.y
       }
 
     return {
-      x: currentPos.x - @_lastMousePos.x
-      y: currentPos.y - @_lastMousePos.y
+      x: 0
+      y: 0
     }
+
 
 
 module.exports = GestureView

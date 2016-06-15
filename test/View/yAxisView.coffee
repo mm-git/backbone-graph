@@ -33,8 +33,6 @@ describe 'YAxisView Class Test', ->
     assert.equal(@yAxisView.$wrap.prop('tagName'), 'DIV')
     assert.equal(@yAxisView.$el.parent()[0], @yAxisView.$wrap[0])
 
-    assert.equal(@yAxisView._offsetY, 0)
-
   it 'function test render()', ->
     expectList = [
       {yScale: 100, height: 400}

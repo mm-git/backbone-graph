@@ -7,6 +7,7 @@ class RangeView extends CanvasView
   initialize: (options) ->
     super(options)
     __.extend(@, __.pick(options, _rangeOptions))
+    @render()
 
   render: ->
     w = @pos[2] * @xScale.scale / 100

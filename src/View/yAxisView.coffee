@@ -7,13 +7,9 @@ class YAxisView extends CanvasView
   initialize: (options) ->
     super(options)
     __.extend(@, __.pick(options, _axisOptions))
-    @_offsetY = 0
+    @render()
 
   render: ->
-    scrollYMax = @pos[3] * @yScale.scale / 100 - @pos[3]
-    if @_offsetY > scrollYMax
-      @_offsetY = scrollYMax
-
     w = @pos[2]
     h = @pos[3] * @yScale.scale / 100
 
@@ -21,7 +17,7 @@ class YAxisView extends CanvasView
     .css({
       position: "relative"
       left: 0
-      top: @_offsetY
+      top: 0
       width: w
       height: h
     })
