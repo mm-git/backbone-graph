@@ -135,7 +135,6 @@ class GraphView extends Backbone.View
 
     @listenTo(@_xRangeData, "change", =>
       @_rangeView.render()
-      @_registerRangeGesture()
     )
 
   _registerDefaultGesture: ->
@@ -156,7 +155,9 @@ class GraphView extends Backbone.View
     })
     .on({
       click: (mousePos) =>
-        @_xRangeData.autoSelectX(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X)
+        if @_xRangeData.selected == false
+          @_xRangeData.autoSelectX(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X)
+          @_registerRangeGesture()
       dragStart: (mousePos) =>
         @_xRangeData.selectStartX(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X)
       dragging: (mousePos) =>
@@ -164,6 +165,8 @@ class GraphView extends Backbone.View
           @_xRangeData.selectEndX(0)
         else
           @_xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, @width - GraphView.ORIGIN_OFFSET_X))
+      dragEnd: (mousePos) =>
+        @_registerRangeGesture()
       repeat: (mousePos, index) =>
         if index == 0
           @_xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH)
@@ -191,11 +194,79 @@ class GraphView extends Backbone.View
 
   _rangeGestures = []
   _registerRangeGesture: ->
-    #@_gestureCollection.remove(_rangeGestures)
+    @_gestureCollection.remove(_rangeGestures)
     _rangeGestures = []
 
     if @_xRangeData.selected
-      _rangeGestures = []
+      screenStart = @_xRangeData.screenStart + GraphView.ORIGIN_OFFSET_X
+      screenEnd = @_xRangeData.screenEnd + GraphView.ORIGIN_OFFSET_X
+      repeat = [
+        new RectRegion(null, null, GraphView.ORIGIN_OFFSET_X - 1, null)
+        new RectRegion(@width - GraphView.ORIGIN_OFFSET_Y + 1, null, null, null)
+      ]
+
+      if screenStart >= GraphView.ORIGIN_OFFSET_X && screenStart <= @width
+        rangeStartGesture = new GestureData({
+          region: new RectRegion(
+            screenStart-3
+          , GraphView.ORIGIN_OFFSET_Y
+          , screenStart+3
+          , @height - GraphView.ORIGIN_OFFSET_Y * 2 - 1
+          )
+          cursor: "col-resize"
+          repeat: repeat
+        })
+        .on({
+          dragging: (mousePos) =>
+            if mousePos.currentPos.x < GraphView.ORIGIN_OFFSET_X
+              @_xRangeData.selectStartX(0)
+            else
+              @_xRangeData.selectStartX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, @width - GraphView.ORIGIN_OFFSET_X))
+          dragEnd: (mousePos) =>
+            @_registerRangeGesture()
+          repeat: (mousePos, index) =>
+            if index == 0
+              @_xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH)
+              @_xRangeData.selectStartX(0)
+            else
+              @_xOffsetData.scroll(-GraphView.SELECT_SCROLL_WIDTH)
+              @_xRangeData.selectStartX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, @width - GraphView.ORIGIN_OFFSET_X))
+        })
+
+        @_gestureCollection.add(rangeStartGesture)
+        _rangeGestures.push(rangeStartGesture)
+
+      if screenEnd >= GraphView.ORIGIN_OFFSET_X && screenEnd <= @width
+        rangeEndGesture = new GestureData({
+          region: new RectRegion(
+            screenEnd-3
+          , GraphView.ORIGIN_OFFSET_Y
+          , screenEnd+3
+          , @height - GraphView.ORIGIN_OFFSET_Y * 2 - 1
+          )
+          cursor: "col-resize"
+          repeat: repeat
+        })
+        @_gestureCollection.add(rangeEndGesture)
+        _rangeGestures.push(rangeEndGesture)
+
+      range = [screenStart, screenEnd].sort()
+      range[0] += 3
+      range[1] -= 3
+
+      if range[0] <= @width && range[1] >= GraphView.ORIGIN_OFFSET_X
+        rangeGesture = new GestureData({
+          region: new RectRegion(
+            Math.max(range[0], GraphView.ORIGIN_OFFSET_X)
+          , GraphView.ORIGIN_OFFSET_Y
+          , Math.min(range[1], @width)
+          , @height - GraphView.ORIGIN_OFFSET_Y * 2 - 1
+          )
+          cursor: "move"
+          repeat: repeat
+        })
+        @_gestureCollection.add(rangeGesture)
+        _rangeGestures.push(rangeGesture)
 
 module.exports = GraphView
 

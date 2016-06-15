@@ -64,6 +64,10 @@ class GestureDataCollection extends Backbone.Collection
       )
       targetModel?.trigger("over", mousePos)
 
+  moveEnd: (mousePos) ->
+    if @_currentGesture?
+      @_currentGesture.trigger("dragEnd", mousePos)
+
   _startRepeat: (mousePos, index) ->
     @_repeatMousePos = mousePos
     if @_repeatTimer?

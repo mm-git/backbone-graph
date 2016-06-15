@@ -14091,14 +14091,14 @@
 	        xOffset: this._xOffsetData
 	      });
 	      this._xAxisView.$wrap.appendTo(this.$el);
-	      this._RangeView = new RangeView({
+	      this._rangeView = new RangeView({
 	        model: this._xRangeData,
 	        pos: [GraphView.ORIGIN_OFFSET_X, 0, this.width - GraphView.ORIGIN_OFFSET_X, this.height - GraphView.ORIGIN_OFFSET_Y],
 	        xAxis: this.xAxis,
 	        xScale: this._xScaleData,
 	        xOffset: this._xOffsetData
 	      });
-	      this._RangeView.$wrap.appendTo(this.$el);
+	      this._rangeView.$wrap.appendTo(this.$el);
 	      this._xScaleChangeView = new ScaleChangeView({
 	        model: this._xScaleData
 	      });
@@ -14120,16 +14120,16 @@
 	          _this._yAxisView.render();
 	          _this._graphCanvasView.render();
 	          _this._xAxisView.render();
-	          _this._RangeView.render();
+	          _this._rangeView.render();
 	          return _this._registerRangeGesture();
 	        };
 	      })(this));
 	      this.listenTo(this._xScaleData, "change", (function(_this) {
 	        return function() {
-	          _this._xOffsetData.scroll(0, true);
+	          _this._xOffsetData.scroll(0);
 	          _this._graphCanvasView.render();
 	          _this._xAxisView.render();
-	          _this._RangeView.render();
+	          _this._rangeView.render();
 	          return _this._registerRangeGesture();
 	        };
 	      })(this));
@@ -14137,14 +14137,13 @@
 	        return function() {
 	          _this._graphCanvasView.scrollX();
 	          _this._xAxisView.scrollX();
-	          _this._RangeView.scrollX();
+	          _this._rangeView.scrollX();
 	          return _this._registerRangeGesture();
 	        };
 	      })(this));
 	      return this.listenTo(this._xRangeData, "change", (function(_this) {
 	        return function() {
-	          _this._RangeView.render();
-	          return _this._registerRangeGesture();
+	          return _this._rangeView.render();
 	        };
 	      })(this));
 	    };
@@ -14164,7 +14163,10 @@
 	      }).on({
 	        click: (function(_this) {
 	          return function(mousePos) {
-	            return _this._xRangeData.autoSelectX(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X);
+	            if (_this._xRangeData.selected === false) {
+	              _this._xRangeData.autoSelectX(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X);
+	              return _this._registerRangeGesture();
+	            }
 	          };
 	        })(this),
 	        dragStart: (function(_this) {
@@ -14179,6 +14181,11 @@
 	            } else {
 	              return _this._xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, _this.width - GraphView.ORIGIN_OFFSET_X));
 	            }
+	          };
+	        })(this),
+	        dragEnd: (function(_this) {
+	          return function(mousePos) {
+	            return _this._registerRangeGesture();
 	          };
 	        })(this),
 	        repeat: (function(_this) {
@@ -14214,9 +14221,69 @@
 	    _rangeGestures = [];
 
 	    GraphView.prototype._registerRangeGesture = function() {
+	      var range, rangeEndGesture, rangeGesture, rangeStartGesture, repeat, screenEnd, screenStart;
+	      this._gestureCollection.remove(_rangeGestures);
 	      _rangeGestures = [];
 	      if (this._xRangeData.selected) {
-	        return _rangeGestures = [];
+	        screenStart = this._xRangeData.screenStart + GraphView.ORIGIN_OFFSET_X;
+	        screenEnd = this._xRangeData.screenEnd + GraphView.ORIGIN_OFFSET_X;
+	        repeat = [new RectRegion(null, null, GraphView.ORIGIN_OFFSET_X - 1, null), new RectRegion(this.width - GraphView.ORIGIN_OFFSET_Y + 1, null, null, null)];
+	        if (screenStart >= GraphView.ORIGIN_OFFSET_X && screenStart <= this.width) {
+	          rangeStartGesture = new GestureData({
+	            region: new RectRegion(screenStart - 3, GraphView.ORIGIN_OFFSET_Y, screenStart + 3, this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	            cursor: "col-resize",
+	            repeat: repeat
+	          }).on({
+	            dragging: (function(_this) {
+	              return function(mousePos) {
+	                if (mousePos.currentPos.x < GraphView.ORIGIN_OFFSET_X) {
+	                  return _this._xRangeData.selectStartX(0);
+	                } else {
+	                  return _this._xRangeData.selectStartX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, _this.width - GraphView.ORIGIN_OFFSET_X));
+	                }
+	              };
+	            })(this),
+	            dragEnd: (function(_this) {
+	              return function(mousePos) {
+	                return _this._registerRangeGesture();
+	              };
+	            })(this),
+	            repeat: (function(_this) {
+	              return function(mousePos, index) {
+	                if (index === 0) {
+	                  _this._xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH);
+	                  return _this._xRangeData.selectStartX(0);
+	                } else {
+	                  _this._xOffsetData.scroll(-GraphView.SELECT_SCROLL_WIDTH);
+	                  return _this._xRangeData.selectStartX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, _this.width - GraphView.ORIGIN_OFFSET_X));
+	                }
+	              };
+	            })(this)
+	          });
+	          this._gestureCollection.add(rangeStartGesture);
+	          _rangeGestures.push(rangeStartGesture);
+	        }
+	        if (screenEnd >= GraphView.ORIGIN_OFFSET_X && screenEnd <= this.width) {
+	          rangeEndGesture = new GestureData({
+	            region: new RectRegion(screenEnd - 3, GraphView.ORIGIN_OFFSET_Y, screenEnd + 3, this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	            cursor: "col-resize",
+	            repeat: repeat
+	          });
+	          this._gestureCollection.add(rangeEndGesture);
+	          _rangeGestures.push(rangeEndGesture);
+	        }
+	        range = [screenStart, screenEnd].sort();
+	        range[0] += 3;
+	        range[1] -= 3;
+	        if (range[0] <= this.width && range[1] >= GraphView.ORIGIN_OFFSET_X) {
+	          rangeGesture = new GestureData({
+	            region: new RectRegion(Math.max(range[0], GraphView.ORIGIN_OFFSET_X), GraphView.ORIGIN_OFFSET_Y, Math.min(range[1], this.width), this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	            cursor: "move",
+	            repeat: repeat
+	          });
+	          this._gestureCollection.add(rangeGesture);
+	          return _rangeGestures.push(rangeGesture);
+	        }
 	      }
 	    };
 
@@ -14256,7 +14323,8 @@
 
 	    XAxisView.prototype.initialize = function(options) {
 	      XAxisView.__super__.initialize.call(this, options);
-	      return __.extend(this, __.pick(options, _axisOptions));
+	      __.extend(this, __.pick(options, _axisOptions));
+	      return this.render();
 	    };
 
 	    XAxisView.prototype.render = function() {
@@ -14447,21 +14515,17 @@
 	    YAxisView.prototype.initialize = function(options) {
 	      YAxisView.__super__.initialize.call(this, options);
 	      __.extend(this, __.pick(options, _axisOptions));
-	      return this._offsetY = 0;
+	      return this.render();
 	    };
 
 	    YAxisView.prototype.render = function() {
-	      var GraphView, adjustXInterval, context, drawSub, h, i, ref, ref1, ref2, scrollYMax, w, xe, xs, y, ye, yp, ys;
-	      scrollYMax = this.pos[3] * this.yScale.scale / 100 - this.pos[3];
-	      if (this._offsetY > scrollYMax) {
-	        this._offsetY = scrollYMax;
-	      }
+	      var GraphView, adjustXInterval, context, drawSub, h, i, ref, ref1, ref2, w, xe, xs, y, ye, yp, ys;
 	      w = this.pos[2];
 	      h = this.pos[3] * this.yScale.scale / 100;
 	      this.$el.css({
 	        position: "relative",
 	        left: 0,
-	        top: this._offsetY,
+	        top: 0,
 	        width: w,
 	        height: h
 	      });
@@ -15005,7 +15069,8 @@
 
 	    RangeView.prototype.initialize = function(options) {
 	      RangeView.__super__.initialize.call(this, options);
-	      return __.extend(this, __.pick(options, _rangeOptions));
+	      __.extend(this, __.pick(options, _rangeOptions));
+	      return this.render();
 	    };
 
 	    RangeView.prototype.render = function() {
@@ -15085,7 +15150,7 @@
 
 	    GestureView.prototype.initialize = function(options) {
 	      this._mouseMoving = false;
-	      this._lastMousePos = null;
+	      this._lastMousePos = void 0;
 	      __.bindAll(this, "_onMouseDown", "_onMouseMove", "_onMouseUp");
 	      $(document).on('mousemove', (function(_this) {
 	        return function(event) {
@@ -15108,7 +15173,7 @@
 	      var mousePos;
 	      mousePos = this._getMousePos(event);
 	      this._mouseMoving = false;
-	      return this.collection.selectCurrentModel(mousePos.currentPos.x, mousePos.currentPos.y);
+	      return this.collection.selectCurrentGesture(mousePos.currentPos.x, mousePos.currentPos.y);
 	    };
 
 	    GestureView.prototype._onMouseMove = function(event) {
@@ -15128,8 +15193,10 @@
 	      mousePos = this._getMousePos(event);
 	      if (this._mouseMoving === false) {
 	        this.collection.click(mousePos);
+	      } else {
+	        this.collection.moveEnd(mousePos);
 	      }
-	      this.collection.deselectCurrentModel();
+	      this.collection.deselectCurrentGesture();
 	      return document.body.style.cursor = this.collection.getCursor(mousePos.currentPos.x, mousePos.currentPos.y);
 	    };
 
@@ -15154,15 +15221,15 @@
 	    };
 
 	    GestureView.prototype._getDifference = function(currentPos) {
-	      if (this._lastMousePos === null) {
+	      if (this._lastMousePos != null) {
 	        return {
-	          x: 0,
-	          y: 0
+	          x: currentPos.x - this._lastMousePos.x,
+	          y: currentPos.y - this._lastMousePos.y
 	        };
 	      }
 	      return {
-	        x: currentPos.x - this._lastMousePos.x,
-	        y: currentPos.y - this._lastMousePos.y
+	        x: 0,
+	        y: 0
 	      };
 	    };
 
@@ -15408,11 +15475,17 @@
 	      if (graphX.rangeOver === true) {
 	        return;
 	      }
-	      return this.set({
-	        start: graphX.x,
-	        end: graphX.x,
-	        selected: true
-	      });
+	      if (this.selected) {
+	        return this.set({
+	          start: graphX.x
+	        });
+	      } else {
+	        return this.set({
+	          start: graphX.x,
+	          end: graphX.x,
+	          selected: true
+	        });
+	      }
 	    };
 
 	    RangeData.prototype.selectEndX = function(offset) {
@@ -15592,10 +15665,7 @@
 	      return GestureData.__super__.constructor.apply(this, arguments);
 	    }
 
-	    GestureData.prototype.initialize = function(options) {
-	      this._handlers = {};
-	      return this;
-	    };
+	    GestureData.prototype.initialize = function(options) {};
 
 	    GestureData.property("cursor", {
 	      get: function() {
@@ -15660,18 +15730,29 @@
 	      return this._repeatTimer = void 0;
 	    };
 
-	    GestureDataCollection.prototype.selectCurrentModel = function(x, y) {
+	    GestureDataCollection.prototype.selectCurrentGesture = function(x, y) {
 	      if (this._currentGesture != null) {
 	        return;
 	      }
-	      return this._currentGesture = this.models.find(function(model) {
+	      return this._currentGesture = this.models.slice().reverse().find(function(model) {
 	        return model.isInsideRegion(x, y);
 	      });
 	    };
 
-	    GestureDataCollection.prototype.deselectCurrentModel = function() {
+	    GestureDataCollection.prototype.deselectCurrentGesture = function() {
 	      this._stopRepeat();
 	      return this._currentGesture = void 0;
+	    };
+
+	    GestureDataCollection.prototype.getCursor = function(x, y) {
+	      var targetModel;
+	      if (this._currentGesture != null) {
+	        return this._currentGesture.cursor;
+	      }
+	      targetModel = this.models.slice().reverse().find(function(model) {
+	        return model.isInsideRegion(x, y);
+	      });
+	      return (targetModel != null ? targetModel.cursor : void 0) || "auto";
 	    };
 
 	    GestureDataCollection.prototype.click = function(mousePos) {
@@ -15681,11 +15762,15 @@
 	    };
 
 	    GestureDataCollection.prototype.moveStart = function(mousePos) {
-	      var targetModel;
+	      var index, targetModel;
 	      if (this._currentGesture != null) {
-	        return this._currentGesture.trigger("dragStart", mousePos);
+	        this._currentGesture.trigger("dragStart", mousePos);
+	        index = this._currentGesture.getInsideRepeatIndex(mousePos.currentPos.x, mousePos.currentPos.y);
+	        if (index >= 0) {
+	          return this._startRepeat(mousePos, index);
+	        }
 	      } else {
-	        targetModel = this.models.find(function(model) {
+	        targetModel = this.models.slice().reverse().find(function(model) {
 	          return model.isInsideRegion(mousePos.currentPos.x, mousePos.currentPos.y);
 	        });
 	        return targetModel != null ? targetModel.trigger("over", mousePos) : void 0;
@@ -15703,22 +15788,17 @@
 	          return this._stopRepeat();
 	        }
 	      } else {
-	        targetModel = this.models.find(function(model) {
+	        targetModel = this.models.slice().reverse().find(function(model) {
 	          return model.isInsideRegion(mousePos.currentPos.x, mousePos.currentPos.y);
 	        });
 	        return targetModel != null ? targetModel.trigger("over", mousePos) : void 0;
 	      }
 	    };
 
-	    GestureDataCollection.prototype.getCursor = function(x, y) {
-	      var targetModel;
+	    GestureDataCollection.prototype.moveEnd = function(mousePos) {
 	      if (this._currentGesture != null) {
-	        return this._currentGesture.cursor;
+	        return this._currentGesture.trigger("dragEnd", mousePos);
 	      }
-	      targetModel = this.models.find(function(model) {
-	        return model.isInsideRegion(x, y);
-	      });
-	      return (targetModel != null ? targetModel.cursor : void 0) || "auto";
 	    };
 
 	    GestureDataCollection.prototype._startRepeat = function(mousePos, index) {
@@ -15774,7 +15854,6 @@
 
 	    AxisView.prototype.initialize = function(options) {
 	      this._axisColor = options.axisColor;
-	      this._xScale = options.xScale;
 	      this.render();
 	      return this.listenTo(this.model, AxisData.EVENT_AXIS_CHANGED, (function(_this) {
 	        return function(model) {
@@ -15785,7 +15864,7 @@
 	    };
 
 	    AxisView.prototype.render = function() {
-	      var GraphView, adjustXInterval, context, drawSub, h, i, j, ref, ref1, ref2, ref3, ref4, ref5, results, w, x, xe, xp, xs, y, ye, yp, ys;
+	      var GraphView, context, drawSub, h, i, j, ref, ref1, ref2, ref3, ref4, ref5, results, w, x, xe, xp, xs, y, ye, yp, ys;
 	      GraphView = __webpack_require__(12);
 	      context = this.$el[0].getContext('2d');
 	      w = this.$el[0].width;
@@ -15808,10 +15887,9 @@
 	      context.moveTo(xs, ys);
 	      context.lineTo(xe, ys);
 	      context.stroke();
-	      adjustXInterval = this._xScale.adjustInterval;
 	      context.lineWidth = 0.5;
-	      drawSub = (xs + (xe - xs) * this.model.xAxis.subInterval / (this.model.xMax * adjustXInterval)) > 80;
-	      for (x = i = ref = this.model.xAxis.subInterval / adjustXInterval, ref1 = this.model.xMax, ref2 = this.model.xAxis.subInterval / adjustXInterval; ref2 > 0 ? i < ref1 : i > ref1; x = i += ref2) {
+	      drawSub = (xs + (xe - xs) * this.model.xAxis.subInterval / this.model.xMax) > 80;
+	      for (x = i = ref = this.model.xAxis.subInterval, ref1 = this.model.xMax, ref2 = this.model.xAxis.subInterval; ref2 > 0 ? i <= ref1 : i >= ref1; x = i += ref2) {
 	        xp = xs + (xe - xs) * x / this.model.xMax;
 	        if (x % this.model.xAxis.interval === 0) {
 	          context.fillText("" + x, xp, h - 3);
@@ -15837,7 +15915,7 @@
 	      context.lineWidth = 0.5;
 	      drawSub = (ye + (ys - ye) * this.model.yAxis.subInterval / this.model.yMax) > 50;
 	      results = [];
-	      for (y = j = ref3 = this.model.yAxis.subInterval, ref4 = this.model.yMax, ref5 = this.model.yAxis.subInterval; ref5 > 0 ? j < ref4 : j > ref4; y = j += ref5) {
+	      for (y = j = ref3 = this.model.yAxis.subInterval, ref4 = this.model.yMax, ref5 = this.model.yAxis.subInterval; ref5 > 0 ? j <= ref4 : j >= ref4; y = j += ref5) {
 	        yp = ys + (ye - ys) * y / this.model.yMax;
 	        if (y % this.model.yAxis.interval === 0) {
 	          context.fillText("" + y, xs - 3, yp);

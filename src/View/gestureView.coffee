@@ -40,6 +40,8 @@ class GestureView extends Backbone.View
 
     if @_mouseMoving == false
       @collection.click(mousePos)
+    else
+      @collection.moveEnd(mousePos)
 
     @collection.deselectCurrentGesture()
     document.body.style.cursor = @collection.getCursor(mousePos.currentPos.x, mousePos.currentPos.y)

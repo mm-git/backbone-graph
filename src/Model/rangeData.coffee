@@ -70,11 +70,14 @@ class RangeData extends Backbone.Model
     if graphX.rangeOver == true
       return
 
-    @set({
-      start: graphX.x
-      end: graphX.x
-      selected: true
-    })
+    if @selected
+      @set({start: graphX.x})
+    else
+      @set({
+        start: graphX.x
+        end: graphX.x
+        selected: true
+      })
 
   selectEndX: (offset) ->
     if @get('targetGraph').type != GraphData.TYPE.LINE
