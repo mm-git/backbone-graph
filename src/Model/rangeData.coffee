@@ -67,9 +67,6 @@ class RangeData extends Backbone.Model
       return null
 
     graphX = @_getGraphX(offset)
-    if graphX.rangeOver == true
-      return
-
     if @selected
       @set({start: graphX.x})
     else

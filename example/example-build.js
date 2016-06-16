@@ -14137,8 +14137,7 @@
 	        return function() {
 	          _this._graphCanvasView.scrollX();
 	          _this._xAxisView.scrollX();
-	          _this._rangeView.scrollX();
-	          return _this._registerRangeGesture();
+	          return _this._rangeView.scrollX();
 	        };
 	      })(this));
 	      return this.listenTo(this._xRangeData, "change", (function(_this) {
@@ -14209,6 +14208,11 @@
 	          return function(mousePos) {
 	            return _this._xOffsetData.scroll(mousePos.differencePos.x);
 	          };
+	        })(this),
+	        dragEnd: (function(_this) {
+	          return function(mousePos) {
+	            return _this._registerRangeGesture();
+	          };
 	        })(this)
 	      });
 	      this._gestureCollection = new GestureDataCollection([rangeGesture, scrollGesture]);
@@ -14263,18 +14267,47 @@
 	          this._gestureCollection.add(rangeStartGesture);
 	          _rangeGestures.push(rangeStartGesture);
 	        }
+	        range = [screenStart, screenEnd].sort();
+	        range[0] += 3;
+	        range[1] -= 3;
+	        if (range[0] >= range[1]) {
+	          return;
+	        }
 	        if (screenEnd >= GraphView.ORIGIN_OFFSET_X && screenEnd <= this.width) {
 	          rangeEndGesture = new GestureData({
 	            region: new RectRegion(screenEnd - 3, GraphView.ORIGIN_OFFSET_Y, screenEnd + 3, this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
 	            cursor: "col-resize",
 	            repeat: repeat
+	          }).on({
+	            dragging: (function(_this) {
+	              return function(mousePos) {
+	                if (mousePos.currentPos.x < GraphView.ORIGIN_OFFSET_X) {
+	                  return _this._xRangeData.selectEndX(0);
+	                } else {
+	                  return _this._xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, _this.width - GraphView.ORIGIN_OFFSET_X));
+	                }
+	              };
+	            })(this),
+	            dragEnd: (function(_this) {
+	              return function(mousePos) {
+	                return _this._registerRangeGesture();
+	              };
+	            })(this),
+	            repeat: (function(_this) {
+	              return function(mousePos, index) {
+	                if (index === 0) {
+	                  _this._xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH);
+	                  return _this._xRangeData.selectEndX(0);
+	                } else {
+	                  _this._xOffsetData.scroll(-GraphView.SELECT_SCROLL_WIDTH);
+	                  return _this._xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, _this.width - GraphView.ORIGIN_OFFSET_X));
+	                }
+	              };
+	            })(this)
 	          });
 	          this._gestureCollection.add(rangeEndGesture);
 	          _rangeGestures.push(rangeEndGesture);
 	        }
-	        range = [screenStart, screenEnd].sort();
-	        range[0] += 3;
-	        range[1] -= 3;
 	        if (range[0] <= this.width && range[1] >= GraphView.ORIGIN_OFFSET_X) {
 	          rangeGesture = new GestureData({
 	            region: new RectRegion(Math.max(range[0], GraphView.ORIGIN_OFFSET_X), GraphView.ORIGIN_OFFSET_Y, Math.min(range[1], this.width), this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
@@ -15472,9 +15505,6 @@
 	        return null;
 	      }
 	      graphX = this._getGraphX(offset);
-	      if (graphX.rangeOver === true) {
-	        return;
-	      }
 	      if (this.selected) {
 	        return this.set({
 	          start: graphX.x

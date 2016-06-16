@@ -130,7 +130,6 @@ class GraphView extends Backbone.View
       @_graphCanvasView.scrollX()
       @_xAxisView.scrollX()
       @_rangeView.scrollX()
-      @_registerRangeGesture()
     )
 
     @listenTo(@_xRangeData, "change", =>
@@ -184,6 +183,8 @@ class GraphView extends Backbone.View
     .on({
       dragging: (mousePos) =>
         @_xOffsetData.scroll(mousePos.differencePos.x)
+      dragEnd: (mousePos) =>
+        @_registerRangeGesture()
     })
 
     @_gestureCollection = new GestureDataCollection([rangeGesture, scrollGesture])
@@ -236,6 +237,12 @@ class GraphView extends Backbone.View
         @_gestureCollection.add(rangeStartGesture)
         _rangeGestures.push(rangeStartGesture)
 
+      range = [screenStart, screenEnd].sort()
+      range[0] += 3
+      range[1] -= 3
+      if range[0] >= range[1]
+        return
+
       if screenEnd >= GraphView.ORIGIN_OFFSET_X && screenEnd <= @width
         rangeEndGesture = new GestureData({
           region: new RectRegion(
@@ -247,12 +254,24 @@ class GraphView extends Backbone.View
           cursor: "col-resize"
           repeat: repeat
         })
+        .on({
+          dragging: (mousePos) =>
+            if mousePos.currentPos.x < GraphView.ORIGIN_OFFSET_X
+              @_xRangeData.selectEndX(0)
+            else
+              @_xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, @width - GraphView.ORIGIN_OFFSET_X))
+          dragEnd: (mousePos) =>
+            @_registerRangeGesture()
+          repeat: (mousePos, index) =>
+            if index == 0
+              @_xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH)
+              @_xRangeData.selectEndX(0)
+            else
+              @_xOffsetData.scroll(-GraphView.SELECT_SCROLL_WIDTH)
+              @_xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, @width - GraphView.ORIGIN_OFFSET_X))
+        })
         @_gestureCollection.add(rangeEndGesture)
         _rangeGestures.push(rangeEndGesture)
-
-      range = [screenStart, screenEnd].sort()
-      range[0] += 3
-      range[1] -= 3
 
       if range[0] <= @width && range[1] >= GraphView.ORIGIN_OFFSET_X
         rangeGesture = new GestureData({
