@@ -14165,10 +14165,12 @@
 	      }).on({
 	        click: (function(_this) {
 	          return function(mousePos) {
-	            if (_this._xRangeData.selected === false) {
+	            if (_this._xRangeData.selected) {
+	              _this._xRangeData.selected = false;
+	            } else {
 	              _this._xRangeData.autoSelectX(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X);
-	              return _this._registerRangeGesture();
 	            }
+	            return _this._registerRangeGesture();
 	          };
 	        })(this),
 	        dragStart: (function(_this) {

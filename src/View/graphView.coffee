@@ -158,9 +158,11 @@ class GraphView extends Backbone.View
     })
     .on({
       click: (mousePos) =>
-        if @_xRangeData.selected == false
+        if @_xRangeData.selected
+          @_xRangeData.selected = false
+        else
           @_xRangeData.autoSelectX(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X)
-          @_registerRangeGesture()
+        @_registerRangeGesture()
       dragStart: (mousePos) =>
         @_xRangeData.selectStartX(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X)
       dragging: (mousePos) =>
