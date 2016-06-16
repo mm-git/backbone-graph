@@ -14035,7 +14035,9 @@
 
 	    GraphView.FONT_SIZE = 12;
 
-	    GraphView.SELECT_SCROLL_WIDTH = 20;
+	    GraphView.SCROLL_WIDTH = 20;
+
+	    GraphView.RANGE_RESIZE_WIDTH = 3;
 
 	    GraphView.prototype.tagName = "div";
 
@@ -14191,9 +14193,9 @@
 	        repeat: (function(_this) {
 	          return function(mousePos, index) {
 	            if (index === 0) {
-	              _this._xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH);
+	              _this._xOffsetData.scroll(GraphView.SCROLL_WIDTH);
 	            } else {
-	              _this._xOffsetData.scroll(-GraphView.SELECT_SCROLL_WIDTH);
+	              _this._xOffsetData.scroll(-GraphView.SCROLL_WIDTH);
 	            }
 	            return _this._xRangeData.selectEndX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X);
 	          };
@@ -14235,7 +14237,7 @@
 	        screenEnd = this._xRangeData.screenEnd + GraphView.ORIGIN_OFFSET_X;
 	        if (screenStart >= GraphView.ORIGIN_OFFSET_X && screenStart <= this.width) {
 	          rangeStartGesture = new GestureData({
-	            actionRegion: new RectRegion(screenStart - 3, GraphView.ORIGIN_OFFSET_Y, screenStart + 3, this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	            actionRegion: new RectRegion(screenStart - GraphView.RANGE_RESIZE_WIDTH, GraphView.ORIGIN_OFFSET_Y, screenStart + GraphView.RANGE_RESIZE_WIDTH, this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
 	            roundRegion: this._rangeRegion,
 	            cursor: "col-resize",
 	            repeat: this._rangeRepeatRegion
@@ -14253,9 +14255,9 @@
 	            repeat: (function(_this) {
 	              return function(mousePos, index) {
 	                if (index === 0) {
-	                  _this._xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH);
+	                  _this._xOffsetData.scroll(GraphView.SCROLL_WIDTH);
 	                } else {
-	                  _this._xOffsetData.scroll(-GraphView.SELECT_SCROLL_WIDTH);
+	                  _this._xOffsetData.scroll(-GraphView.SCROLL_WIDTH);
 	                }
 	                return _this._xRangeData.selectStartX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X);
 	              };
@@ -14265,14 +14267,14 @@
 	          _rangeGestures.push(rangeStartGesture);
 	        }
 	        range = [screenStart, screenEnd].sort();
-	        range[0] += 3;
-	        range[1] -= 3;
+	        range[0] += GraphView.RANGE_RESIZE_WIDTH;
+	        range[1] -= GraphView.RANGE_RESIZE_WIDTH;
 	        if (range[0] >= range[1]) {
 	          return;
 	        }
 	        if (screenEnd >= GraphView.ORIGIN_OFFSET_X && screenEnd <= this.width) {
 	          rangeEndGesture = new GestureData({
-	            actionRegion: new RectRegion(screenEnd - 3, GraphView.ORIGIN_OFFSET_Y, screenEnd + 3, this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	            actionRegion: new RectRegion(screenEnd - GraphView.RANGE_RESIZE_WIDTH, GraphView.ORIGIN_OFFSET_Y, screenEnd + GraphView.RANGE_RESIZE_WIDTH, this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
 	            roundRegion: this._rangeRegion,
 	            cursor: "col-resize",
 	            repeat: this._rangeRepeatRegion
@@ -14290,9 +14292,9 @@
 	            repeat: (function(_this) {
 	              return function(mousePos, index) {
 	                if (index === 0) {
-	                  _this._xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH);
+	                  _this._xOffsetData.scroll(GraphView.SCROLL_WIDTH);
 	                } else {
-	                  _this._xOffsetData.scroll(-GraphView.SELECT_SCROLL_WIDTH);
+	                  _this._xOffsetData.scroll(-GraphView.SCROLL_WIDTH);
 	                }
 	                return _this._xRangeData.selectEndX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X);
 	              };
