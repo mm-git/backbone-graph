@@ -47,6 +47,24 @@ class RectRegion
 
     return true
 
+  getRound: (x, y) ->
+    roundX = x
+    if @_minX? && x < @_val(@_minX)
+      roundX = @_val(@_minX)
+    else if @_maxX? && x > @_val(@_maxX)
+      roundX = @_val(@_maxX)
+
+    roundY = y
+    if @_minY? && y < @_val(@_minY)
+      roundY = @_val(@_minY)
+    else if @_maxY? && y > @_val(@_maxY)
+      roundY = @_val(@_maxY)
+
+    return {
+      x: roundX
+      y: roundY
+    }
+
   _checkParameter: (minX, minY, maxX, maxY) ->
     if !minX? && !minY? && !maxX? && !maxY?
       throw "All parameters are null"

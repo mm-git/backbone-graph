@@ -14149,16 +14149,19 @@
 
 	    GraphView.prototype._registerDefaultGesture = function() {
 	      var rangeGesture, scrollGesture;
+	      this._rangeRegion = new RectRegion(GraphView.ORIGIN_OFFSET_X, GraphView.ORIGIN_OFFSET_Y, (function(_this) {
+	        return function() {
+	          var divWidth;
+	          divWidth = (_this.width - GraphView.ORIGIN_OFFSET_X) * _this._xScaleData.scale / 100 - GraphView.ORIGIN_OFFSET_Y + GraphView.ORIGIN_OFFSET_X;
+	          return Math.min(divWidth + _this._xOffsetData.offset, _this.width);
+	        };
+	      })(this), this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1);
+	      this._rangeRepeatRegion = [new RectRegion(null, null, GraphView.ORIGIN_OFFSET_X - 1, null), new RectRegion(this.width - GraphView.ORIGIN_OFFSET_Y + 1, null, null, null)];
 	      rangeGesture = new GestureData({
-	        region: new RectRegion(GraphView.ORIGIN_OFFSET_X, GraphView.ORIGIN_OFFSET_Y, (function(_this) {
-	          return function() {
-	            var divWidth;
-	            divWidth = (_this.width - GraphView.ORIGIN_OFFSET_X) * _this._xScaleData.scale / 100 - GraphView.ORIGIN_OFFSET_Y + GraphView.ORIGIN_OFFSET_X;
-	            return Math.min(divWidth + _this._xOffsetData.offset, _this.width) - 1;
-	          };
-	        })(this), this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	        actionRegion: this._rangeRegion,
+	        roundRegion: this._rangeRegion,
 	        cursor: "crosshair",
-	        repeat: [new RectRegion(null, null, GraphView.ORIGIN_OFFSET_X - 1, null), new RectRegion(this.width - GraphView.ORIGIN_OFFSET_Y + 1, null, null, null)]
+	        repeat: this._rangeRepeatRegion
 	      }).on({
 	        click: (function(_this) {
 	          return function(mousePos) {
@@ -14175,11 +14178,7 @@
 	        })(this),
 	        dragging: (function(_this) {
 	          return function(mousePos) {
-	            if (mousePos.currentPos.x < GraphView.ORIGIN_OFFSET_X) {
-	              return _this._xRangeData.selectEndX(0);
-	            } else {
-	              return _this._xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, _this.width - GraphView.ORIGIN_OFFSET_X));
-	            }
+	            return _this._xRangeData.selectEndX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X);
 	          };
 	        })(this),
 	        dragEnd: (function(_this) {
@@ -14191,16 +14190,17 @@
 	          return function(mousePos, index) {
 	            if (index === 0) {
 	              _this._xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH);
-	              return _this._xRangeData.selectEndX(0);
 	            } else {
 	              _this._xOffsetData.scroll(-GraphView.SELECT_SCROLL_WIDTH);
-	              return _this._xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, _this.width - GraphView.ORIGIN_OFFSET_X));
 	            }
+	            return _this._xRangeData.selectEndX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X);
 	          };
 	        })(this)
 	      });
+	      this._scrollRegion = new RectRegion(GraphView.ORIGIN_OFFSET_X, this.height - GraphView.ORIGIN_OFFSET_Y * 2, this.width, this.height);
 	      scrollGesture = new GestureData({
-	        region: new RectRegion(GraphView.ORIGIN_OFFSET_X, this.height - GraphView.ORIGIN_OFFSET_Y * 2, this.width - 1, this.height - 1),
+	        actionRegion: this._scrollRegion,
+	        roundRegion: this._scrollRegion,
 	        cursor: "move",
 	        repeat: []
 	      }).on({
@@ -14225,26 +14225,22 @@
 	    _rangeGestures = [];
 
 	    GraphView.prototype._registerRangeGesture = function() {
-	      var range, rangeEndGesture, rangeGesture, rangeStartGesture, repeat, screenEnd, screenStart;
+	      var range, rangeEndGesture, rangeGesture, rangeStartGesture, screenEnd, screenStart;
 	      this._gestureCollection.remove(_rangeGestures);
 	      _rangeGestures = [];
 	      if (this._xRangeData.selected) {
 	        screenStart = this._xRangeData.screenStart + GraphView.ORIGIN_OFFSET_X;
 	        screenEnd = this._xRangeData.screenEnd + GraphView.ORIGIN_OFFSET_X;
-	        repeat = [new RectRegion(null, null, GraphView.ORIGIN_OFFSET_X - 1, null), new RectRegion(this.width - GraphView.ORIGIN_OFFSET_Y + 1, null, null, null)];
 	        if (screenStart >= GraphView.ORIGIN_OFFSET_X && screenStart <= this.width) {
 	          rangeStartGesture = new GestureData({
-	            region: new RectRegion(screenStart - 3, GraphView.ORIGIN_OFFSET_Y, screenStart + 3, this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	            actionRegion: new RectRegion(screenStart - 3, GraphView.ORIGIN_OFFSET_Y, screenStart + 3, this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	            roundRegion: this._rangeRegion,
 	            cursor: "col-resize",
-	            repeat: repeat
+	            repeat: this._rangeRepeatRegion
 	          }).on({
 	            dragging: (function(_this) {
 	              return function(mousePos) {
-	                if (mousePos.currentPos.x < GraphView.ORIGIN_OFFSET_X) {
-	                  return _this._xRangeData.selectStartX(0);
-	                } else {
-	                  return _this._xRangeData.selectStartX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, _this.width - GraphView.ORIGIN_OFFSET_X));
-	                }
+	                return _this._xRangeData.selectStartX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X);
 	              };
 	            })(this),
 	            dragEnd: (function(_this) {
@@ -14256,11 +14252,10 @@
 	              return function(mousePos, index) {
 	                if (index === 0) {
 	                  _this._xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH);
-	                  return _this._xRangeData.selectStartX(0);
 	                } else {
 	                  _this._xOffsetData.scroll(-GraphView.SELECT_SCROLL_WIDTH);
-	                  return _this._xRangeData.selectStartX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, _this.width - GraphView.ORIGIN_OFFSET_X));
 	                }
+	                return _this._xRangeData.selectStartX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X);
 	              };
 	            })(this)
 	          });
@@ -14275,17 +14270,14 @@
 	        }
 	        if (screenEnd >= GraphView.ORIGIN_OFFSET_X && screenEnd <= this.width) {
 	          rangeEndGesture = new GestureData({
-	            region: new RectRegion(screenEnd - 3, GraphView.ORIGIN_OFFSET_Y, screenEnd + 3, this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	            actionRegion: new RectRegion(screenEnd - 3, GraphView.ORIGIN_OFFSET_Y, screenEnd + 3, this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	            roundRegion: this._rangeRegion,
 	            cursor: "col-resize",
-	            repeat: repeat
+	            repeat: this._rangeRepeatRegion
 	          }).on({
 	            dragging: (function(_this) {
 	              return function(mousePos) {
-	                if (mousePos.currentPos.x < GraphView.ORIGIN_OFFSET_X) {
-	                  return _this._xRangeData.selectEndX(0);
-	                } else {
-	                  return _this._xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, _this.width - GraphView.ORIGIN_OFFSET_X));
-	                }
+	                return _this._xRangeData.selectEndX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X);
 	              };
 	            })(this),
 	            dragEnd: (function(_this) {
@@ -14297,11 +14289,10 @@
 	              return function(mousePos, index) {
 	                if (index === 0) {
 	                  _this._xOffsetData.scroll(GraphView.SELECT_SCROLL_WIDTH);
-	                  return _this._xRangeData.selectEndX(0);
 	                } else {
 	                  _this._xOffsetData.scroll(-GraphView.SELECT_SCROLL_WIDTH);
-	                  return _this._xRangeData.selectEndX(Math.min(mousePos.currentPos.x - GraphView.ORIGIN_OFFSET_X, _this.width - GraphView.ORIGIN_OFFSET_X));
 	                }
+	                return _this._xRangeData.selectEndX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X);
 	              };
 	            })(this)
 	          });
@@ -14310,9 +14301,10 @@
 	        }
 	        if (range[0] <= this.width && range[1] >= GraphView.ORIGIN_OFFSET_X) {
 	          rangeGesture = new GestureData({
-	            region: new RectRegion(Math.max(range[0], GraphView.ORIGIN_OFFSET_X), GraphView.ORIGIN_OFFSET_Y, Math.min(range[1], this.width), this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	            actionRegion: new RectRegion(Math.max(range[0], GraphView.ORIGIN_OFFSET_X), GraphView.ORIGIN_OFFSET_Y, Math.min(range[1], this.width), this.height - GraphView.ORIGIN_OFFSET_Y * 2 - 1),
+	            roundRegion: this._rangeRegion,
 	            cursor: "move",
-	            repeat: repeat
+	            repeat: this._rangeRepeatRegion
 	          });
 	          this._gestureCollection.add(rangeGesture);
 	          return _rangeGestures.push(rangeGesture);
@@ -15646,6 +15638,26 @@
 	      return true;
 	    };
 
+	    RectRegion.prototype.getRound = function(x, y) {
+	      var roundX, roundY;
+	      roundX = x;
+	      if ((this._minX != null) && x < this._val(this._minX)) {
+	        roundX = this._val(this._minX);
+	      } else if ((this._maxX != null) && x > this._val(this._maxX)) {
+	        roundX = this._val(this._maxX);
+	      }
+	      roundY = y;
+	      if ((this._minY != null) && y < this._val(this._minY)) {
+	        roundY = this._val(this._minY);
+	      } else if ((this._maxY != null) && y > this._val(this._maxY)) {
+	        roundY = this._val(this._maxY);
+	      }
+	      return {
+	        x: roundX,
+	        y: roundY
+	      };
+	    };
+
 	    RectRegion.prototype._checkParameter = function(minX, minY, maxX, maxY) {
 	      if ((minX == null) && (minY == null) && (maxX == null) && (maxY == null)) {
 	        throw "All parameters are null";
@@ -15703,8 +15715,8 @@
 	      }
 	    });
 
-	    GestureData.prototype.isInsideRegion = function(x, y) {
-	      return this.get('region').isInside(x, y);
+	    GestureData.prototype.isInsideActionRegion = function(x, y) {
+	      return this.get('actionRegion').isInside(x, y);
 	    };
 
 	    GestureData.prototype.getInsideRepeatIndex = function(x, y) {
@@ -15718,6 +15730,11 @@
 	        return false;
 	      });
 	      return result;
+	    };
+
+	    GestureData.prototype.triggerWithRoundPos = function(eventName, mousePos, index) {
+	      mousePos.roundPos = this.get('roundRegion').getRound(mousePos.currentPos.x, mousePos.currentPos.y);
+	      return this.trigger(eventName, mousePos, index);
 	    };
 
 	    return GestureData;
@@ -15765,7 +15782,7 @@
 	        return;
 	      }
 	      return this._currentGesture = this.models.slice().reverse().find(function(model) {
-	        return model.isInsideRegion(x, y);
+	        return model.isInsideActionRegion(x, y);
 	      });
 	    };
 
@@ -15780,37 +15797,37 @@
 	        return this._currentGesture.cursor;
 	      }
 	      targetModel = this.models.slice().reverse().find(function(model) {
-	        return model.isInsideRegion(x, y);
+	        return model.isInsideActionRegion(x, y);
 	      });
 	      return (targetModel != null ? targetModel.cursor : void 0) || "auto";
 	    };
 
 	    GestureDataCollection.prototype.click = function(mousePos) {
 	      if (this._currentGesture != null) {
-	        return this._currentGesture.trigger("click", mousePos);
+	        return this._currentGesture.triggerWithRoundPos("click", mousePos);
 	      }
 	    };
 
 	    GestureDataCollection.prototype.moveStart = function(mousePos) {
 	      var index, targetModel;
 	      if (this._currentGesture != null) {
-	        this._currentGesture.trigger("dragStart", mousePos);
+	        this._currentGesture.triggerWithRoundPos("dragStart", mousePos);
 	        index = this._currentGesture.getInsideRepeatIndex(mousePos.currentPos.x, mousePos.currentPos.y);
 	        if (index >= 0) {
 	          return this._startRepeat(mousePos, index);
 	        }
 	      } else {
 	        targetModel = this.models.slice().reverse().find(function(model) {
-	          return model.isInsideRegion(mousePos.currentPos.x, mousePos.currentPos.y);
+	          return model.isInsideActionRegion(mousePos.currentPos.x, mousePos.currentPos.y);
 	        });
-	        return targetModel != null ? targetModel.trigger("over", mousePos) : void 0;
+	        return targetModel != null ? targetModel.triggerWithRoundPos("over", mousePos) : void 0;
 	      }
 	    };
 
 	    GestureDataCollection.prototype.move = function(mousePos) {
 	      var index, targetModel;
 	      if (this._currentGesture != null) {
-	        this._currentGesture.trigger("dragging", mousePos);
+	        this._currentGesture.triggerWithRoundPos("dragging", mousePos);
 	        index = this._currentGesture.getInsideRepeatIndex(mousePos.currentPos.x, mousePos.currentPos.y);
 	        if (index >= 0) {
 	          return this._startRepeat(mousePos, index);
@@ -15819,15 +15836,15 @@
 	        }
 	      } else {
 	        targetModel = this.models.slice().reverse().find(function(model) {
-	          return model.isInsideRegion(mousePos.currentPos.x, mousePos.currentPos.y);
+	          return model.isInsideActionRegion(mousePos.currentPos.x, mousePos.currentPos.y);
 	        });
-	        return targetModel != null ? targetModel.trigger("over", mousePos) : void 0;
+	        return targetModel != null ? targetModel.triggerWithRoundPos("over", mousePos) : void 0;
 	      }
 	    };
 
 	    GestureDataCollection.prototype.moveEnd = function(mousePos) {
 	      if (this._currentGesture != null) {
-	        return this._currentGesture.trigger("dragEnd", mousePos);
+	        return this._currentGesture.triggerWithRoundPos("dragEnd", mousePos);
 	      }
 	    };
 
@@ -15838,14 +15855,14 @@
 	      }
 	      return this._repeatTimer = setInterval((function(_this) {
 	        return function() {
-	          return _this._currentGesture.trigger("repeat", _this._repeatMousePos, index);
+	          return _this._currentGesture.triggerWithRoundPos("repeat", _this._repeatMousePos, index);
 	        };
 	      })(this), GestureDataCollection.REPEAT_INTERVAL);
 	    };
 
 	    GestureDataCollection.prototype._stopRepeat = function() {
 	      if (this._repeatTimer != null) {
-	        clearTimeout(this._repeatTimer);
+	        clearInterval(this._repeatTimer);
 	      }
 	      return this._repeatTimer = void 0;
 	    };

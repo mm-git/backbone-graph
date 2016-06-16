@@ -74,5 +74,4 @@ class GestureView extends Backbone.View
     }
 
 
-
 module.exports = GestureView

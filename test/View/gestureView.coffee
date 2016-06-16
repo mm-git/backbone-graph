@@ -16,7 +16,8 @@ describe 'GestureView Class Test', ->
     @action = ""
     @actionMousePos = undefined
     @gesture1 = new GestureData({
-      region: new RectRegion(0, 0, 600, 400)
+      actionRegion: new RectRegion(0, 0, 600, 400)
+      roundRegion: new RectRegion(0, 0, 600, 400)
       cursor: "hand"
       repeat: [
         new RectRegion(0, 0, 100, 400)
@@ -41,7 +42,8 @@ describe 'GestureView Class Test', ->
         @actionMousePos = mousePos
     })
     @gesture2 = new GestureData({
-      region: new RectRegion(0, 300, 600, 500)
+      actionRegion: new RectRegion(0, 300, 600, 500)
+      roundRegion: new RectRegion(0, 300, 600, 500)
       cursor: "move"
       repeat: []
     })

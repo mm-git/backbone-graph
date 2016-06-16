@@ -3,7 +3,8 @@ Backbone = require('backbone')
 
 class GestureData extends Backbone.Model
   # options
-  #   region: RectRegion Object
+  #   actionRegion: RectRegion Object
+  #   roundRegion: RectRegion Object
   #   cursor: cursor name string
   #   repeat: [RectRegion Object, ..]
   initialize: (options) ->
@@ -12,8 +13,8 @@ class GestureData extends Backbone.Model
     get: ->
       @get('cursor')
 
-  isInsideRegion: (x, y) ->
-    return @get('region').isInside(x, y)
+  isInsideActionRegion: (x, y) ->
+    return @get('actionRegion').isInside(x, y)
 
   getInsideRepeatIndex: (x, y) ->
     result = -1
@@ -24,5 +25,9 @@ class GestureData extends Backbone.Model
       return false
     )
     return result
+
+  triggerWithRoundPos: (eventName, mousePos, index) ->
+    mousePos.roundPos = @get('roundRegion').getRound(mousePos.currentPos.x, mousePos.currentPos.y)
+    @trigger(eventName, mousePos, index)
 
 module.exports = GestureData

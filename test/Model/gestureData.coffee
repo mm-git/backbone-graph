@@ -10,7 +10,8 @@ GestureData = require('../../src/Model/gestureData.coffee')
 describe 'GestureData Class Test', ->
   it 'constructor test', ->
     gesture = new GestureData({
-      region: new RectRegion(0, 0, 600, 400)
+      actionRegion: new RectRegion(0, 0, 600, 400)
+      roundRegion: new RectRegion(0, 0, 600, 400)
       cursor: "auto"
       repeat: [
         new RectRegion(0, 0, 100, 400)
@@ -20,9 +21,10 @@ describe 'GestureData Class Test', ->
 
     assert.equal(gesture.cursor, "auto")
 
-  it 'function test isInsideRegion()', ->
+  it 'function test isInsideActionRegion()', ->
     gesture = new GestureData({
-      region: new RectRegion(0, 0, 600, 400)
+      actionRegion: new RectRegion(0, 0, 600, 400)
+      roundRegion: new RectRegion(0, 0, 600, 400)
       cursor: "auto"
       repeat: [
         new RectRegion(0, 0, 100, 400)
@@ -30,16 +32,17 @@ describe 'GestureData Class Test', ->
       ]
     })
 
-    assert.equal(gesture.isInsideRegion(-1, -1), false)
-    assert.equal(gesture.isInsideRegion(0, 0), true)
-    assert.equal(gesture.isInsideRegion(1, 1), true)
-    assert.equal(gesture.isInsideRegion(599, 399), true)
-    assert.equal(gesture.isInsideRegion(600, 400), true)
-    assert.equal(gesture.isInsideRegion(601, 401), false)
+    assert.equal(gesture.isInsideActionRegion(-1, -1), false)
+    assert.equal(gesture.isInsideActionRegion(0, 0), true)
+    assert.equal(gesture.isInsideActionRegion(1, 1), true)
+    assert.equal(gesture.isInsideActionRegion(599, 399), true)
+    assert.equal(gesture.isInsideActionRegion(600, 400), true)
+    assert.equal(gesture.isInsideActionRegion(601, 401), false)
 
   it 'function test getInsideRepeatIndex()', ->
     gesture = new GestureData({
-      region: new RectRegion(0, 0, 600, 400)
+      actionRegion: new RectRegion(0, 0, 600, 400)
+      roundRegion: new RectRegion(0, 0, 600, 400)
       cursor: "auto"
       repeat: [
         new RectRegion(0, 0, 100, 400)

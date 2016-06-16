@@ -12,7 +12,8 @@ GestureDataCollection = require('../../src/Model/gestureDataCollection.coffee')
 describe 'GestureDataCollection Class Test', ->
   beforeEach ->
     @gesture1 = new GestureData({
-      region: new RectRegion(0, 0, 600, 400)
+      actionRegion: new RectRegion(0, 0, 600, 400)
+      roundRegion: new RectRegion(0, 0, 600, 400)
       cursor: "hand"
       repeat: [
         new RectRegion(0, 0, 100, 400)
@@ -20,7 +21,8 @@ describe 'GestureDataCollection Class Test', ->
       ]
     })
     @gesture2 = new GestureData({
-      region: new RectRegion(0, 300, 600, 500)
+      actionRegion: new RectRegion(0, 300, 600, 500)
+      roundRegion: new RectRegion(0, 300, 600, 500)
       cursor: "move"
       repeat: []
     })
@@ -97,9 +99,10 @@ describe 'GestureDataCollection Class Test', ->
     @gestureDataCollection.selectCurrentGesture(0, 0)
     @gestureDataCollection.click(mousePos)
     assert.equal(trigger.callCount, 1)
-    assert.equal(trigger.getCall(0).args.length, 2)
+    assert.equal(trigger.getCall(0).args.length, 3)
     assert.equal(trigger.getCall(0).args[0], "click")
     assert.equal(trigger.getCall(0).args[1], mousePos)
+    assert.equal(trigger.getCall(0).args[2], undefined)
 
     trigger.restore()
 
@@ -127,9 +130,10 @@ describe 'GestureDataCollection Class Test', ->
 
     @gestureDataCollection.moveStart(mousePos)
     assert.equal(trigger.callCount, 1)
-    assert.equal(trigger.getCall(0).args.length, 2)
+    assert.equal(trigger.getCall(0).args.length, 3)
     assert.equal(trigger.getCall(0).args[0], "over")
     assert.equal(trigger.getCall(0).args[1], mousePos)
+    assert.equal(trigger.getCall(0).args[2], undefined )
 
     mousePos =
       currentPos:
@@ -142,9 +146,10 @@ describe 'GestureDataCollection Class Test', ->
     @gestureDataCollection.selectCurrentGesture(0, 0)
     @gestureDataCollection.moveStart(mousePos)
     assert.equal(trigger.callCount, 2)
-    assert.equal(trigger.getCall(1).args.length, 2)
+    assert.equal(trigger.getCall(1).args.length, 3)
     assert.equal(trigger.getCall(1).args[0], "dragStart")
     assert.equal(trigger.getCall(1).args[1], mousePos)
+    assert.equal(trigger.getCall(1).args[2], undefined )
 
     trigger.restore()
 
@@ -173,16 +178,18 @@ describe 'GestureDataCollection Class Test', ->
 
     @gestureDataCollection.move(mousePos)
     assert.equal(trigger.callCount, 1)
-    assert.equal(trigger.getCall(0).args.length, 2)
+    assert.equal(trigger.getCall(0).args.length, 3)
     assert.equal(trigger.getCall(0).args[0], "over")
     assert.equal(trigger.getCall(0).args[1], mousePos)
+    assert.equal(trigger.getCall(0).args[2], undefined)
 
     @gestureDataCollection.selectCurrentGesture(0, 0)
     @gestureDataCollection.move(mousePos)
     assert.equal(trigger.callCount, 2)
-    assert.equal(trigger.getCall(1).args.length, 2)
+    assert.equal(trigger.getCall(1).args.length, 3)
     assert.equal(trigger.getCall(1).args[0], "dragging")
     assert.equal(trigger.getCall(1).args[1], mousePos)
+    assert.equal(trigger.getCall(1).args[2], undefined)
     assert.equal(@gestureDataCollection._repeatMousePos, undefined)
     assert.equal(@gestureDataCollection._repeatTimer, undefined)
 
@@ -196,9 +203,10 @@ describe 'GestureDataCollection Class Test', ->
 
     @gestureDataCollection.move(mousePos)
     assert.equal(trigger.callCount, 3)
-    assert.equal(trigger.getCall(2).args.length, 2)
+    assert.equal(trigger.getCall(2).args.length, 3)
     assert.equal(trigger.getCall(2).args[0], "dragging")
     assert.equal(trigger.getCall(2).args[1], mousePos)
+    assert.equal(trigger.getCall(2).args[2], undefined)
     assert.equal(@gestureDataCollection._repeatMousePos, mousePos)
     assert.notEqual(@gestureDataCollection._repeatTimer, undefined)
 
@@ -218,13 +226,14 @@ describe 'GestureDataCollection Class Test', ->
         x: -10
         y: -20
 
-    clock.restore()
 
     @gestureDataCollection.move(mousePos)
     assert.equal(trigger.callCount, 5)
-    assert.equal(trigger.getCall(4).args.length, 2)
+    assert.equal(trigger.getCall(4).args.length, 3)
     assert.equal(trigger.getCall(4).args[0], "dragging")
     assert.equal(trigger.getCall(4).args[1], mousePos)
+    assert.equal(trigger.getCall(4).args[2], undefined)
     assert.equal(@gestureDataCollection._repeatTimer, undefined)
 
+    clock.restore()
     trigger.restore()

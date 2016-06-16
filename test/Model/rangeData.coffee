@@ -201,7 +201,7 @@ describe 'RangeData Class Test', ->
 
     @rangeData.selectStartX(200)
     assert.equal(Math.floor(@rangeData.start), 25) #(200 + 400) * 100 / (600 * 4 -30)
-    assert.equal(Math.floor(@rangeData.end), 25)
+    assert.equal(Math.floor(@rangeData.end), 100)
     assert.equal(@rangeData.selected, true)
 
     @rangeData.selectEndX(400)
