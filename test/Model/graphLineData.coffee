@@ -114,6 +114,14 @@ describe 'GraphLineData Class Test', ->
     assert.equal(pointData.pointList.length, 101)
 
     pointData.calculatePeak(1000, 0.01)
+    assert.equal(pointData.min.x, 90)
+    assert.equal(pointData.min.y, 50)
+    assert.equal(pointData.max.x, 70)
+    assert.equal(pointData.max.y, 1000)
+    assert.equal(Math.floor(pointData.smoothMin.x), 89)
+    assert.equal(Math.floor(pointData.smoothMin.y), 101)
+    assert.equal(Math.floor(pointData.smoothMax.x), 68)
+    assert.equal(Math.floor(pointData.smoothMax.y), 841)
     assert.equal(pointData.peakList.length, 4)
     assert.equal(pointData.peakList[0].index, 0)
     assert.equal(pointData.peakList[0].isMax, false)
@@ -127,6 +135,10 @@ describe 'GraphLineData Class Test', ->
     pointData.calculateTotalGainAndDrop()
     assert.equal(Math.floor(pointData.totalGain), 852)
     assert.equal(Math.floor(pointData.totalDrop), 740)
+    assert.equal(pointData.maxIncline.incline.toFixed(3), "0.040")
+    assert.equal(pointData.maxIncline.point.x, 64)
+    assert.equal(pointData.minIncline.incline.toFixed(3), "-0.074")
+    assert.equal(pointData.minIncline.point.x, 75)
 
   it 'function test unsmooth()', ->
     pointData = new GraphLineData({
@@ -152,8 +164,18 @@ describe 'GraphLineData Class Test', ->
     pointData.unsmooth()
     assert.equal(pointData.pointList.length, 11)
     assert.equal(pointData.peakList.length, 0)
+    assert.equal(pointData.min.x, 90)
+    assert.equal(pointData.min.y, 50)
+    assert.equal(pointData.max.x, 70)
+    assert.equal(pointData.max.y, 1000)
+    assert.equal(pointData.smoothMin.x, 90)
+    assert.equal(pointData.smoothMin.y, 50)
+    assert.equal(pointData.smoothMax.x, 70)
+    assert.equal(pointData.smoothMax.y, 1000)
     assert.equal(Math.floor(pointData.totalGain), 0)
     assert.equal(Math.floor(pointData.totalDrop), 0)
+    assert.equal(pointData.maxIncline.incline, 0)
+    assert.equal(pointData.minIncline.incline, 0)
 
   it 'function test getAutoRange()', ->
     pointData = new GraphLineData({

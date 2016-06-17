@@ -42,13 +42,13 @@ class GraphLineData extends GraphData
     get: ->
       if @_peakList.length == 0
         return @_min
-      return @_peakList.sort((a, b) -> a.point.y - b.point.y)[0].point
+      return @_peakList.slice().sort((a, b) -> a.point.y - b.point.y)[0].point
 
   @property "smoothMax",
     get: ->
       if @_peakList.length == 0
         return @_max
-      return @_peakList.sort((a, b) -> b.point.y - a.point.y)[0].point
+      return @_peakList.slice().sort((a, b) -> b.point.y - a.point.y)[0].point
 
   @property "totalGain",
     get: ->
@@ -157,6 +157,8 @@ class GraphLineData extends GraphData
     @_peakList = []
     @_totalGain = 0
     @_totalDrop = 0
+    @_maxIncline = {incline:0}
+    @_minIncline = {incline:0}
 
   calculatePeak: (xyRatio, threshold) ->
     # @_smoothListに対して計算を行うので、事前にsmoothingを実行している必要がある
@@ -258,7 +260,7 @@ class GraphLineData extends GraphData
   setRange: (range) ->
     @_range = range
 
-    if @_range.selected == false
+    if @_range.selected == false || @_smoothList.length == 0
       return
 
     startIndex = 0
@@ -278,6 +280,7 @@ class GraphLineData extends GraphData
       return false
     )
     @_range.end = @_smoothList[endIndex].x
+
     @_range.width = @_range.end - @_range.start
     if @_range.width == 0
       @_range.min = @_smoothList[startIndex]

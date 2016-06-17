@@ -105,7 +105,7 @@
 	    toggleButton.html("Unsmooth");
 	    lineGraph.smooth(1, 5);
 	    lineGraph.calculatePeak(1000, 0.01);
-	    lineGraph.calculateTotalGainAndDrop()
+	    lineGraph.calculateTotalGainAndDrop();
 	    graphCollection.change();
 	    writeInformation();
 	  }
@@ -13699,7 +13699,7 @@
 	        if (this._peakList.length === 0) {
 	          return this._min;
 	        }
-	        return this._peakList.sort(function(a, b) {
+	        return this._peakList.slice().sort(function(a, b) {
 	          return a.point.y - b.point.y;
 	        })[0].point;
 	      }
@@ -13710,7 +13710,7 @@
 	        if (this._peakList.length === 0) {
 	          return this._max;
 	        }
-	        return this._peakList.sort(function(a, b) {
+	        return this._peakList.slice().sort(function(a, b) {
 	          return b.point.y - a.point.y;
 	        })[0].point;
 	      }
@@ -13975,7 +13975,7 @@
 	    GraphLineData.prototype.setRange = function(range) {
 	      var endIndex, startIndex;
 	      this._range = range;
-	      if (this._range.selected === false) {
+	      if (this._range.selected === false || this._smoothList.length === 0) {
 	        return;
 	      }
 	      startIndex = 0;
@@ -16182,7 +16182,6 @@
 
 	    AxisView.prototype.initialize = function(options) {
 	      this._axisColor = options.axisColor;
-	      this._xScale = options.xScale;
 	      this.render();
 	      return this.listenTo(this.model, AxisData.EVENT_AXIS_CHANGED, (function(_this) {
 	        return function(model) {
@@ -16193,7 +16192,7 @@
 	    };
 
 	    AxisView.prototype.render = function() {
-	      var GraphView, adjustXInterval, context, drawSub, h, i, j, ref, ref1, ref2, ref3, ref4, ref5, results, w, x, xe, xp, xs, y, ye, yp, ys;
+	      var GraphView, context, drawSub, h, i, j, ref, ref1, ref2, ref3, ref4, ref5, results, w, x, xe, xp, xs, y, ye, yp, ys;
 	      GraphView = __webpack_require__(12);
 	      context = this.$el[0].getContext('2d');
 	      w = this.$el[0].width;
@@ -16216,10 +16215,9 @@
 	      context.moveTo(xs, ys);
 	      context.lineTo(xe, ys);
 	      context.stroke();
-	      adjustXInterval = this._xScale.adjustInterval;
 	      context.lineWidth = 0.5;
-	      drawSub = (xs + (xe - xs) * this.model.xAxis.subInterval / (this.model.xMax * adjustXInterval)) > 80;
-	      for (x = i = ref = this.model.xAxis.subInterval / adjustXInterval, ref1 = this.model.xMax, ref2 = this.model.xAxis.subInterval / adjustXInterval; ref2 > 0 ? i < ref1 : i > ref1; x = i += ref2) {
+	      drawSub = (xs + (xe - xs) * this.model.xAxis.subInterval / this.model.xMax) > 80;
+	      for (x = i = ref = this.model.xAxis.subInterval, ref1 = this.model.xMax, ref2 = this.model.xAxis.subInterval; ref2 > 0 ? i <= ref1 : i >= ref1; x = i += ref2) {
 	        xp = xs + (xe - xs) * x / this.model.xMax;
 	        if (x % this.model.xAxis.interval === 0) {
 	          context.fillText("" + x, xp, h - 3);
@@ -16245,7 +16243,7 @@
 	      context.lineWidth = 0.5;
 	      drawSub = (ye + (ys - ye) * this.model.yAxis.subInterval / this.model.yMax) > 50;
 	      results = [];
-	      for (y = j = ref3 = this.model.yAxis.subInterval, ref4 = this.model.yMax, ref5 = this.model.yAxis.subInterval; ref5 > 0 ? j < ref4 : j > ref4; y = j += ref5) {
+	      for (y = j = ref3 = this.model.yAxis.subInterval, ref4 = this.model.yMax, ref5 = this.model.yAxis.subInterval; ref5 > 0 ? j <= ref4 : j >= ref4; y = j += ref5) {
 	        yp = ys + (ye - ys) * y / this.model.yMax;
 	        if (y % this.model.yAxis.interval === 0) {
 	          context.fillText("" + y, xs - 3, yp);

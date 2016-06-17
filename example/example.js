@@ -59,7 +59,7 @@ toggleButton.on('click', function(){
     toggleButton.html("Unsmooth");
     lineGraph.smooth(1, 5);
     lineGraph.calculatePeak(1000, 0.01);
-    lineGraph.calculateTotalGainAndDrop()
+    lineGraph.calculateTotalGainAndDrop();
     graphCollection.change();
     writeInformation();
   }
