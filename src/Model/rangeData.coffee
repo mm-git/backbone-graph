@@ -83,6 +83,22 @@ class RangeData extends Backbone.Model
     graphX = @_getGraphX(screenX)
     @set({end: graphX.x})
 
+  determineSelection: ->
+    if @get('targetGraph').type != GraphData.TYPE.LINE
+      return null
+
+    if @start > @end
+      @set({
+        start: @end
+        end: @start
+      })
+
+    @get('targetGraph').setRange({
+      start: @start
+      end: @end
+      selected: @selected
+    })
+
   shiftX: (differenceX) ->
     GraphView = require('../View/graphView')
 

@@ -26,6 +26,11 @@ describe 'GraphLineData Class Test', ->
     assert.equal(pointData.peakList.length, 0)
     assert.equal(pointData.totalGain, 0)
     assert.equal(pointData.totalDrop, 0)
+    assert.equal(pointData.maxIncline.incline, 0)
+    assert.equal(pointData.minIncline.incline, 0)
+    assert.equal(pointData.rangeStart, 0)
+    assert.equal(pointData.rangeEnd, 0)
+    assert.equal(pointData.isRangeSelected, false)
 
   it 'function test addPoint()', ->
     pointData = new GraphLineData({
@@ -198,3 +203,39 @@ describe 'GraphLineData Class Test', ->
     result = pointData.getAutoRange(100)
     assert.equal(result.start, 89)
     assert.equal(result.end, 100)
+
+  it 'function test setRange()', ->
+    pointData = new GraphLineData({
+      pointColor: "#0000ff"
+    })
+
+    pointData.addPoint(new GraphPoint(0,  100))
+    pointData.addPoint(new GraphPoint(10,  200))
+    pointData.addPoint(new GraphPoint(20,  400))
+    pointData.addPoint(new GraphPoint(30,  350))
+    pointData.addPoint(new GraphPoint(40,  500))
+    pointData.addPoint(new GraphPoint(50,  600))
+    pointData.addPoint(new GraphPoint(60,  550))
+    pointData.addPoint(new GraphPoint(70,  1000))
+    pointData.addPoint(new GraphPoint(80,  200))
+    pointData.addPoint(new GraphPoint(90,  50))
+    pointData.addPoint(new GraphPoint(100, 300))
+
+    pointData.smooth(1, 5)
+    pointData.calculatePeak(1000, 0.01)
+    pointData.calculateTotalGainAndDrop()
+
+    pointData.setRange({start:0, end:100, selected:true})
+    assert.equal(pointData.rangeStart, 0)
+    assert.equal(pointData.rangeEnd, 100)
+    assert.equal(pointData.isRangeSelected, true)
+
+    pointData.setRange({start:0, end:0, selected:true})
+    assert.equal(pointData.rangeStart, 0)
+    assert.equal(pointData.rangeEnd, 0)
+    assert.equal(pointData.isRangeSelected, true)
+
+    pointData.setRange({start:0.5, end:1.5, selected:true})
+    assert.equal(pointData.rangeStart, 1)
+    assert.equal(pointData.rangeEnd, 1)
+    assert.equal(pointData.isRangeSelected, true)

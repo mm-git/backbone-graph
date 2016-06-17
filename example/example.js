@@ -52,12 +52,34 @@ toggleButton.on('click', function(){
   if(lineGraph.isSmooth){
     toggleButton.html("Smooth");
     lineGraph.unsmooth();
-    graphCollection.change()
+    graphCollection.change();
+    writeInformation();
   }
   else{
     toggleButton.html("Unsmooth");
     lineGraph.smooth(1, 5);
-    lineGraph.calculatePeak(1000, 0.01)
-    graphCollection.change()
+    lineGraph.calculatePeak(1000, 0.01);
+    lineGraph.calculateTotalGainAndDrop()
+    graphCollection.change();
+    writeInformation();
   }
 });
+
+var writeInformation = function(){
+  var info = "max : " + lineGraph.max.y.toFixed(0) + "(x=" + lineGraph.max.x + ")<br/>" +
+             "min : " + lineGraph.min.y.toFixed(0) + "(x=" + lineGraph.min.x + ")<br/><br/>";
+
+  if (lineGraph.isSmooth) {
+    info =
+      "max : " + lineGraph.smoothMax.y.toFixed(0) + "(x=" + lineGraph.smoothMax.x + ")<br/>" +
+      "min : " + lineGraph.smoothMin.y.toFixed(0) + "(x=" + lineGraph.smoothMin.x + ")<br/><br/>" +
+      "total gain : " + lineGraph.totalGain.toFixed(0) + "<br/>" +
+      "total drop : " + lineGraph.totalDrop.toFixed(0) + "<br/>" +
+      "max incline : " + (lineGraph.maxIncline.incline * 100).toFixed(1) + "% (x=" + lineGraph.maxIncline.point.x + ")<br/>" +
+      "min incline : " + (lineGraph.minIncline.incline * 100).toFixed(1) + "% (x=" + lineGraph.minIncline.point.x + ")<br/>";
+  }
+  
+  $('#information').html(info)
+};
+
+writeInformation();

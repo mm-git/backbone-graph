@@ -12,6 +12,13 @@ class GraphLineData extends GraphData
     @_peakList = []
     @_totalGain = 0
     @_totalDrop = 0
+    @_maxIncline = {incline:0}
+    @_minIncline = {incline:0}
+    @_range = {
+      start: 0
+      end: 0
+      selected: false
+    }
 
   @property "lineColor",
     get: ->
@@ -31,6 +38,18 @@ class GraphLineData extends GraphData
     get: ->
       @_peakList
 
+  @property "smoothMin",
+    get: ->
+      if @_peakList.length == 0
+        return @_min
+      return @_peakList.sort((a, b) -> a.point.y - b.point.y)[0].point
+
+  @property "smoothMax",
+    get: ->
+      if @_peakList.length == 0
+        return @_max
+      return @_peakList.sort((a, b) -> b.point.y - a.point.y)[0].point
+
   @property "totalGain",
     get: ->
       @_totalGain
@@ -39,9 +58,65 @@ class GraphLineData extends GraphData
     get: ->
       @_totalDrop
 
+  @property "maxIncline",
+    get: ->
+      @_maxIncline
+
+  @property "minIncline",
+    get: ->
+      @_minIncline
+
   @property "isSmooth",
     get: ->
-      return @_smoothList.length > 0
+      @_smoothList.length > 0
+
+  @property "range",
+    get: ->
+      @_range
+
+  @property "rangeStart",
+    get: ->
+      @_range.start
+
+  @property "rangeEnd",
+    get: ->
+      @_range.end
+
+  @property "isRangeSelected",
+    get: ->
+      @_range.selected
+
+  @property "rangeWidth",
+    get: ->
+      @_range.width
+
+  @property "rangeMin",
+    get: ->
+      @_range.min
+
+  @property "rangeMax",
+    get: ->
+      @_range.max
+
+  @property "rangeGain",
+    get: ->
+      @_range.gain
+
+  @property "rangeDrop",
+    get: ->
+      @_range.drop
+
+  @property "rangeMaxIncline",
+    get: ->
+      @_range.maxIncline
+
+  @property "rangeMinIncline",
+    get: ->
+      @_range.minIncline
+
+  @property "rangeAveIncline",
+    get: ->
+      @_range.aveIncline
 
   clear: ->
     super()
@@ -49,6 +124,8 @@ class GraphLineData extends GraphData
     @_peakList = []
     @_totalGain = 0
     @_totalDrop = 0
+    @_maxIncline = {incline:0}
+    @_minIncline = {incline:0}
 
   smooth: (interval, range) ->
     # interval 間隔でグラフデータをリサンプリングする
@@ -102,6 +179,19 @@ class GraphLineData extends GraphData
         maxIndex = index
 
       incline = (@_smoothList[index+1].y - @_smoothList[index].y) / ((@_smoothList[index+1].x - @_smoothList[index].x) * xyRatio)
+      if @_maxIncline.incline < incline
+        @_maxIncline = {
+          index : index
+          incline : incline
+          point : @_smoothList[index]
+        }
+      if @_minIncline.incline > incline
+        @_minIncline = {
+          index : index
+          incline : incline
+          point : @_smoothList[index]
+        }
+
       if preIncline > threshold && incline < (-threshold)
         @_peakList.push({
           index: maxIndex
@@ -165,5 +255,43 @@ class GraphLineData extends GraphData
 
     return result
 
+  setRange: (range) ->
+    @_range = range
+
+    if @_range.selected == false
+      return
+
+    startIndex = 0
+    @_smoothList.some((point, index) =>
+      if point.x >= @_range.start
+        startIndex = index
+        return true
+      return false
+    )
+    @_range.start = @_smoothList[startIndex].x
+
+    endIndex = @_smoothList.length - 1
+    @_smoothList.slice().reverse().some((point, index) =>
+      if point.x <= @_range.end
+        endIndex = @_smoothList.length - index - 1
+        return true
+      return false
+    )
+    @_range.end = @_smoothList[endIndex].x
+    @_range.width = @_range.end - @_range.start
+    if @_range.width == 0
+      @_range.min = @_smoothList[startIndex]
+      @_range.max = @_smoothList[startIndex]
+      @_range.gain = 0
+      @_range.drop = 0
+      @_range.maxIncline =
+        index : startIndex
+        incline : 0
+        point : @_smoothList[startIndex]
+      @_range.minIncline =
+        index : startIndex
+        incline : 0
+        point : @_smoothList[startIndex]
+      @_range.aveIncline = 0
 
 module.exports = GraphLineData

@@ -203,6 +203,7 @@ class GraphView extends Backbone.View
   _registerRangeGesture: ->
     @_gestureCollection.remove(_rangeGestures)
     _rangeGestures = []
+    @_xRangeData.determineSelection()
 
     if @_xRangeData.selected
       screenStart = @_xRangeData.screenStart + GraphView.ORIGIN_OFFSET_X

@@ -98,15 +98,38 @@
 	  if(lineGraph.isSmooth){
 	    toggleButton.html("Smooth");
 	    lineGraph.unsmooth();
-	    graphCollection.change()
+	    graphCollection.change();
+	    writeInformation();
 	  }
 	  else{
 	    toggleButton.html("Unsmooth");
 	    lineGraph.smooth(1, 5);
-	    lineGraph.calculatePeak(1000, 0.01)
-	    graphCollection.change()
+	    lineGraph.calculatePeak(1000, 0.01);
+	    lineGraph.calculateTotalGainAndDrop()
+	    graphCollection.change();
+	    writeInformation();
 	  }
 	});
+
+	var writeInformation = function(){
+	  var info = "max : " + lineGraph.max.y.toFixed(0) + "(x=" + lineGraph.max.x + ")<br/>" +
+	             "min : " + lineGraph.min.y.toFixed(0) + "(x=" + lineGraph.min.x + ")<br/><br/>";
+
+	  if (lineGraph.isSmooth) {
+	    info =
+	      "max : " + lineGraph.smoothMax.y.toFixed(0) + "(x=" + lineGraph.smoothMax.x + ")<br/>" +
+	      "min : " + lineGraph.smoothMin.y.toFixed(0) + "(x=" + lineGraph.smoothMin.x + ")<br/><br/>" +
+	      "total gain : " + lineGraph.totalGain.toFixed(0) + "<br/>" +
+	      "total drop : " + lineGraph.totalDrop.toFixed(0) + "<br/>" +
+	      "max incline : " + (lineGraph.maxIncline.incline * 100).toFixed(1) + "% (x=" + lineGraph.maxIncline.point.x + ")<br/>" +
+	      "min incline : " + (lineGraph.minIncline.incline * 100).toFixed(1) + "% (x=" + lineGraph.minIncline.point.x + ")<br/>";
+	  }
+	  
+	  $('#information').html(info)
+	};
+
+	writeInformation();
+
 
 /***/ },
 /* 1 */
@@ -13630,7 +13653,18 @@
 	      this._smoothList = [];
 	      this._peakList = [];
 	      this._totalGain = 0;
-	      return this._totalDrop = 0;
+	      this._totalDrop = 0;
+	      this._maxIncline = {
+	        incline: 0
+	      };
+	      this._minIncline = {
+	        incline: 0
+	      };
+	      return this._range = {
+	        start: 0,
+	        end: 0,
+	        selected: false
+	      };
 	    };
 
 	    GraphLineData.property("lineColor", {
@@ -13660,6 +13694,28 @@
 	      }
 	    });
 
+	    GraphLineData.property("smoothMin", {
+	      get: function() {
+	        if (this._peakList.length === 0) {
+	          return this._min;
+	        }
+	        return this._peakList.sort(function(a, b) {
+	          return a.point.y - b.point.y;
+	        })[0].point;
+	      }
+	    });
+
+	    GraphLineData.property("smoothMax", {
+	      get: function() {
+	        if (this._peakList.length === 0) {
+	          return this._max;
+	        }
+	        return this._peakList.sort(function(a, b) {
+	          return b.point.y - a.point.y;
+	        })[0].point;
+	      }
+	    });
+
 	    GraphLineData.property("totalGain", {
 	      get: function() {
 	        return this._totalGain;
@@ -13672,9 +13728,93 @@
 	      }
 	    });
 
+	    GraphLineData.property("maxIncline", {
+	      get: function() {
+	        return this._maxIncline;
+	      }
+	    });
+
+	    GraphLineData.property("minIncline", {
+	      get: function() {
+	        return this._minIncline;
+	      }
+	    });
+
 	    GraphLineData.property("isSmooth", {
 	      get: function() {
 	        return this._smoothList.length > 0;
+	      }
+	    });
+
+	    GraphLineData.property("range", {
+	      get: function() {
+	        return this._range;
+	      }
+	    });
+
+	    GraphLineData.property("rangeStart", {
+	      get: function() {
+	        return this._range.start;
+	      }
+	    });
+
+	    GraphLineData.property("rangeEnd", {
+	      get: function() {
+	        return this._range.end;
+	      }
+	    });
+
+	    GraphLineData.property("isRangeSelected", {
+	      get: function() {
+	        return this._range.selected;
+	      }
+	    });
+
+	    GraphLineData.property("rangeWidth", {
+	      get: function() {
+	        return this._range.width;
+	      }
+	    });
+
+	    GraphLineData.property("rangeMin", {
+	      get: function() {
+	        return this._range.min;
+	      }
+	    });
+
+	    GraphLineData.property("rangeMax", {
+	      get: function() {
+	        return this._range.max;
+	      }
+	    });
+
+	    GraphLineData.property("rangeGain", {
+	      get: function() {
+	        return this._range.gain;
+	      }
+	    });
+
+	    GraphLineData.property("rangeDrop", {
+	      get: function() {
+	        return this._range.drop;
+	      }
+	    });
+
+	    GraphLineData.property("rangeMaxIncline", {
+	      get: function() {
+	        return this._range.maxIncline;
+	      }
+	    });
+
+	    GraphLineData.property("rangeMinIncline", {
+	      get: function() {
+	        return this._range.minIncline;
+	      }
+	    });
+
+	    GraphLineData.property("rangeAveIncline", {
+	      get: function() {
+	        return this._range.aveIncline;
 	      }
 	    });
 
@@ -13683,7 +13823,13 @@
 	      this._smoothList = [];
 	      this._peakList = [];
 	      this._totalGain = 0;
-	      return this._totalDrop = 0;
+	      this._totalDrop = 0;
+	      this._maxIncline = {
+	        incline: 0
+	      };
+	      return this._minIncline = {
+	        incline: 0
+	      };
 	    };
 
 	    GraphLineData.prototype.smooth = function(interval, range) {
@@ -13739,6 +13885,20 @@
 	          maxIndex = index;
 	        }
 	        incline = (this._smoothList[index + 1].y - this._smoothList[index].y) / ((this._smoothList[index + 1].x - this._smoothList[index].x) * xyRatio);
+	        if (this._maxIncline.incline < incline) {
+	          this._maxIncline = {
+	            index: index,
+	            incline: incline,
+	            point: this._smoothList[index]
+	          };
+	        }
+	        if (this._minIncline.incline > incline) {
+	          this._minIncline = {
+	            index: index,
+	            incline: incline,
+	            point: this._smoothList[index]
+	          };
+	        }
 	        if (preIncline > threshold && incline < (-threshold)) {
 	          this._peakList.push({
 	            index: maxIndex,
@@ -13810,6 +13970,54 @@
 	        };
 	      })(this));
 	      return result;
+	    };
+
+	    GraphLineData.prototype.setRange = function(range) {
+	      var endIndex, startIndex;
+	      this._range = range;
+	      if (this._range.selected === false) {
+	        return;
+	      }
+	      startIndex = 0;
+	      this._smoothList.some((function(_this) {
+	        return function(point, index) {
+	          if (point.x >= _this._range.start) {
+	            startIndex = index;
+	            return true;
+	          }
+	          return false;
+	        };
+	      })(this));
+	      this._range.start = this._smoothList[startIndex].x;
+	      endIndex = this._smoothList.length - 1;
+	      this._smoothList.slice().reverse().some((function(_this) {
+	        return function(point, index) {
+	          if (point.x <= _this._range.end) {
+	            endIndex = _this._smoothList.length - index - 1;
+	            return true;
+	          }
+	          return false;
+	        };
+	      })(this));
+	      this._range.end = this._smoothList[endIndex].x;
+	      this._range.width = this._range.end - this._range.start;
+	      if (this._range.width === 0) {
+	        this._range.min = this._smoothList[startIndex];
+	        this._range.max = this._smoothList[startIndex];
+	        this._range.gain = 0;
+	        this._range.drop = 0;
+	        this._range.maxIncline = {
+	          index: startIndex,
+	          incline: 0,
+	          point: this._smoothList[startIndex]
+	        };
+	        this._range.minIncline = {
+	          index: startIndex,
+	          incline: 0,
+	          point: this._smoothList[startIndex]
+	        };
+	        return this._range.aveIncline = 0;
+	      }
 	    };
 
 	    return GraphLineData;
@@ -14232,6 +14440,7 @@
 	      var range, rangeEndGesture, rangeGesture, rangeStartGesture, screenEnd, screenStart;
 	      this._gestureCollection.remove(_rangeGestures);
 	      _rangeGestures = [];
+	      this._xRangeData.determineSelection();
 	      if (this._xRangeData.selected) {
 	        screenStart = this._xRangeData.screenStart + GraphView.ORIGIN_OFFSET_X;
 	        screenEnd = this._xRangeData.screenEnd + GraphView.ORIGIN_OFFSET_X;
@@ -15553,6 +15762,23 @@
 	      });
 	    };
 
+	    RangeData.prototype.determineSelection = function() {
+	      if (this.get('targetGraph').type !== GraphData.TYPE.LINE) {
+	        return null;
+	      }
+	      if (this.start > this.end) {
+	        this.set({
+	          start: this.end,
+	          end: this.start
+	        });
+	      }
+	      return this.get('targetGraph').setRange({
+	        start: this.start,
+	        end: this.end,
+	        selected: this.selected
+	      });
+	    };
+
 	    RangeData.prototype.shiftX = function(differenceX) {
 	      var GraphView, graphDifferenceX, width;
 	      GraphView = __webpack_require__(12);
@@ -15956,6 +16182,7 @@
 
 	    AxisView.prototype.initialize = function(options) {
 	      this._axisColor = options.axisColor;
+	      this._xScale = options.xScale;
 	      this.render();
 	      return this.listenTo(this.model, AxisData.EVENT_AXIS_CHANGED, (function(_this) {
 	        return function(model) {
@@ -15966,7 +16193,7 @@
 	    };
 
 	    AxisView.prototype.render = function() {
-	      var GraphView, context, drawSub, h, i, j, ref, ref1, ref2, ref3, ref4, ref5, results, w, x, xe, xp, xs, y, ye, yp, ys;
+	      var GraphView, adjustXInterval, context, drawSub, h, i, j, ref, ref1, ref2, ref3, ref4, ref5, results, w, x, xe, xp, xs, y, ye, yp, ys;
 	      GraphView = __webpack_require__(12);
 	      context = this.$el[0].getContext('2d');
 	      w = this.$el[0].width;
@@ -15989,9 +16216,10 @@
 	      context.moveTo(xs, ys);
 	      context.lineTo(xe, ys);
 	      context.stroke();
+	      adjustXInterval = this._xScale.adjustInterval;
 	      context.lineWidth = 0.5;
-	      drawSub = (xs + (xe - xs) * this.model.xAxis.subInterval / this.model.xMax) > 80;
-	      for (x = i = ref = this.model.xAxis.subInterval, ref1 = this.model.xMax, ref2 = this.model.xAxis.subInterval; ref2 > 0 ? i <= ref1 : i >= ref1; x = i += ref2) {
+	      drawSub = (xs + (xe - xs) * this.model.xAxis.subInterval / (this.model.xMax * adjustXInterval)) > 80;
+	      for (x = i = ref = this.model.xAxis.subInterval / adjustXInterval, ref1 = this.model.xMax, ref2 = this.model.xAxis.subInterval / adjustXInterval; ref2 > 0 ? i < ref1 : i > ref1; x = i += ref2) {
 	        xp = xs + (xe - xs) * x / this.model.xMax;
 	        if (x % this.model.xAxis.interval === 0) {
 	          context.fillText("" + x, xp, h - 3);
@@ -16017,7 +16245,7 @@
 	      context.lineWidth = 0.5;
 	      drawSub = (ye + (ys - ye) * this.model.yAxis.subInterval / this.model.yMax) > 50;
 	      results = [];
-	      for (y = j = ref3 = this.model.yAxis.subInterval, ref4 = this.model.yMax, ref5 = this.model.yAxis.subInterval; ref5 > 0 ? j <= ref4 : j >= ref4; y = j += ref5) {
+	      for (y = j = ref3 = this.model.yAxis.subInterval, ref4 = this.model.yMax, ref5 = this.model.yAxis.subInterval; ref5 > 0 ? j < ref4 : j > ref4; y = j += ref5) {
 	        yp = ys + (ye - ys) * y / this.model.yMax;
 	        if (y % this.model.yAxis.interval === 0) {
 	          context.fillText("" + y, xs - 3, yp);

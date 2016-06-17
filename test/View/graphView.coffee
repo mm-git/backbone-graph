@@ -118,6 +118,9 @@ describe 'GraphView Class Test', ->
 
   it 'event test collection:change', ->
     @lineGraph.addPoint(new GraphPoint(110, 1100))
+    @lineGraph.smooth(1, 5)
+    @lineGraph.calculatePeak(1000, 0.01)
+    @lineGraph.calculateTotalGainAndDrop()
     @collection.change()
 
     assert.equal(@graphView.xAxis.max, 110)

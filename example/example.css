@@ -4,10 +4,24 @@ body {
     margin: 0;
 }
 
-.graph {
+.graph_group {
     position: relative;
-    width: 600px;
     height: 400px;
+}
+
+.graph {
+    width: 400px;
+    height: 600px;
+}
+
+.info {
+    position: absolute;
+    left: 610px;
+    top: 30px;
+    width: 300px;
+    height: 340px;
+    padding: 5px;
+    border: 1px solid #7bbcd8;
 }
 
 .smooth_button {
