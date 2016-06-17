@@ -14266,7 +14266,9 @@
 	          this._gestureCollection.add(rangeStartGesture);
 	          _rangeGestures.push(rangeStartGesture);
 	        }
-	        range = [screenStart, screenEnd].sort();
+	        range = [screenStart, screenEnd].sort(function(a, b) {
+	          return a - b;
+	        });
 	        range[0] += GraphView.RANGE_RESIZE_WIDTH;
 	        range[1] -= GraphView.RANGE_RESIZE_WIDTH;
 	        if (range[0] >= range[1]) {
@@ -14309,6 +14311,32 @@
 	            roundRegion: this._rangeRegion,
 	            cursor: "move",
 	            repeat: this._rangeRepeatRegion
+	          }).on({
+	            dragging: (function(_this) {
+	              return function(mousePos) {
+	                return _this._xRangeData.shiftX(mousePos.differencePos.x);
+	              };
+	            })(this),
+	            dragEnd: (function(_this) {
+	              return function(mousePos) {
+	                return _this._registerRangeGesture();
+	              };
+	            })(this),
+	            repeat: (function(_this) {
+	              return function(mousePos, index) {
+	                if (index === 0) {
+	                  if (_this._xRangeData.start > 0) {
+	                    _this._xOffsetData.scroll(GraphView.SCROLL_WIDTH);
+	                    return _this._xRangeData.shiftX(mousePos.differencePos.x - GraphView.SCROLL_WIDTH);
+	                  }
+	                } else {
+	                  if (_this._xRangeData.end < _this.xAxis.max) {
+	                    _this._xOffsetData.scroll(-GraphView.SCROLL_WIDTH);
+	                    return _this._xRangeData.shiftX(mousePos.differencePos.x + GraphView.SCROLL_WIDTH);
+	                  }
+	                }
+	              };
+	            })(this)
 	          });
 	          this._gestureCollection.add(rangeGesture);
 	          return _rangeGestures.push(rangeGesture);
@@ -15478,12 +15506,12 @@
 	      }
 	    });
 
-	    RangeData.prototype.autoSelectX = function(offset) {
+	    RangeData.prototype.autoSelectX = function(screenX) {
 	      var graphX, range;
 	      if (this.get('targetGraph').type !== GraphData.TYPE.LINE) {
 	        return null;
 	      }
-	      graphX = this._getGraphX(offset);
+	      graphX = this._getGraphX(screenX);
 	      if (graphX.rangeOver === true) {
 	        return;
 	      }
@@ -15495,12 +15523,12 @@
 	      return this.set(range);
 	    };
 
-	    RangeData.prototype.selectStartX = function(offset) {
+	    RangeData.prototype.selectStartX = function(screenX) {
 	      var graphX;
 	      if (this.get('targetGraph').type !== GraphData.TYPE.LINE) {
 	        return null;
 	      }
-	      graphX = this._getGraphX(offset);
+	      graphX = this._getGraphX(screenX);
 	      if (this.selected) {
 	        return this.set({
 	          start: graphX.x
@@ -15514,39 +15542,62 @@
 	      }
 	    };
 
-	    RangeData.prototype.selectEndX = function(offset) {
+	    RangeData.prototype.selectEndX = function(screenX) {
 	      var graphX;
 	      if (this.get('targetGraph').type !== GraphData.TYPE.LINE) {
 	        return null;
 	      }
-	      graphX = this._getGraphX(offset);
+	      graphX = this._getGraphX(screenX);
 	      return this.set({
 	        end: graphX.x
 	      });
+	    };
+
+	    RangeData.prototype.shiftX = function(differenceX) {
+	      var GraphView, graphDifferenceX, width;
+	      GraphView = __webpack_require__(12);
+	      width = this.get('width') * this.get('scale').scale / 100 - GraphView.ORIGIN_OFFSET_Y;
+	      graphDifferenceX = differenceX * this.get('axis').max / width;
+	      if (this.start + graphDifferenceX < 0) {
+	        return this.set({
+	          start: 0,
+	          end: this.end - this.start
+	        });
+	      } else if (this.end + graphDifferenceX > this.get('axis').max) {
+	        return this.set({
+	          start: this.start + this.get('axis').max - this.end,
+	          end: this.get('axis').max
+	        });
+	      } else {
+	        return this.set({
+	          start: this.start + graphDifferenceX,
+	          end: this.end + graphDifferenceX
+	        });
+	      }
 	    };
 
 	    RangeData.prototype.deselect = function() {
 	      return this.selected = false;
 	    };
 
-	    RangeData.prototype._getGraphX = function(offset) {
-	      var GraphView, clickPos, width;
+	    RangeData.prototype._getGraphX = function(screenX) {
+	      var GraphView, clickPosX, width;
 	      GraphView = __webpack_require__(12);
 	      width = this.get('width') * this.get('scale').scale / 100 - GraphView.ORIGIN_OFFSET_Y;
-	      clickPos = offset - this.get('offset').offset;
-	      if (clickPos > width) {
+	      clickPosX = screenX - this.get('offset').offset;
+	      if (clickPosX > width) {
 	        return {
 	          x: this.get('axis').max,
 	          rangeOver: true
 	        };
-	      } else if (clickPos < 0) {
+	      } else if (clickPosX < 0) {
 	        return {
 	          x: 0,
 	          rangeOver: true
 	        };
 	      }
 	      return {
-	        x: clickPos * this.get('axis').max / width,
+	        x: clickPosX * this.get('axis').max / width,
 	        rangeOver: false
 	      };
 	    };

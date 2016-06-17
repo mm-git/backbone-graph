@@ -47,11 +47,11 @@ class RangeData extends Backbone.Model
     get: ->
       @_getScreenX(@get('end'))
 
-  autoSelectX: (offset) ->
+  autoSelectX: (screenX) ->
     if @get('targetGraph').type != GraphData.TYPE.LINE
       return null
 
-    graphX = @_getGraphX(offset)
+    graphX = @_getGraphX(screenX)
     if graphX.rangeOver == true
       return
 
@@ -62,11 +62,11 @@ class RangeData extends Backbone.Model
     range.selected = true
     @set(range)
 
-  selectStartX: (offset) ->
+  selectStartX: (screenX) ->
     if @get('targetGraph').type != GraphData.TYPE.LINE
       return null
 
-    graphX = @_getGraphX(offset)
+    graphX = @_getGraphX(screenX)
     if @selected
       @set({start: graphX.x})
     else
@@ -76,34 +76,56 @@ class RangeData extends Backbone.Model
         selected: true
       })
 
-  selectEndX: (offset) ->
+  selectEndX: (screenX) ->
     if @get('targetGraph').type != GraphData.TYPE.LINE
       return null
 
-    graphX = @_getGraphX(offset)
+    graphX = @_getGraphX(screenX)
     @set({end: graphX.x})
+
+  shiftX: (differenceX) ->
+    GraphView = require('../View/graphView')
+
+    width = @get('width') * @get('scale').scale / 100 - GraphView.ORIGIN_OFFSET_Y
+    graphDifferenceX = differenceX * @get('axis').max / width
+
+    if @start + graphDifferenceX < 0
+      @set({
+        start: 0
+        end: @end - @start
+      })
+    else if @end + graphDifferenceX > @get('axis').max
+      @set({
+        start: @start + @get('axis').max - @end
+        end: @get('axis').max
+      })
+    else
+      @set({
+        start: @start + graphDifferenceX
+        end: @end + graphDifferenceX
+      })
 
   deselect: ->
     @selected = false
 
-  _getGraphX: (offset) ->
+  _getGraphX: (screenX) ->
     GraphView = require('../View/graphView')
 
     width = @get('width') * @get('scale').scale / 100 - GraphView.ORIGIN_OFFSET_Y
-    clickPos = offset - @get('offset').offset
-    if clickPos > width
+    clickPosX = screenX - @get('offset').offset
+    if clickPosX > width
       return {
         x : @get('axis').max
         rangeOver: true
       }
-    else if clickPos < 0
+    else if clickPosX < 0
       return {
         x : 0
         rangeOver: true
       }
 
     return {
-      x: clickPos * @get('axis').max / width
+      x: clickPosX * @get('axis').max / width
       rangeOver: false
     }
 

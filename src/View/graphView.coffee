@@ -179,6 +179,7 @@ class GraphView extends Backbone.View
     })
 
     @_scrollRegion = new RectRegion(GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y * 2, @width, @height)
+
     scrollGesture = new GestureData({
       actionRegion: @_scrollRegion
       roundRegion: @_scrollRegion
@@ -235,7 +236,7 @@ class GraphView extends Backbone.View
         @_gestureCollection.add(rangeStartGesture)
         _rangeGestures.push(rangeStartGesture)
 
-      range = [screenStart, screenEnd].sort()
+      range = [screenStart, screenEnd].sort((a,b) -> a - b)
       range[0] += GraphView.RANGE_RESIZE_WIDTH
       range[1] -= GraphView.RANGE_RESIZE_WIDTH
       if range[0] >= range[1]
@@ -280,6 +281,22 @@ class GraphView extends Backbone.View
           cursor: "move"
           repeat: @_rangeRepeatRegion
         })
+        .on({
+          dragging: (mousePos) =>
+            @_xRangeData.shiftX(mousePos.differencePos.x)
+          dragEnd: (mousePos) =>
+            @_registerRangeGesture()
+          repeat: (mousePos, index) =>
+            if index == 0
+              if @_xRangeData.start > 0
+                @_xOffsetData.scroll(GraphView.SCROLL_WIDTH)
+                @_xRangeData.shiftX(mousePos.differencePos.x - GraphView.SCROLL_WIDTH)
+            else
+              if @_xRangeData.end < @xAxis.max
+                @_xOffsetData.scroll(-GraphView.SCROLL_WIDTH)
+                @_xRangeData.shiftX(mousePos.differencePos.x + GraphView.SCROLL_WIDTH)
+        })
+
         @_gestureCollection.add(rangeGesture)
         _rangeGestures.push(rangeGesture)
 
