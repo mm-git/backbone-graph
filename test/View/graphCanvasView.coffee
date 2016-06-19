@@ -13,6 +13,7 @@ GraphLineData = require('../../src/Model/graphLineData')
 GraphPointData = require('../../src/Model/graphPointData')
 GraphPoint = require('../../src/Model/graphPoint')
 GraphDataCollection = require('../../src/Model/graphDataCollection')
+OffsetData = require('../../src/Model/offsetData.coffee')
 graphCanvasView = require('../../src/View/graphCanvasView')
 
 describe 'GraphCanvasView/GraphLineView/GraphPointView Class Test', ->
@@ -48,6 +49,10 @@ describe 'GraphCanvasView/GraphLineView/GraphPointView Class Test', ->
     @yScaleData = new ScaleData({title: "Y"})
     @xAxis = new AxisData({max:100,  interval:50,  subInterval:10,  axisColor: "#7bbcd8"})
     @yAxis = new AxisData({max:1000, interval:100, subInterval:100, axisColor: "#7bbcd8"})
+    @xOffsetData = new OffsetData({
+      width: 600
+      scale: @xScaleData
+    })
 
     @graphCanvas = new graphCanvasView({
       collection: collection
@@ -56,6 +61,7 @@ describe 'GraphCanvasView/GraphLineView/GraphPointView Class Test', ->
       yAxis: @yAxis
       xScale: @xScaleData
       yScale: @yScaleData
+      xOffset: @xOffsetData
     })
     
   it 'constructor test', ->
@@ -67,124 +73,17 @@ describe 'GraphCanvasView/GraphLineView/GraphPointView Class Test', ->
     assert.equal(@graphCanvas.yAxis, @yAxis)
     assert.equal(@graphCanvas.xScale, @xScaleData)
     assert.equal(@graphCanvas.yScale, @yScaleData)
+    assert.equal(@graphCanvas.xOffset, @xOffsetData)
 
     assert.equal(@graphCanvas.$el.prop('tagName'), 'CANVAS')
     assert.equal(@graphCanvas.$wrap.prop('tagName'), 'DIV')
     assert.equal(@graphCanvas.$el.parent()[0], @graphCanvas.$wrap[0])
-
-    assert.equal(@graphCanvas._offsetX, 0)
 
     assert.equal(@graphCanvas._subView.length, 2)
     assert.equal(@graphCanvas._subView[0].xAxis, @xAxis)
     assert.equal(@graphCanvas._subView[0].yAxis, @yAxis)
     assert.equal(@graphCanvas._subView[1].xAxis, @xAxis)
     assert.equal(@graphCanvas._subView[1].yAxis, @yAxis)
-
-  it 'function test scroolX()', ->
-    # canvas can not scroll now,
-    # because div width and canvas width is same
-    @graphCanvas.scrollX(-10, false)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, 0)
-
-    @graphCanvas.scrollX(10, false)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, 0)
-
-    @graphCanvas.scrollX(-10, true)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, 0)
-
-    @graphCanvas.scrollX(10, true)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, 0)
-
-    # canvas can scroll
-    @xScaleData.scale = 200
-
-    @graphCanvas.scrollX(0, false)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, 0)
-
-    @graphCanvas.scrollX(-10, false)
-    assert.equal(@graphCanvas.$el.css('left'), '-10px')
-    assert.equal(@graphCanvas._offsetX, 0)
-
-    @graphCanvas.scrollX(-600, false)
-    assert.equal(@graphCanvas.$el.css('left'), '-600px')
-    assert.equal(@graphCanvas._offsetX, 0)
-
-    @graphCanvas.scrollX(-601, false)
-    assert.equal(@graphCanvas.$el.css('left'), '-600px')
-    assert.equal(@graphCanvas._offsetX, 0)
-
-    @graphCanvas.scrollX(10, false)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, 0)
-
-    @graphCanvas.scrollX(600, false)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, 0)
-
-    @graphCanvas.scrollX(-300, true)
-    assert.equal(@graphCanvas.$el.css('left'), '-300px')
-    assert.equal(@graphCanvas._offsetX, -300)
-
-    @graphCanvas.scrollX(0, false)
-    assert.equal(@graphCanvas.$el.css('left'), '-300px')
-    assert.equal(@graphCanvas._offsetX, -300)
-
-    @graphCanvas.scrollX(-10, false)
-    assert.equal(@graphCanvas.$el.css('left'), '-310px')
-    assert.equal(@graphCanvas._offsetX, -300)
-
-    @graphCanvas.scrollX(-300, false)
-    assert.equal(@graphCanvas.$el.css('left'), '-600px')
-    assert.equal(@graphCanvas._offsetX, -300)
-
-    @graphCanvas.scrollX(-301, false)
-    assert.equal(@graphCanvas.$el.css('left'), '-600px')
-    assert.equal(@graphCanvas._offsetX, -300)
-
-    @graphCanvas.scrollX(10, false)
-    assert.equal(@graphCanvas.$el.css('left'), '-290px')
-    assert.equal(@graphCanvas._offsetX, -300)
-
-    @graphCanvas.scrollX(300, false)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, -300)
-
-    @graphCanvas.scrollX(301, false)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, -300)
-
-    @graphCanvas.scrollX(-300, true)
-    assert.equal(@graphCanvas.$el.css('left'), '-600px')
-    assert.equal(@graphCanvas._offsetX, -600)
-
-    @graphCanvas.scrollX(0, false)
-    assert.equal(@graphCanvas.$el.css('left'), '-600px')
-    assert.equal(@graphCanvas._offsetX, -600)
-
-    @graphCanvas.scrollX(-1, false)
-    assert.equal(@graphCanvas.$el.css('left'), '-600px')
-    assert.equal(@graphCanvas._offsetX, -600)
-
-    @graphCanvas.scrollX(10, false)
-    assert.equal(@graphCanvas.$el.css('left'), '-590px')
-    assert.equal(@graphCanvas._offsetX, -600)
-
-    @graphCanvas.scrollX(600, false)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, -600)
-
-    @graphCanvas.scrollX(601, false)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, -600)
-
-    @graphCanvas.scrollX(600, true)
-    assert.equal(@graphCanvas.$el.css('left'), '0px')
-    assert.equal(@graphCanvas._offsetX, 0)
 
   it 'function test render()', ->
     expectList = [
@@ -215,16 +114,16 @@ describe 'GraphCanvasView/GraphLineView/GraphPointView Class Test', ->
       canvasUtility.save(@graphCanvas.$el[0], "./test/result/graphCanvas_#{expect.width}.png")
     )
 
-  it 'function test render() after scrollX()', ->
+  it 'function test scrollX()', ->
     @xScaleData.scale = 400
-    @graphCanvas.scrollX(-1800, true)
+    @xOffsetData.scroll(-1800, true)
+    @graphCanvas.render()
 
     assert.equal(@graphCanvas.$el.css('left'), '-1800px')
-    assert.equal(@graphCanvas._offsetX, -1800)
 
     @xScaleData.scale = 200
+    @xOffsetData.scroll(0, true)
     @graphCanvas.render()
 
     assert.equal(@graphCanvas.$el.css('left'), '-600px')
-    assert.equal(@graphCanvas._offsetX, -600)
 

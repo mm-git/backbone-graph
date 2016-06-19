@@ -38,6 +38,10 @@ var graphView = new Graph.GraphView({
   height: 400,
   xAxis: new Graph.Axis({max:100, interval:50, subInterval:10, axisColor: AXIS_COLOR}),
   yAxis: new Graph.Axis({max:1000, interval:100, subInterval:100, axisColor: AXIS_COLOR}),
+  range: {
+    color: AXIS_COLOR,
+    opacity: 0.5  
+  }
 });
 
 graphView.$el.appendTo($('#graphsample'));
@@ -48,12 +52,59 @@ toggleButton.on('click', function(){
   if(lineGraph.isSmooth){
     toggleButton.html("Smooth");
     lineGraph.unsmooth();
-    graphCollection.change()
+    graphCollection.change();
+    writeInformation();
   }
   else{
     toggleButton.html("Unsmooth");
-    lineGraph.smooth(1, 5);
-    lineGraph.calculatePeak(1000, 0.01)
-    graphCollection.change()
+    lineGraph.smooth(1, 5, 1000, 0.01);
+    graphCollection.change();
+    writeInformation();
   }
 });
+
+lineGraph.on({
+  changeSelection :function(){
+    writeInformation();
+  }
+});
+
+var writeInformation = function(){
+  var info = "max : " + lineGraph.max.y.toFixed(0) + "(x=" + lineGraph.max.x + ")<br/>" +
+             "min : " + lineGraph.min.y.toFixed(0) + "(x=" + lineGraph.min.x + ")<br/><br/>";
+
+  if (lineGraph.isSmooth) {
+    var smooth = lineGraph.smoothStatistics;
+
+    info =
+      "max : " + smooth.max.y.toFixed(0) + "(x=" + smooth.max.x + ")<br/>" +
+      "min : " + smooth.min.y.toFixed(0) + "(x=" + smooth.min.x + ")<br/>" +
+      "total gain : " + smooth.gain.toFixed(0) + "<br/>" +
+      "total drop : " + smooth.drop.toFixed(0) + "<br/>" +
+      "max incline : " + (smooth.incline.max.incline).toFixed(1) + "% (x=" + smooth.incline.max.point.x + ")<br/>" +
+      "min incline : " + (smooth.incline.min.incline).toFixed(1) + "% (x=" + smooth.incline.min.point.x + ")<br/>" +
+      "ave incline : " + (smooth.incline.ave).toFixed(1) + "%<br/><br/>";
+  }
+
+  if (lineGraph.isRangeSelected && lineGraph.isSmooth) {
+    var range = lineGraph.rangeStatistics;
+
+    info = info +
+      "range : " + range.start + " - " + range.end + "<br/>" +
+      "max : " + range.max.y.toFixed(0) + "(x=" + range.max.x + ")<br/>" +
+      "min : " + range.min.y.toFixed(0) + "(x=" + range.min.x + ")<br/>" +
+      "gain : " + range.gain.toFixed(0) + "<br/>" +
+      "drop : " + range.drop.toFixed(0) + "<br/>";
+
+    if (range.incline !== undefined) {
+      info = info +
+        "max incline : " + (range.incline.max.incline).toFixed(1) + "% (x=" + range.incline.max.point.x + ")<br/>" +
+        "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/>" +
+        "ave incline : " + (range.incline.ave).toFixed(1) + "%<br/>";
+    }
+  }
+
+  $('#information').html(info)
+};
+
+writeInformation();
