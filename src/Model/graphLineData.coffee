@@ -41,8 +41,8 @@ class GraphLineData extends GraphData
   #   gain : total gain
   #   drop : total drop
   #   incline:
-  #     max : {index, incline(%)}
-  #     min : {index, incline(%)}
+  #     max : {incline(%), GraphPoint}
+  #     min : {incline(%), GraphPoint}
   #     ave : incline(%)
   @property "smoothStatistics",
     get: ->
@@ -66,11 +66,11 @@ class GraphLineData extends GraphData
   #     max : {incline(%), GraphPoint}
   #     min : {incline(%), GraphPoint}
   #     ave : incline(%)
-  @property "rangeStatistic",
+  @property "rangeStatistics",
     get: ->
       @_rangeStatistics
 
-  @property "isRangeSelect",
+  @property "isRangeSelected",
     get: ->
       @_rangeStatistics.selected
 
@@ -102,10 +102,12 @@ class GraphLineData extends GraphData
   unsmooth: ->
     @_smoothList = []
     @_peakList = []
-    @_totalGain = 0
-    @_totalDrop = 0
-    @_maxIncline = {incline:0}
-    @_minIncline = {incline:0}
+    @_smoothStatistics = {}
+    @_rangeStatistics = {
+      start: 0
+      end: 0
+      selected: false
+    }
 
   _reSampling: (interval, range) ->
     # interval 間隔でグラフデータをリサンプリングする
@@ -204,7 +206,7 @@ class GraphLineData extends GraphData
 
     inclineStatistics =
       max:
-        incline: 0
+        incline: -100
       min:
         incline: 100
     totalIncline = 0
@@ -251,6 +253,7 @@ class GraphLineData extends GraphData
     @_rangeStatistics = range
 
     if @_rangeStatistics.selected == false || @_smoothList.length == 0
+      @trigger('changeSelection', @)
       return
 
     startIndex = 0
@@ -298,5 +301,7 @@ class GraphLineData extends GraphData
       })
       __.extend(@_rangeStatistics, @_calculateTotalGainAndDrop(peakList))
       __.extend(@_rangeStatistics, @_calculateIncline(startIndex, endIndex, @_xyRatio))
+
+    @trigger('changeSelection', @)
 
 module.exports = GraphLineData

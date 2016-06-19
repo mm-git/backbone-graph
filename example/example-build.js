@@ -109,6 +109,12 @@
 	  }
 	});
 
+	lineGraph.on({
+	  changeSelection :function(){
+	    writeInformation();
+	  }
+	});
+
 	var writeInformation = function(){
 	  var info = "max : " + lineGraph.max.y.toFixed(0) + "(x=" + lineGraph.max.x + ")<br/>" +
 	             "min : " + lineGraph.min.y.toFixed(0) + "(x=" + lineGraph.min.x + ")<br/><br/>";
@@ -125,7 +131,7 @@
 	      "min incline : " + (smooth.incline.min.incline).toFixed(1) + "% (x=" + smooth.incline.min.point.x + ")<br/><br/>";
 	  }
 
-	  if (lineGraph.isRangeSelected) {
+	  if (lineGraph.isRangeSelected && lineGraph.isSmooth) {
 	    var range = lineGraph.rangeStatistics;
 
 	    info = info +
@@ -133,11 +139,11 @@
 	      "gain : " + range.gain.toFixed(0) + "<br/>" +
 	      "drop : " + range.drop.toFixed(0) + "<br/>" +
 	      "max incline : " + (range.incline.max.incline).toFixed(1) + "% (x=" + range.incline.max.point.x + ")<br/>" +
-	      "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/><br/>" +
+	      "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/>" +
 	      "ave incline : " + (range.incline.ave).toFixed(1) + "%<br/>";
 	  }
 
-	    $('#information').html(info)
+	  $('#information').html(info)
 	};
 
 	writeInformation();
@@ -13711,13 +13717,13 @@
 	      }
 	    });
 
-	    GraphLineData.property("rangeStatistic", {
+	    GraphLineData.property("rangeStatistics", {
 	      get: function() {
 	        return this._rangeStatistics;
 	      }
 	    });
 
-	    GraphLineData.property("isRangeSelect", {
+	    GraphLineData.property("isRangeSelected", {
 	      get: function() {
 	        return this._rangeStatistics.selected;
 	      }
@@ -13755,13 +13761,11 @@
 	    GraphLineData.prototype.unsmooth = function() {
 	      this._smoothList = [];
 	      this._peakList = [];
-	      this._totalGain = 0;
-	      this._totalDrop = 0;
-	      this._maxIncline = {
-	        incline: 0
-	      };
-	      return this._minIncline = {
-	        incline: 0
+	      this._smoothStatistics = {};
+	      return this._rangeStatistics = {
+	        start: 0,
+	        end: 0,
+	        selected: false
 	      };
 	    };
 
@@ -13873,7 +13877,7 @@
 	      }
 	      inclineStatistics = {
 	        max: {
-	          incline: 0
+	          incline: -100
 	        },
 	        min: {
 	          incline: 100
@@ -13930,6 +13934,7 @@
 	      var endIndex, peakList, startIndex;
 	      this._rangeStatistics = range;
 	      if (this._rangeStatistics.selected === false || this._smoothList.length === 0) {
+	        this.trigger('changeSelection', this);
 	        return;
 	      }
 	      startIndex = 0;
@@ -13962,7 +13967,7 @@
 	        this._rangeStatistics.max = this._smoothList[startIndex];
 	        this._rangeStatistics.gain = 0;
 	        this._rangeStatistics.drop = 0;
-	        return this._rangeStatistics.incline = {
+	        this._rangeStatistics.incline = {
 	          max: {
 	            index: startIndex,
 	            incline: 0,
@@ -13986,8 +13991,9 @@
 	          })[0].point
 	        });
 	        __.extend(this._rangeStatistics, this._calculateTotalGainAndDrop(peakList));
-	        return __.extend(this._rangeStatistics, this._calculateIncline(startIndex, endIndex, this._xyRatio));
+	        __.extend(this._rangeStatistics, this._calculateIncline(startIndex, endIndex, this._xyRatio));
 	      }
+	      return this.trigger('changeSelection', this);
 	    };
 
 	    return GraphLineData;

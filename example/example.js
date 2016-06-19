@@ -63,6 +63,12 @@ toggleButton.on('click', function(){
   }
 });
 
+lineGraph.on({
+  changeSelection :function(){
+    writeInformation();
+  }
+});
+
 var writeInformation = function(){
   var info = "max : " + lineGraph.max.y.toFixed(0) + "(x=" + lineGraph.max.x + ")<br/>" +
              "min : " + lineGraph.min.y.toFixed(0) + "(x=" + lineGraph.min.x + ")<br/><br/>";
@@ -79,7 +85,7 @@ var writeInformation = function(){
       "min incline : " + (smooth.incline.min.incline).toFixed(1) + "% (x=" + smooth.incline.min.point.x + ")<br/><br/>";
   }
 
-  if (lineGraph.isRangeSelected) {
+  if (lineGraph.isRangeSelected && lineGraph.isSmooth) {
     var range = lineGraph.rangeStatistics;
 
     info = info +
@@ -87,7 +93,7 @@ var writeInformation = function(){
       "gain : " + range.gain.toFixed(0) + "<br/>" +
       "drop : " + range.drop.toFixed(0) + "<br/>" +
       "max incline : " + (range.incline.max.incline).toFixed(1) + "% (x=" + range.incline.max.point.x + ")<br/>" +
-      "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/><br/>" +
+      "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/>" +
       "ave incline : " + (range.incline.ave).toFixed(1) + "%<br/>";
   }
 

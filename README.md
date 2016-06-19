@@ -110,31 +110,38 @@ Smoothed graph
     You can change the graph magnification to click the plus / minus button at top of the graph.
     The magnification can be changed every 50%, and maximum is 800%.
 
+
 - Scroll
 
     You can scroll the graph to drag around the x axis.
+
 
 - Select range
 
     You can select the graph range that you want to check in detail. 
     To drag the graph area, you can select the range. After selecting , you can adjust the range to drag the edge of the range. And you can move to drag the center of the range. 
 
+
 ## Other functions
 
 ### Graph.LineData.smooth(interval, range, xyRatio, threshould)
 
-  `interval` : Before smoothing graph data, each data should have same interval. So this function re-sample the data with interval parameter.
-  `range` : This function calculate moving average to smooth the graph data. `range` is the range of moving average.  
-  `xyRatio` : Ratio of x axis unit and y axis unit. For instance, if x axis unit is **KM** and y is **m** then xyRatio should be 1000. 
-  `threshold` : This function calculate peak of the graph by checking change of inclination. `threshold` is limit value of inclination.
+   `interval` : Before smoothing graph data, each data should have same interval. So this function re-sample the data with interval parameter.
+
+   `range` : This function calculate moving average to smooth the graph data. `range` is the range of moving average.  
+
+   `xyRatio` : Ratio of x axis unit and y axis unit. For instance, if x axis unit is **KM** and y is **m** then xyRatio should be 1000. 
+
+   `threshold` : This function calculate peak of the graph by checking change of inclination. `threshold` is limit value of inclination.
+
 
 ```javascript
 // First this function re-sample the data with interval 1, 
 // Next function calcurate moving average.  
 lineData.smooth(1, 10, 1000, 0.01); 
-console.log(lineData.peakList);     // you can get peak data array
-console.log(lineData.totalGain);     // you can get total gain
-console.log(lineData.totalDrop);     // you can get total drop
+console.log(lineData.peakList);                  // you can get peak data array
+console.log(lineData.smoothStatictics.gain);     // you can get total gain
+console.log(lineData.smoothStatictics.drop);     // you can get total drop
 ```
 
 ### Graph.LineData.unsmooth()
@@ -147,4 +154,87 @@ lineData.unsmooth();
 
 ## LineData properties
 
+### Graph.LineData.max
 
+| class                            | property         | type        | detail                                |
+|----------------------------------|------------------|-------------|---------------------------------------|
+| Graph.PointData / Graph.LineData | max              | Graph.Point | Maximum Graph.Point before smoothing. |
+|                                  | min              | Graph.Point | Minimum Graph.Point before smoothing. |
+|                                  | xMax             | number      | maximum x                             |
+| Graph.LineData                   | isSmooth         | boolean     | Whether line data is smoothed or not. |
+|                                  | smoothStatistics | Object      | `*1`                                  |
+|                                  | isRangeSelected  | boolean     | Whether range is selected or not.     |
+|                                  | rangeStatistics  | Object      | `*2`                                  |
+
+
+- `*1` Graph.LineData.smoothStatistics
+
+```
+Graph.LineData.smoothStatistics = {
+  max : {               // Maximum Graph.Point after smoothing
+    x : number,
+    y : number
+  },
+  min : {               // Minimum Graph.Point after smoothing
+    x : number,
+    y : number
+  },
+  gain : number,        // total gain
+  drop : number,        // total drop
+  incline: {
+    max : {
+      incline: number,  // %
+      point : {
+        x : number,
+        y : number            
+      }
+    },
+    min : {
+      incline: number,  // %
+      point : {
+        x : number,
+        y : number            
+      }
+    },
+    ave : incline       // %
+  }
+};
+```
+
+
+- `*2` Graph.LineData.rangeStatistics
+
+```
+Graph.LineData.smoothStatistics = {
+  start : number,       // x value of range start
+  start : number,       // x value of range end
+  width : number,       // range width
+  max : {               // Maximum Graph.Point of range
+    x : number,
+    y : number
+  },
+  min : {               // Minimum Graph.Point of range
+    x : number,
+    y : number
+  },
+  gain : number,        // total gain
+  drop : number,        // total drop
+  incline: {
+    max : {
+      incline: number,  // %
+      point : {
+        x : number,
+        y : number            
+      }
+    },
+    min : {
+      incline: number,  // %
+      point : {
+        x : number,
+        y : number            
+      }
+    },
+    ave : incline       // %
+  }
+};
+```
