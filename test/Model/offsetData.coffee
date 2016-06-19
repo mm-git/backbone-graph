@@ -4,7 +4,8 @@
 #
 assert = require('assert')
 
-ScaleData = require('../../src/Model/ScaleData')
+ScaleData = require('../../src/Model/scaleData')
+ScaleData = require('../../src/Model/scaleData')
 OffsetData = require('../../src/Model/offsetData.coffee')
 
 describe 'OffsetData Class Test', ->
