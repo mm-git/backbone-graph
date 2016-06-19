@@ -97,16 +97,16 @@ class GraphLineData extends GraphData
     __.extend(@_smoothStatistics, @_calculateIncline(0, @_smoothList.length-1, xyRatio))
 
     @_xyRatio = xyRatio
-    @_threshould = threshold
+    @_threshold = threshold
 
   unsmooth: ->
     @_smoothList = []
     @_peakList = []
     @_smoothStatistics = {}
     @_rangeStatistics = {
-      start: 0
-      end: 0
-      selected: false
+      start: @_rangeStatistics.start
+      end: @_rangeStatistics.end
+      selected: @_rangeStatistics.selected
     }
 
   _reSampling: (interval, range) ->
@@ -135,7 +135,7 @@ class GraphLineData extends GraphData
     return
 
   _calculatePeak: (start, end, xyRatio, threshold) ->
-    if @_smoothList.length < 1 || start >= end - 1
+    if @_smoothList.length < 1
       return []
 
     preIncline = (@_smoothList[start+1].y - @_smoothList[start].y) / ((@_smoothList[start+1].x - @_smoothList[start].x) * xyRatio)
@@ -180,6 +180,12 @@ class GraphLineData extends GraphData
       if Math.abs(preIncline) < threshold && Math.abs(incline) > threshold
         preIncline = incline
 
+    if peakList.length == 2 && peakList[0].isMax == peakList[1].isMax
+      if peakList[0].point.y > peakList[1].point.y
+        peakList[1].isMax = false
+      if peakList[0].point.y < peakList[1].point.y
+        peakList[1].isMax = true
+
     return peakList
 
   _calculateTotalGainAndDrop: (peakList)->
@@ -201,7 +207,7 @@ class GraphLineData extends GraphData
     return total
 
   _calculateIncline: (start, end, xyRatio) ->
-    if @_smoothList.length < 1 || start >= end - 1
+    if @_smoothList.length < 1 || start > end - 1
       return {}
 
     inclineStatistics =
@@ -211,7 +217,7 @@ class GraphLineData extends GraphData
         incline: 100
     totalIncline = 0
 
-    for index in [start ... end - 1]
+    for index in [start ... end]
       incline = (@_smoothList[index+1].y - @_smoothList[index].y) / ((@_smoothList[index+1].x - @_smoothList[index].x) * xyRatio) * 100
       if inclineStatistics.max.incline < incline
         inclineStatistics.max = {
@@ -227,7 +233,7 @@ class GraphLineData extends GraphData
         }
       totalIncline += incline
 
-    inclineStatistics.ave = totalIncline / (end - start + 1)
+    inclineStatistics.ave = totalIncline / (end - start)
 
     return {incline : inclineStatistics}
 
@@ -282,16 +288,6 @@ class GraphLineData extends GraphData
       @_rangeStatistics.max = @_smoothList[startIndex]
       @_rangeStatistics.gain = 0
       @_rangeStatistics.drop = 0
-      @_rangeStatistics.incline =
-        max :
-          index : startIndex
-          incline : 0
-          point : @_smoothList[startIndex]
-        min :
-          index : startIndex
-          incline : 0
-          point : @_smoothList[startIndex]
-        ave : 0
     else
       peakList = @_calculatePeak(startIndex, endIndex, @_xyRatio, @_threshold)
 

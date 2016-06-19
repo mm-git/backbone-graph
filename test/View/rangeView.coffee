@@ -31,9 +31,7 @@ describe 'RangeView Class Test', ->
     @lineData.addPoint(new GraphPoint(90,  50))
     @lineData.addPoint(new GraphPoint(100, 300))
 
-    @lineData.smooth(1, 5)
-    @lineData.calculatePeak(1000, 0.01)
-    @lineData.calculateTotalGainAndDrop()
+    @lineData.smooth(1, 5, 1000, 0.01)
 
     @xScaleData = new ScaleData({title: "X"})
     @xAxis = new AxisData({max:100,  interval:50,  subInterval:10,  axisColor: "#7bbcd8"})

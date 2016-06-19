@@ -78,11 +78,12 @@ var writeInformation = function(){
 
     info =
       "max : " + smooth.max.y.toFixed(0) + "(x=" + smooth.max.x + ")<br/>" +
-      "min : " + smooth.min.y.toFixed(0) + "(x=" + smooth.min.x + ")<br/><br/>" +
+      "min : " + smooth.min.y.toFixed(0) + "(x=" + smooth.min.x + ")<br/>" +
       "total gain : " + smooth.gain.toFixed(0) + "<br/>" +
       "total drop : " + smooth.drop.toFixed(0) + "<br/>" +
       "max incline : " + (smooth.incline.max.incline).toFixed(1) + "% (x=" + smooth.incline.max.point.x + ")<br/>" +
-      "min incline : " + (smooth.incline.min.incline).toFixed(1) + "% (x=" + smooth.incline.min.point.x + ")<br/><br/>";
+      "min incline : " + (smooth.incline.min.incline).toFixed(1) + "% (x=" + smooth.incline.min.point.x + ")<br/>" +
+      "ave incline : " + (smooth.incline.ave).toFixed(1) + "%<br/><br/>";
   }
 
   if (lineGraph.isRangeSelected && lineGraph.isSmooth) {
@@ -90,11 +91,17 @@ var writeInformation = function(){
 
     info = info +
       "range : " + range.start + " - " + range.end + "<br/>" +
+      "max : " + range.max.y.toFixed(0) + "(x=" + range.max.x + ")<br/>" +
+      "min : " + range.min.y.toFixed(0) + "(x=" + range.min.x + ")<br/>" +
       "gain : " + range.gain.toFixed(0) + "<br/>" +
-      "drop : " + range.drop.toFixed(0) + "<br/>" +
-      "max incline : " + (range.incline.max.incline).toFixed(1) + "% (x=" + range.incline.max.point.x + ")<br/>" +
-      "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/>" +
-      "ave incline : " + (range.incline.ave).toFixed(1) + "%<br/>";
+      "drop : " + range.drop.toFixed(0) + "<br/>";
+
+    if (range.incline !== undefined) {
+      info = info +
+        "max incline : " + (range.incline.max.incline).toFixed(1) + "% (x=" + range.incline.max.point.x + ")<br/>" +
+        "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/>" +
+        "ave incline : " + (range.incline.ave).toFixed(1) + "%<br/>";
+    }
   }
 
   $('#information').html(info)

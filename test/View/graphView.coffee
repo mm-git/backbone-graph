@@ -41,9 +41,7 @@ describe 'GraphView Class Test', ->
       @lineGraph.addPoint(new GraphPoint(point[0], point[1]))
       @pointGraph.addPoint(new GraphPoint(point[0], point[1]))
     )
-    @lineGraph.smooth(1, 5)
-    @lineGraph.calculatePeak(1000, 0.01)
-    @lineGraph.calculateTotalGainAndDrop()
+    @lineGraph.smooth(1, 5, 1000, 0.01)
 
     @collection = new GraphDataCollection([@lineGraph, @pointGraph]);
     @xAxis = new AxisData({max:100,  interval:50,  subInterval:10,  axisColor: "#7bbcd8"})
@@ -118,9 +116,7 @@ describe 'GraphView Class Test', ->
 
   it 'event test collection:change', ->
     @lineGraph.addPoint(new GraphPoint(110, 1100))
-    @lineGraph.smooth(1, 5)
-    @lineGraph.calculatePeak(1000, 0.01)
-    @lineGraph.calculateTotalGainAndDrop()
+    @lineGraph.smooth(1, 5, 1000, 0.01)
     @collection.change()
 
     assert.equal(@graphView.xAxis.max, 110)
