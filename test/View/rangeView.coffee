@@ -11,7 +11,7 @@ ScaleData = require('../../src/Model/scaleData')
 AxisData = require('../../src/Model/axisData')
 OffsetData = require('../../src/Model/offsetData')
 RangeData = require('../../src/Model/rangeData')
-RangeView = require('../../src/View/RangeView')
+RangeView = require('../../src/View/rangeView')
 
 describe 'RangeView Class Test', ->
   beforeEach ->
