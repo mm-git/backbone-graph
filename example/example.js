@@ -57,9 +57,7 @@ toggleButton.on('click', function(){
   }
   else{
     toggleButton.html("Unsmooth");
-    lineGraph.smooth(1, 5);
-    lineGraph.calculatePeak(1000, 0.01);
-    lineGraph.calculateTotalGainAndDrop();
+    lineGraph.smooth(1, 5, 1000, 0.01);
     graphCollection.change();
     writeInformation();
   }
@@ -70,15 +68,29 @@ var writeInformation = function(){
              "min : " + lineGraph.min.y.toFixed(0) + "(x=" + lineGraph.min.x + ")<br/><br/>";
 
   if (lineGraph.isSmooth) {
+    var smooth = lineGraph.smoothStatistics;
+
     info =
-      "max : " + lineGraph.smoothMax.y.toFixed(0) + "(x=" + lineGraph.smoothMax.x + ")<br/>" +
-      "min : " + lineGraph.smoothMin.y.toFixed(0) + "(x=" + lineGraph.smoothMin.x + ")<br/><br/>" +
-      "total gain : " + lineGraph.totalGain.toFixed(0) + "<br/>" +
-      "total drop : " + lineGraph.totalDrop.toFixed(0) + "<br/>" +
-      "max incline : " + (lineGraph.maxIncline.incline * 100).toFixed(1) + "% (x=" + lineGraph.maxIncline.point.x + ")<br/>" +
-      "min incline : " + (lineGraph.minIncline.incline * 100).toFixed(1) + "% (x=" + lineGraph.minIncline.point.x + ")<br/>";
+      "max : " + smooth.max.y.toFixed(0) + "(x=" + smooth.max.x + ")<br/>" +
+      "min : " + smooth.min.y.toFixed(0) + "(x=" + smooth.min.x + ")<br/><br/>" +
+      "total gain : " + smooth.gain.toFixed(0) + "<br/>" +
+      "total drop : " + smooth.drop.toFixed(0) + "<br/>" +
+      "max incline : " + (smooth.incline.max.incline).toFixed(1) + "% (x=" + smooth.incline.max.point.x + ")<br/>" +
+      "min incline : " + (smooth.incline.min.incline).toFixed(1) + "% (x=" + smooth.incline.min.point.x + ")<br/><br/>";
   }
-  
+
+  if (lineGraph.isRangeSelected) {
+    var range = lineGraph.rangeStatistics;
+
+    info = info +
+      "range : " + range.start + " - " + range.end + "<br/>" +
+      "gain : " + range.gain.toFixed(0) + "<br/>" +
+      "drop : " + range.drop.toFixed(0) + "<br/>" +
+      "max incline : " + (range.incline.max.incline).toFixed(1) + "% (x=" + range.incline.max.point.x + ")<br/>" +
+      "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/><br/>" +
+      "ave incline : " + (range.incline.ave).toFixed(1) + "%<br/>";
+  }
+
   $('#information').html(info)
 };
 

@@ -22,6 +22,8 @@ body {
     height: 340px;
     padding: 5px;
     border: 1px solid #7bbcd8;
+    opacity: 0.6;
+    border-radius: 7px;
 }
 
 .smooth_button {

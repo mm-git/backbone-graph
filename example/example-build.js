@@ -103,9 +103,7 @@
 	  }
 	  else{
 	    toggleButton.html("Unsmooth");
-	    lineGraph.smooth(1, 5);
-	    lineGraph.calculatePeak(1000, 0.01);
-	    lineGraph.calculateTotalGainAndDrop();
+	    lineGraph.smooth(1, 5, 1000, 0.01);
 	    graphCollection.change();
 	    writeInformation();
 	  }
@@ -116,16 +114,30 @@
 	             "min : " + lineGraph.min.y.toFixed(0) + "(x=" + lineGraph.min.x + ")<br/><br/>";
 
 	  if (lineGraph.isSmooth) {
+	    var smooth = lineGraph.smoothStatistics;
+
 	    info =
-	      "max : " + lineGraph.smoothMax.y.toFixed(0) + "(x=" + lineGraph.smoothMax.x + ")<br/>" +
-	      "min : " + lineGraph.smoothMin.y.toFixed(0) + "(x=" + lineGraph.smoothMin.x + ")<br/><br/>" +
-	      "total gain : " + lineGraph.totalGain.toFixed(0) + "<br/>" +
-	      "total drop : " + lineGraph.totalDrop.toFixed(0) + "<br/>" +
-	      "max incline : " + (lineGraph.maxIncline.incline * 100).toFixed(1) + "% (x=" + lineGraph.maxIncline.point.x + ")<br/>" +
-	      "min incline : " + (lineGraph.minIncline.incline * 100).toFixed(1) + "% (x=" + lineGraph.minIncline.point.x + ")<br/>";
+	      "max : " + smooth.max.y.toFixed(0) + "(x=" + smooth.max.x + ")<br/>" +
+	      "min : " + smooth.min.y.toFixed(0) + "(x=" + smooth.min.x + ")<br/><br/>" +
+	      "total gain : " + smooth.gain.toFixed(0) + "<br/>" +
+	      "total drop : " + smooth.drop.toFixed(0) + "<br/>" +
+	      "max incline : " + (smooth.incline.max.incline).toFixed(1) + "% (x=" + smooth.incline.max.point.x + ")<br/>" +
+	      "min incline : " + (smooth.incline.min.incline).toFixed(1) + "% (x=" + smooth.incline.min.point.x + ")<br/><br/>";
 	  }
-	  
-	  $('#information').html(info)
+
+	  if (lineGraph.isRangeSelected) {
+	    var range = lineGraph.rangeStatistics;
+
+	    info = info +
+	      "range : " + range.start + " - " + range.end + "<br/>" +
+	      "gain : " + range.gain.toFixed(0) + "<br/>" +
+	      "drop : " + range.drop.toFixed(0) + "<br/>" +
+	      "max incline : " + (range.incline.max.incline).toFixed(1) + "% (x=" + range.incline.max.point.x + ")<br/>" +
+	      "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/><br/>" +
+	      "ave incline : " + (range.incline.ave).toFixed(1) + "%<br/>";
+	  }
+
+	    $('#information').html(info)
 	};
 
 	writeInformation();
@@ -13652,15 +13664,8 @@
 	      this.set('type', GraphData.TYPE.LINE);
 	      this._smoothList = [];
 	      this._peakList = [];
-	      this._totalGain = 0;
-	      this._totalDrop = 0;
-	      this._maxIncline = {
-	        incline: 0
-	      };
-	      this._minIncline = {
-	        incline: 0
-	      };
-	      return this._range = {
+	      this._smoothStatistics = {};
+	      return this._rangeStatistics = {
 	        start: 0,
 	        end: 0,
 	        selected: false
@@ -13694,132 +13699,60 @@
 	      }
 	    });
 
-	    GraphLineData.property("smoothMin", {
+	    GraphLineData.property("smoothStatistics", {
 	      get: function() {
-	        if (this._peakList.length === 0) {
-	          return this._min;
-	        }
-	        return this._peakList.slice().sort(function(a, b) {
-	          return a.point.y - b.point.y;
-	        })[0].point;
-	      }
-	    });
-
-	    GraphLineData.property("smoothMax", {
-	      get: function() {
-	        if (this._peakList.length === 0) {
-	          return this._max;
-	        }
-	        return this._peakList.slice().sort(function(a, b) {
-	          return b.point.y - a.point.y;
-	        })[0].point;
-	      }
-	    });
-
-	    GraphLineData.property("totalGain", {
-	      get: function() {
-	        return this._totalGain;
-	      }
-	    });
-
-	    GraphLineData.property("totalDrop", {
-	      get: function() {
-	        return this._totalDrop;
-	      }
-	    });
-
-	    GraphLineData.property("maxIncline", {
-	      get: function() {
-	        return this._maxIncline;
-	      }
-	    });
-
-	    GraphLineData.property("minIncline", {
-	      get: function() {
-	        return this._minIncline;
+	        return this._smoothStatistics;
 	      }
 	    });
 
 	    GraphLineData.property("isSmooth", {
 	      get: function() {
-	        return this._smoothList.length > 0;
+	        return this._smoothList.length !== 0 && this._peakList.length !== 0;
 	      }
 	    });
 
-	    GraphLineData.property("range", {
+	    GraphLineData.property("rangeStatistic", {
 	      get: function() {
-	        return this._range;
+	        return this._rangeStatistics;
 	      }
 	    });
 
-	    GraphLineData.property("rangeStart", {
+	    GraphLineData.property("isRangeSelect", {
 	      get: function() {
-	        return this._range.start;
-	      }
-	    });
-
-	    GraphLineData.property("rangeEnd", {
-	      get: function() {
-	        return this._range.end;
-	      }
-	    });
-
-	    GraphLineData.property("isRangeSelected", {
-	      get: function() {
-	        return this._range.selected;
-	      }
-	    });
-
-	    GraphLineData.property("rangeWidth", {
-	      get: function() {
-	        return this._range.width;
-	      }
-	    });
-
-	    GraphLineData.property("rangeMin", {
-	      get: function() {
-	        return this._range.min;
-	      }
-	    });
-
-	    GraphLineData.property("rangeMax", {
-	      get: function() {
-	        return this._range.max;
-	      }
-	    });
-
-	    GraphLineData.property("rangeGain", {
-	      get: function() {
-	        return this._range.gain;
-	      }
-	    });
-
-	    GraphLineData.property("rangeDrop", {
-	      get: function() {
-	        return this._range.drop;
-	      }
-	    });
-
-	    GraphLineData.property("rangeMaxIncline", {
-	      get: function() {
-	        return this._range.maxIncline;
-	      }
-	    });
-
-	    GraphLineData.property("rangeMinIncline", {
-	      get: function() {
-	        return this._range.minIncline;
-	      }
-	    });
-
-	    GraphLineData.property("rangeAveIncline", {
-	      get: function() {
-	        return this._range.aveIncline;
+	        return this._rangeStatistics.selected;
 	      }
 	    });
 
 	    GraphLineData.prototype.clear = function() {
 	      GraphLineData.__super__.clear.call(this);
+	      this._smoothList = [];
+	      this._peakList = [];
+	      this._smoothStatistics = {};
+	      return this._rangeStatistics = {
+	        start: 0,
+	        end: 0,
+	        selected: false
+	      };
+	    };
+
+	    GraphLineData.prototype.smooth = function(interval, range, xyRatio, threshold) {
+	      this._reSampling(interval, range);
+	      this._peakList = this._calculatePeak(0, this._smoothList.length - 1, xyRatio, threshold);
+	      this._smoothStatistics = {
+	        max: this._peakList.slice().sort(function(a, b) {
+	          return b.point.y - a.point.y;
+	        })[0].point,
+	        min: this._peakList.slice().sort(function(a, b) {
+	          return a.point.y - b.point.y;
+	        })[0].point
+	      };
+	      __.extend(this._smoothStatistics, this._calculateTotalGainAndDrop(this._peakList));
+	      __.extend(this._smoothStatistics, this._calculateIncline(0, this._smoothList.length - 1, xyRatio));
+	      this._xyRatio = xyRatio;
+	      return this._threshould = threshold;
+	    };
+
+	    GraphLineData.prototype.unsmooth = function() {
 	      this._smoothList = [];
 	      this._peakList = [];
 	      this._totalGain = 0;
@@ -13832,7 +13765,7 @@
 	      };
 	    };
 
-	    GraphLineData.prototype.smooth = function(interval, range) {
+	    GraphLineData.prototype._reSampling = function(interval, range) {
 	      var end, i, incline, index, j, k, newPointList, rangeIndex, ref, ref1, ref2, ref3, start, xp, yTotal, yp;
 	      xp = 0;
 	      newPointList = [];
@@ -13856,28 +13789,21 @@
 	      }
 	    };
 
-	    GraphLineData.prototype.unsmooth = function() {
-	      this._smoothList = [];
-	      this._peakList = [];
-	      this._totalGain = 0;
-	      return this._totalDrop = 0;
-	    };
-
-	    GraphLineData.prototype.calculatePeak = function(xyRatio, threshold) {
-	      var i, incline, index, maxIndex, minIndex, preIncline, ref;
-	      if (this._smoothList.length < 1) {
-	        return;
+	    GraphLineData.prototype._calculatePeak = function(start, end, xyRatio, threshold) {
+	      var i, incline, index, maxIndex, minIndex, peakList, preIncline, ref, ref1;
+	      if (this._smoothList.length < 1 || start >= end - 1) {
+	        return [];
 	      }
-	      preIncline = (this._smoothList[1].y - this._smoothList[0].y) / ((this._smoothList[1].x - this._smoothList[0].x) * xyRatio);
-	      minIndex = 0;
-	      maxIndex = 0;
-	      this._peakList = [];
-	      this._peakList.push({
-	        index: 0,
+	      preIncline = (this._smoothList[start + 1].y - this._smoothList[start].y) / ((this._smoothList[start + 1].x - this._smoothList[start].x) * xyRatio);
+	      minIndex = start;
+	      maxIndex = start;
+	      peakList = [];
+	      peakList.push({
+	        index: start,
 	        isMax: preIncline > 0 ? false : true,
-	        point: this._smoothList[0]
+	        point: this._smoothList[start]
 	      });
-	      for (index = i = 0, ref = this._smoothList.length - 1; 0 <= ref ? i < ref : i > ref; index = 0 <= ref ? ++i : --i) {
+	      for (index = i = ref = start, ref1 = end; ref <= ref1 ? i < ref1 : i > ref1; index = ref <= ref1 ? ++i : --i) {
 	        if (this._smoothList[minIndex].y > this._smoothList[index].y) {
 	          minIndex = index;
 	        }
@@ -13885,22 +13811,8 @@
 	          maxIndex = index;
 	        }
 	        incline = (this._smoothList[index + 1].y - this._smoothList[index].y) / ((this._smoothList[index + 1].x - this._smoothList[index].x) * xyRatio);
-	        if (this._maxIncline.incline < incline) {
-	          this._maxIncline = {
-	            index: index,
-	            incline: incline,
-	            point: this._smoothList[index]
-	          };
-	        }
-	        if (this._minIncline.incline > incline) {
-	          this._minIncline = {
-	            index: index,
-	            incline: incline,
-	            point: this._smoothList[index]
-	          };
-	        }
 	        if (preIncline > threshold && incline < (-threshold)) {
-	          this._peakList.push({
+	          peakList.push({
 	            index: maxIndex,
 	            isMax: true,
 	            point: this._smoothList[maxIndex]
@@ -13908,15 +13820,15 @@
 	          preIncline = incline;
 	          minIndex = maxIndex;
 	        } else if (preIncline < (-threshold) && incline > threshold) {
-	          this._peakList.push({
+	          peakList.push({
 	            index: minIndex,
 	            isMax: false,
 	            point: this._smoothList[minIndex]
 	          });
 	          preIncline = incline;
 	          maxIndex = minIndex;
-	        } else if (index === this._smoothList.length - 2) {
-	          this._peakList.push({
+	        } else if (index === end - 1) {
+	          peakList.push({
 	            index: index + 1,
 	            isMax: incline > 0 ? true : false,
 	            point: this._smoothList[index + 1]
@@ -13926,28 +13838,70 @@
 	          preIncline = incline;
 	        }
 	      }
+	      return peakList;
 	    };
 
-	    GraphLineData.prototype.calculateTotalGainAndDrop = function() {
-	      var preY;
-	      if (this._peakList.length < 1) {
+	    GraphLineData.prototype._calculateTotalGainAndDrop = function(peakList) {
+	      var preY, total;
+	      if (peakList.length < 1) {
 	        return;
 	      }
-	      this._totalGain = 0;
-	      this._totalDrop = 0;
-	      preY = this._peakList[0].point.y;
-	      return this._peakList.forEach((function(_this) {
+	      total = {
+	        gain: 0,
+	        drop: 0
+	      };
+	      preY = peakList[0].point.y;
+	      peakList.forEach((function(_this) {
 	        return function(peak, index) {
 	          if (index > 0) {
 	            if (peak.isMax === true) {
-	              _this._totalGain += peak.point.y - preY;
+	              total.gain += peak.point.y - preY;
 	            } else {
-	              _this._totalDrop += preY - peak.point.y;
+	              total.drop += preY - peak.point.y;
 	            }
 	            return preY = peak.point.y;
 	          }
 	        };
 	      })(this));
+	      return total;
+	    };
+
+	    GraphLineData.prototype._calculateIncline = function(start, end, xyRatio) {
+	      var i, incline, inclineStatistics, index, ref, ref1, totalIncline;
+	      if (this._smoothList.length < 1 || start >= end - 1) {
+	        return {};
+	      }
+	      inclineStatistics = {
+	        max: {
+	          incline: 0
+	        },
+	        min: {
+	          incline: 100
+	        }
+	      };
+	      totalIncline = 0;
+	      for (index = i = ref = start, ref1 = end - 1; ref <= ref1 ? i < ref1 : i > ref1; index = ref <= ref1 ? ++i : --i) {
+	        incline = (this._smoothList[index + 1].y - this._smoothList[index].y) / ((this._smoothList[index + 1].x - this._smoothList[index].x) * xyRatio) * 100;
+	        if (inclineStatistics.max.incline < incline) {
+	          inclineStatistics.max = {
+	            index: index,
+	            incline: incline,
+	            point: this._smoothList[index]
+	          };
+	        }
+	        if (inclineStatistics.min.incline > incline) {
+	          inclineStatistics.min = {
+	            index: index,
+	            incline: incline,
+	            point: this._smoothList[index]
+	          };
+	        }
+	        totalIncline += incline;
+	      }
+	      inclineStatistics.ave = totalIncline / (end - start + 1);
+	      return {
+	        incline: inclineStatistics
+	      };
 	    };
 
 	    GraphLineData.prototype.getAutoRange = function(x) {
@@ -13973,50 +13927,66 @@
 	    };
 
 	    GraphLineData.prototype.setRange = function(range) {
-	      var endIndex, startIndex;
-	      this._range = range;
-	      if (this._range.selected === false || this._smoothList.length === 0) {
+	      var endIndex, peakList, startIndex;
+	      this._rangeStatistics = range;
+	      if (this._rangeStatistics.selected === false || this._smoothList.length === 0) {
 	        return;
 	      }
 	      startIndex = 0;
 	      this._smoothList.some((function(_this) {
 	        return function(point, index) {
-	          if (point.x >= _this._range.start) {
+	          if (point.x >= _this._rangeStatistics.start) {
 	            startIndex = index;
 	            return true;
 	          }
 	          return false;
 	        };
 	      })(this));
-	      this._range.start = this._smoothList[startIndex].x;
+	      this._rangeStatistics.start = this._smoothList[startIndex].x;
+	      this._rangeStatistics.startIndex = startIndex;
 	      endIndex = this._smoothList.length - 1;
 	      this._smoothList.slice().reverse().some((function(_this) {
 	        return function(point, index) {
-	          if (point.x <= _this._range.end) {
+	          if (point.x <= _this._rangeStatistics.end) {
 	            endIndex = _this._smoothList.length - index - 1;
 	            return true;
 	          }
 	          return false;
 	        };
 	      })(this));
-	      this._range.end = this._smoothList[endIndex].x;
-	      this._range.width = this._range.end - this._range.start;
-	      if (this._range.width === 0) {
-	        this._range.min = this._smoothList[startIndex];
-	        this._range.max = this._smoothList[startIndex];
-	        this._range.gain = 0;
-	        this._range.drop = 0;
-	        this._range.maxIncline = {
-	          index: startIndex,
-	          incline: 0,
-	          point: this._smoothList[startIndex]
+	      this._rangeStatistics.end = this._smoothList[endIndex].x;
+	      this._rangeStatistics.endIndex = endIndex;
+	      this._rangeStatistics.width = this._rangeStatistics.end - this._rangeStatistics.start;
+	      if (this._rangeStatistics.width === 0) {
+	        this._rangeStatistics.min = this._smoothList[startIndex];
+	        this._rangeStatistics.max = this._smoothList[startIndex];
+	        this._rangeStatistics.gain = 0;
+	        this._rangeStatistics.drop = 0;
+	        return this._rangeStatistics.incline = {
+	          max: {
+	            index: startIndex,
+	            incline: 0,
+	            point: this._smoothList[startIndex]
+	          },
+	          min: {
+	            index: startIndex,
+	            incline: 0,
+	            point: this._smoothList[startIndex]
+	          },
+	          ave: 0
 	        };
-	        this._range.minIncline = {
-	          index: startIndex,
-	          incline: 0,
-	          point: this._smoothList[startIndex]
-	        };
-	        return this._range.aveIncline = 0;
+	      } else {
+	        peakList = this._calculatePeak(startIndex, endIndex, this._xyRatio, this._threshold);
+	        __.extend(this._rangeStatistics, {
+	          max: peakList.slice().sort(function(a, b) {
+	            return b.point.y - a.point.y;
+	          })[0].point,
+	          min: peakList.slice().sort(function(a, b) {
+	            return a.point.y - b.point.y;
+	          })[0].point
+	        });
+	        __.extend(this._rangeStatistics, this._calculateTotalGainAndDrop(peakList));
+	        return __.extend(this._rangeStatistics, this._calculateIncline(startIndex, endIndex, this._xyRatio));
 	      }
 	    };
 
@@ -16182,6 +16152,7 @@
 
 	    AxisView.prototype.initialize = function(options) {
 	      this._axisColor = options.axisColor;
+	      this._xScale = options.xScale;
 	      this.render();
 	      return this.listenTo(this.model, AxisData.EVENT_AXIS_CHANGED, (function(_this) {
 	        return function(model) {
@@ -16192,7 +16163,7 @@
 	    };
 
 	    AxisView.prototype.render = function() {
-	      var GraphView, context, drawSub, h, i, j, ref, ref1, ref2, ref3, ref4, ref5, results, w, x, xe, xp, xs, y, ye, yp, ys;
+	      var GraphView, adjustXInterval, context, drawSub, h, i, j, ref, ref1, ref2, ref3, ref4, ref5, results, w, x, xe, xp, xs, y, ye, yp, ys;
 	      GraphView = __webpack_require__(12);
 	      context = this.$el[0].getContext('2d');
 	      w = this.$el[0].width;
@@ -16215,9 +16186,10 @@
 	      context.moveTo(xs, ys);
 	      context.lineTo(xe, ys);
 	      context.stroke();
+	      adjustXInterval = this._xScale.adjustInterval;
 	      context.lineWidth = 0.5;
-	      drawSub = (xs + (xe - xs) * this.model.xAxis.subInterval / this.model.xMax) > 80;
-	      for (x = i = ref = this.model.xAxis.subInterval, ref1 = this.model.xMax, ref2 = this.model.xAxis.subInterval; ref2 > 0 ? i <= ref1 : i >= ref1; x = i += ref2) {
+	      drawSub = (xs + (xe - xs) * this.model.xAxis.subInterval / (this.model.xMax * adjustXInterval)) > 80;
+	      for (x = i = ref = this.model.xAxis.subInterval / adjustXInterval, ref1 = this.model.xMax, ref2 = this.model.xAxis.subInterval / adjustXInterval; ref2 > 0 ? i < ref1 : i > ref1; x = i += ref2) {
 	        xp = xs + (xe - xs) * x / this.model.xMax;
 	        if (x % this.model.xAxis.interval === 0) {
 	          context.fillText("" + x, xp, h - 3);
@@ -16243,7 +16215,7 @@
 	      context.lineWidth = 0.5;
 	      drawSub = (ye + (ys - ye) * this.model.yAxis.subInterval / this.model.yMax) > 50;
 	      results = [];
-	      for (y = j = ref3 = this.model.yAxis.subInterval, ref4 = this.model.yMax, ref5 = this.model.yAxis.subInterval; ref5 > 0 ? j <= ref4 : j >= ref4; y = j += ref5) {
+	      for (y = j = ref3 = this.model.yAxis.subInterval, ref4 = this.model.yMax, ref5 = this.model.yAxis.subInterval; ref5 > 0 ? j < ref4 : j > ref4; y = j += ref5) {
 	        yp = ys + (ye - ys) * y / this.model.yMax;
 	        if (y % this.model.yAxis.interval === 0) {
 	          context.fillText("" + y, xs - 3, yp);
