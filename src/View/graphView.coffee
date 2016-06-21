@@ -10,6 +10,7 @@ GestureView = require('./gestureView')
 ScaleData = require('../Model/scaleData')
 OffsetData = require('../Model/offsetData')
 RangeData = require('../Model/rangeData')
+AxisData = require('../Model/AxisData')
 RectRegion = require('../Model/rectRegion')
 GestureData = require('../Model/gestureData')
 GestureDataCollection = require('../Model/gestureDataCollection')
@@ -29,14 +30,14 @@ class GraphView extends Backbone.View
   #  collection: GraphDataCollectionClassObject
   #  width: w
   #  height: h
-  #  xAxis:AxisDataClassObject
-  #  yAxis:AxisDataClassObject
-  #  range:
-  #    color: "##RRGGBB"
-  #    opacity: o
+  #  xAxis:{max:max, interval:i, subInterval:s, axisColor:"#RRGGBB"}
+  #  yAxis:{max:max, interval:i, subInterval:s, axisColor:"#RRGGBB"}
+  #  range:{color: "##RRGGBB", opacity: o}
   initialize: (options) ->
     __.extend(@, __.pick(options, _graphOptions))
 
+    @_xAxisData = new AxisData(@xAxis)
+    @_yAxisData = new AxisData(@yAxis)
     @_xScaleData = new ScaleData({title: "X"})
     @_yScaleData = new ScaleData({title: "Y"})
     @_xOffsetData = new OffsetData({
@@ -46,7 +47,7 @@ class GraphView extends Backbone.View
     @_xRangeData = new RangeData({
       width: @width - GraphView.ORIGIN_OFFSET_X
       scale: @_xScaleData
-      axis: @xAxis
+      axis: @_xAxisData
       offset: @_xOffsetData
       targetGraph: @collection.models[0]
       rangeColor: @range.color
@@ -59,7 +60,7 @@ class GraphView extends Backbone.View
 
   render: ->
     @_yAxisView = new YAxisView({
-      model: @yAxis
+      model: @_yAxisData
       pos: [0, 0, GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y]
       yScale: @_yScaleData
     })
@@ -68,8 +69,8 @@ class GraphView extends Backbone.View
     @_graphCanvasView = new GraphCanvasView({
       collection: @collection
       pos: [GraphView.ORIGIN_OFFSET_X, 0, @width - GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y]
-      xAxis: @xAxis
-      yAxis: @yAxis
+      xAxis: @_xAxisData
+      yAxis: @_yAxisData
       xScale: @_xScaleData
       yScale: @_yScaleData
       xOffset: @_xOffsetData
@@ -77,7 +78,7 @@ class GraphView extends Backbone.View
     @_graphCanvasView.$wrap.appendTo(@$el)
 
     @_xAxisView = new XAxisView({
-      model: @xAxis
+      model: @_xAxisData
       pos: [GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y, @width - GraphView.ORIGIN_OFFSET_X, GraphView.ORIGIN_OFFSET_Y]
       xScale: @_xScaleData
       xOffset: @_xOffsetData
@@ -87,7 +88,7 @@ class GraphView extends Backbone.View
     @_rangeView = new RangeView({
       model: @_xRangeData
       pos: [GraphView.ORIGIN_OFFSET_X, 0, @width - GraphView.ORIGIN_OFFSET_X, @height - GraphView.ORIGIN_OFFSET_Y]
-      xAxis: @xAxis
+      xAxis: @_xAxisData
       xScale: @_xScaleData
       xOffset: @_xOffsetData
     })
@@ -110,8 +111,8 @@ class GraphView extends Backbone.View
 
   _registerEvent: ->
     @listenTo(@collection, "change", =>
-      @xAxis.max = @collection.xMax
-      @yAxis.max = @collection.yMax
+      @_xAxisData.max = @collection.xMax
+      @_yAxisData.max = @collection.yMax
       @_yAxisView.render()
       @_graphCanvasView.render()
       @_xAxisView.render()
@@ -293,7 +294,7 @@ class GraphView extends Backbone.View
                 @_xOffsetData.scroll(GraphView.SCROLL_WIDTH)
                 @_xRangeData.shiftX(mousePos.differencePos.x - GraphView.SCROLL_WIDTH)
             else
-              if @_xRangeData.end < @xAxis.max
+              if @_xRangeData.end < @_xAxisData.max
                 @_xOffsetData.scroll(-GraphView.SCROLL_WIDTH)
                 @_xRangeData.shiftX(mousePos.differencePos.x + GraphView.SCROLL_WIDTH)
         })
