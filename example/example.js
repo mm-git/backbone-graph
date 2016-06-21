@@ -36,8 +36,18 @@ var graphView = new Graph.GraphView({
   collection: graphCollection,
   width: 600,
   height: 400,
-  xAxis: new Graph.Axis({max:100, interval:50, subInterval:10, axisColor: AXIS_COLOR}),
-  yAxis: new Graph.Axis({max:1000, interval:100, subInterval:100, axisColor: AXIS_COLOR}),
+  xAxis: {
+    max: 100,
+    interval: 50,
+    subInterval: 10,
+    axisColor: AXIS_COLOR
+  },
+  yAxis: {
+    max:1000,
+    interval:100,
+    subInterval:100,
+    axisColor: AXIS_COLOR
+  },
   range: {
     color: AXIS_COLOR,
     opacity: 0.5  
