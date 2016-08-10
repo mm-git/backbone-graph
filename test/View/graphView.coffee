@@ -44,15 +44,13 @@ describe 'GraphView Class Test', ->
     @lineGraph.smooth(1, 5, 1000, 0.01)
 
     @collection = new GraphDataCollection([@lineGraph, @pointGraph]);
-    @xAxis = new AxisData({max:100,  interval:50,  subInterval:10,  axisColor: "#7bbcd8"})
-    @yAxis = new AxisData({max:1000, interval:100, subInterval:100, axisColor: "#7bbcd8"})
 
     @graphView = new graphView({
       collection: @collection
       width: 600
       height: 400
-      xAxis: @xAxis
-      yAxis: @yAxis
+      xAxis: {max:100,  interval:50,  subInterval:10,  axisColor: "#7bbcd8"}
+      yAxis: {max:1000, interval:100, subInterval:100, axisColor: "#7bbcd8"}
       range: {
         color: "#7bbcd8",
         opacity: 0.5
@@ -62,8 +60,8 @@ describe 'GraphView Class Test', ->
   it 'constructor test', ->
     assert.equal(@graphView.width, 600)
     assert.equal(@graphView.height, 400)
-    assert.equal(@graphView.xAxis, @xAxis)
-    assert.equal(@graphView.yAxis, @yAxis)
+    assert.deepEqual(@graphView.xAxis, {max:100,  interval:50,  subInterval:10,  axisColor: "#7bbcd8"})
+    assert.deepEqual(@graphView.yAxis, {max:1000, interval:100, subInterval:100, axisColor: "#7bbcd8"})
     assert.equal(@graphView.range.color, "#7bbcd8")
     assert.equal(@graphView.range.opacity, 0.5)
 
@@ -119,8 +117,8 @@ describe 'GraphView Class Test', ->
     @lineGraph.smooth(1, 5, 1000, 0.01)
     @collection.change()
 
-    assert.equal(@graphView.xAxis.max, 110)
-    assert.equal(@graphView.yAxis.max, 1100)
+    assert.equal(@graphView._xAxisData.max, 110)
+    assert.equal(@graphView._yAxisData.max, 1100)
 
     assert.equal(@graphView._yAxisView.$el.css('left'),   '0px')
     assert.equal(@graphView._yAxisView.$el.css('top'),    '0px')
