@@ -256,3 +256,4 @@ Graph.LineData.smoothStatistics = {
 | Graph.PointData | click           | index, screenPos | Point is clicked                                         |
 |                 | mouseenter      | index, screenPos | Mouse cursor enter the point                             |
 |                 | mouseleave      | index            | Mouse cursor leave from the point or any area is clicked |
+
