@@ -11,4 +11,8 @@ class GraphPointData extends GraphData
     get: ->
       @get('pointColor')
 
+  triggerEvent: (eventName, index, screenPos) ->
+    @trigger(eventName, index, screenPos)
+
+    
 module.exports = GraphPointData

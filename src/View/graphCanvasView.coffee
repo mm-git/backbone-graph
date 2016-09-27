@@ -11,7 +11,7 @@ class GraphCanvasView extends CanvasView
     super(options)
     __.extend(@, __.pick(options, _graphCanvasOptions))
 
-    @_subView = @collection.map((model) =>
+    @subView = @collection.map((model) =>
       subView = null
       switch model.type
         when GraphData.TYPE.LINE
@@ -59,7 +59,7 @@ class GraphCanvasView extends CanvasView
 
     @_drawAxis(context, xs, xe, ys, ye)
 
-    @_subView.forEach((subView) =>
+    @subView.forEach((subView) =>
       subView.render()
     )
     

@@ -5,16 +5,75 @@ var Graph = require('../index.js');
 
 var LINE_COLOR = "#ffcc00";
 var PEAK_COLOR = "#ff0000";
+var POINT_COLOR = "#ff3333";
 var AXIS_COLOR = "#7bbcd8";
+
+var writeInformation = function(){
+  var info = "max : " + lineGraph.max.y.toFixed(0) + "(x=" + lineGraph.max.x + ")<br/>" +
+    "min : " + lineGraph.min.y.toFixed(0) + "(x=" + lineGraph.min.x + ")<br/><br/>";
+
+  if (lineGraph.isSmooth) {
+    var smooth = lineGraph.smoothStatistics;
+
+    info =
+      "max : " + smooth.max.y.toFixed(0) + "(x=" + smooth.max.x + ")<br/>" +
+      "min : " + smooth.min.y.toFixed(0) + "(x=" + smooth.min.x + ")<br/>" +
+      "total gain : " + smooth.gain.toFixed(0) + "<br/>" +
+      "total drop : " + smooth.drop.toFixed(0) + "<br/>" +
+      "max incline : " + (smooth.incline.max.incline).toFixed(1) + "% (x=" + smooth.incline.max.point.x + ")<br/>" +
+      "min incline : " + (smooth.incline.min.incline).toFixed(1) + "% (x=" + smooth.incline.min.point.x + ")<br/>" +
+      "ave incline : " + (smooth.incline.ave).toFixed(1) + "%<br/><br/>";
+  }
+
+  if (lineGraph.isRangeSelected && lineGraph.isSmooth) {
+    var range = lineGraph.rangeStatistics;
+
+    info = info +
+      "range : " + range.start + " - " + range.end + "<br/>" +
+      "max : " + range.max.y.toFixed(0) + "(x=" + range.max.x + ")<br/>" +
+      "min : " + range.min.y.toFixed(0) + "(x=" + range.min.x + ")<br/>" +
+      "gain : " + range.gain.toFixed(0) + "<br/>" +
+      "drop : " + range.drop.toFixed(0) + "<br/>";
+
+    if (range.incline !== undefined) {
+      info = info +
+        "max incline : " + (range.incline.max.incline).toFixed(1) + "% (x=" + range.incline.max.point.x + ")<br/>" +
+        "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/>" +
+        "ave incline : " + (range.incline.ave).toFixed(1) + "%<br/>";
+    }
+  }
+
+  $('#information').html(info)
+};
 
 var lineGraph = new Graph.LineData({
   lineColor: LINE_COLOR,
   peakColor: PEAK_COLOR
+})
+.on({
+  changeSelection :function(){
+    writeInformation();
+  }
 });
 
-var graphCollection = new Graph.Collection([lineGraph]);
+var pointGraph = new Graph.PointData({
+  pointColor: POINT_COLOR
+})
+.on({
+  click: function(index, screenPos){
+    console.log("click point index=" + index + " , pos=" + JSON.stringify(screenPos))
+  },
+  mouseenter: function(index, screenPos){
+    console.log("mouseenter point index=" + index + " , pos=" + JSON.stringify(screenPos))
+  },
+  mouseleave: function(index){
+    console.log("mouseleave point index=" + index)
+  }
+});
 
-var graphSample = [
+var graphCollection = new Graph.Collection([lineGraph, pointGraph]);
+
+var lineGraphSample = [
   [0, 100],
   [10, 200],
   [20, 400],
@@ -28,8 +87,26 @@ var graphSample = [
   [100, 300]
 ];
 
-graphSample.forEach(function (point){
+lineGraphSample.forEach(function (point){
   lineGraph.addPoint(new Graph.Point(point[0], point[1]));
+});
+
+var pointGraphSample = [
+  [0, 800],
+  [10, 700],
+  [20, 600],
+  [30, 500],
+  [40, 500],
+  [50, 400],
+  [60, 500],
+  [70, 700],
+  [80, 800],
+  [90, 900],
+  [100, 700],
+];
+
+pointGraphSample.forEach(function (point){
+  pointGraph.addPoint(new Graph.Point(point[0], point[1]));
 });
 
 var graphView = new Graph.GraphView({
@@ -73,48 +150,5 @@ toggleButton.on('click', function(){
   }
 });
 
-lineGraph.on({
-  changeSelection :function(){
-    writeInformation();
-  }
-});
-
-var writeInformation = function(){
-  var info = "max : " + lineGraph.max.y.toFixed(0) + "(x=" + lineGraph.max.x + ")<br/>" +
-             "min : " + lineGraph.min.y.toFixed(0) + "(x=" + lineGraph.min.x + ")<br/><br/>";
-
-  if (lineGraph.isSmooth) {
-    var smooth = lineGraph.smoothStatistics;
-
-    info =
-      "max : " + smooth.max.y.toFixed(0) + "(x=" + smooth.max.x + ")<br/>" +
-      "min : " + smooth.min.y.toFixed(0) + "(x=" + smooth.min.x + ")<br/>" +
-      "total gain : " + smooth.gain.toFixed(0) + "<br/>" +
-      "total drop : " + smooth.drop.toFixed(0) + "<br/>" +
-      "max incline : " + (smooth.incline.max.incline).toFixed(1) + "% (x=" + smooth.incline.max.point.x + ")<br/>" +
-      "min incline : " + (smooth.incline.min.incline).toFixed(1) + "% (x=" + smooth.incline.min.point.x + ")<br/>" +
-      "ave incline : " + (smooth.incline.ave).toFixed(1) + "%<br/><br/>";
-  }
-
-  if (lineGraph.isRangeSelected && lineGraph.isSmooth) {
-    var range = lineGraph.rangeStatistics;
-
-    info = info +
-      "range : " + range.start + " - " + range.end + "<br/>" +
-      "max : " + range.max.y.toFixed(0) + "(x=" + range.max.x + ")<br/>" +
-      "min : " + range.min.y.toFixed(0) + "(x=" + range.min.x + ")<br/>" +
-      "gain : " + range.gain.toFixed(0) + "<br/>" +
-      "drop : " + range.drop.toFixed(0) + "<br/>";
-
-    if (range.incline !== undefined) {
-      info = info +
-        "max incline : " + (range.incline.max.incline).toFixed(1) + "% (x=" + range.incline.max.point.x + ")<br/>" +
-        "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/>" +
-        "ave incline : " + (range.incline.ave).toFixed(1) + "%<br/>";
-    }
-  }
-
-  $('#information').html(info)
-};
-
 writeInformation();
+

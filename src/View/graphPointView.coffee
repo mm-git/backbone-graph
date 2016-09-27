@@ -6,6 +6,7 @@ class GraphPointView extends Backbone.View
 
   initialize: (options) ->
     __.extend(@, __.pick(options, _graphPointOptions))
+    @drawPointList = []
 
   render: ->
     GraphView = require('./graphView')
@@ -21,6 +22,7 @@ class GraphPointView extends Backbone.View
     @_drawPoint(context, xs, xe, ys, ye)
 
   _drawPoint: (context, xs, xe, ys, ye) ->
+    @drawPointList = []
     if @model.pointList.length == 0
       return
 
@@ -33,6 +35,11 @@ class GraphPointView extends Backbone.View
       context.lineTo(xp+5, yp-7)
       context.lineTo(xp, yp)
       context.fill()
+
+      @drawPointList.push({
+        x: xp
+        y: yp
+      })
     )
 
 module.exports = GraphPointView
