@@ -4,6 +4,7 @@
 #
 require('./viewTest')
 assert = require('assert')
+sinon = require('sinon')
 fs = require('fs')
 
 AxisData = require('../../src/Model/axisData')
@@ -56,6 +57,7 @@ describe 'GraphView Class Test', ->
         opacity: 0.5
       }
     })
+    @collection.change()
     
   it 'constructor test', ->
     assert.equal(@graphView.width, 600)
@@ -210,3 +212,20 @@ describe 'GraphView Class Test', ->
     assert.equal(@graphView._xRangeData.selected, true)
     assert.equal(Math.floor(@graphView._xRangeData.start), 3)
     assert.equal(Math.floor(@graphView._xRangeData.end), 5)
+
+  it 'event test mouse motion point click', ->
+    trigger = sinon.spy @pointGraph, 'trigger'
+
+    event = $.Event("mousedown", {pageX: 93, pageY: 302})
+    @graphView._gestureView.$el.trigger(event)
+    event = $.Event("mouseup",   {pageX: 93, pageY: 302})
+    @graphView._gestureView.$el.trigger(event)
+
+    assert.equal(trigger.calledOnce, true)
+    assert.equal(trigger.getCall(0).args.length, 3)
+    assert.equal(trigger.getCall(0).args[0], "click")
+    assert.equal(trigger.getCall(0).args[1], 1)
+    assert.equal(trigger.getCall(0).args[2].x, 93)
+    assert.equal(trigger.getCall(0).args[2].y, 302)
+
+    trigger.restore()

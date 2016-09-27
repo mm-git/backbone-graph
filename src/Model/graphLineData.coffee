@@ -259,7 +259,7 @@ class GraphLineData extends GraphData
     @_rangeStatistics = range
 
     if @_rangeStatistics.selected == false || @_smoothList.length == 0
-      @trigger('changeSelection', @)
+      @trigger('changeSelection')
       return
 
     startIndex = 0
@@ -298,6 +298,6 @@ class GraphLineData extends GraphData
       __.extend(@_rangeStatistics, @_calculateTotalGainAndDrop(peakList))
       __.extend(@_rangeStatistics, @_calculateIncline(startIndex, endIndex, @_xyRatio))
 
-    @trigger('changeSelection', @)
+    @trigger('changeSelection')
 
 module.exports = GraphLineData

@@ -13,7 +13,7 @@ GestureView = require('../../src/View/gestureView.coffee')
 
 describe 'GestureView Class Test', ->
   beforeEach ->
-    @action = ""
+    @action = []
     @actionMousePos = undefined
     @gesture1 = new GestureData({
       actionRegion: new RectRegion(0, 0, 600, 400)
@@ -26,19 +26,22 @@ describe 'GestureView Class Test', ->
     })
     .on({
       click: (mousePos) =>
-        @action = "gesture1:click"
+        @action.push("gesture1:click")
         @actionMousePos = mousePos
-      over: (mousePos) =>
-        @action = "gesture1:over"
+      mouseenter: (mousePos) =>
+        @action.push("gesture1:mouseenter")
         @actionMousePos = mousePos
+      mouseleave: () =>
+        @action.push("gesture1:mouseleave")
+        @actionMousePos = undefined
       dragStart: (mousePos) =>
-        @action = "gesture1:dragStart"
+        @action.push("gesture1:dragStart")
         @actionMousePos = mousePos
       dragging: (mousePos) =>
-        @action = "gesture1:dragging"
+        @action.push("gesture1:dragging")
         @actionMousePos = mousePos
       repeat: (mousePos) =>
-        @action = "gesture1:repeat"
+        @action.push("gesture1:repeat")
         @actionMousePos = mousePos
     })
     @gesture2 = new GestureData({
@@ -49,16 +52,19 @@ describe 'GestureView Class Test', ->
     })
     .on({
       click: (mousePos) =>
-        @action = "gesture2:click"
+        @action.push("gesture2:click")
         @actionMousePos = mousePos
-      over: (mousePos) =>
-        @action = "gesture2:over"
+      mouseenter: (mousePos) =>
+        @action.push("gesture2:mouseenter")
         @actionMousePos = mousePos
+      mouseleave: () =>
+        @action.push("gesture2:mouseleave")
+        @actionMousePos = undefined
       dragStart: (mousePos) =>
-        @action = "gesture2:dragStart"
+        @action.push("gesture2:dragStart")
         @actionMousePos = mousePos
       dragging: (mousePos) =>
-        @action = "gesture2:dragging"
+        @action.push("gesture2:dragging")
         @actionMousePos = mousePos
     })
     @gestureDataCollection = new GestureDataCollection([@gesture1, @gesture2])
@@ -83,34 +89,49 @@ describe 'GestureView Class Test', ->
   it 'event test mouse motion', ->
     motions = [
       #action, x, y, mouseMove, currentGesture, action, actionMousePos
-      ["mousedown", -1, -1, false, undefined, "", undefined]
-      ["mouseup",   -1, -1, false, undefined, "", undefined]
-      ["mousedown", 10, 10, false, @gesture1, "", undefined]
-      ["mouseup",   10, 10, false, undefined, "gesture1:click", [10,10,0,0]]
-      ["mousedown", 10, 10, false, @gesture1, "", undefined]
-      ["mousemove", 11, 11, true,  @gesture1, "gesture1:dragStart", [11,11,1,1]]
-      ["mousemove", 12, 12, true,  @gesture1, "gesture1:dragging", [12,12,1,1]]
-      ["mouseup",   13, 13, true,  undefined, "", undefined]
-      ["mousemove", 15, 15, true,  undefined, "gesture1:over", [15,15,2,2]]
-      ["mousemove", 16, 16, true,  undefined, "gesture1:over", [16,16,1,1]]
-      ["mousedown", 10, 300, false, @gesture2, "", undefined]
-      ["mouseup",   10, 300, false, undefined, "gesture2:click", [10,300,0,0]]
-      ["mousedown", 10, 300, false, @gesture2, "", undefined]
-      ["mousemove", 11, 301, true,  @gesture2, "gesture2:dragStart", [11,301,1,1]]
-      ["mousemove", 12, 302, true,  @gesture2, "gesture2:dragging", [12,302,1,1]]
-      ["mousemove", 10, 10,  true,  @gesture2, "gesture2:dragging", [10,10,-2,-292]]
-      ["mouseup",   10, 10,  true,  undefined, "", undefined]
-      ["mousemove", 15, 300, true,  undefined, "gesture2:over", [15,300,5,290]]
-      ["mousemove", 16, 301, true,  undefined, "gesture2:over", [16,301,1,1]]
+      ["mousedown", -1, -1, false, undefined, [], undefined]
+      ["mouseup",   -1, -1, false, undefined, [], undefined]
+      ["mousedown", 10, 10, false, @gesture1, [], undefined]
+      ["mouseup",   10, 10, false, undefined, ["gesture1:click"], [10,10,0,0]]
+      ["mousedown", 10, 10, false, @gesture1, [], undefined]
+      ["mousemove", 11, 11, true,  @gesture1, ["gesture1:dragStart"], [11,11,1,1]]
+      ["mousemove", 12, 12, true,  @gesture1, ["gesture1:dragging"], [12,12,1,1]]
+      ["mouseup",   13, 13, true,  undefined, [], undefined]
+      ["mousemove", 15, 15, true,  undefined, ["gesture1:mouseenter"], [15,15,2,2]]
+      ["mousemove", 16, 16, true,  undefined, [], undefined]
+      ["mousemove", -1, -1, true,  undefined, ["gesture1:mouseleave"], undefined]
+      ["mousedown", 10, 300, false, @gesture2, [], undefined]
+      ["mouseup",   10, 300, false, undefined, ["gesture2:click"], [10,300,0,0]]
+      ["mousedown", 10, 300, false, @gesture2, [], undefined]
+      ["mousemove", 11, 301, true,  @gesture2, ["gesture2:dragStart"], [11,301,1,1]]
+      ["mousemove", 12, 302, true,  @gesture2, ["gesture2:dragging"], [12,302,1,1]]
+      ["mousemove", 10, 10,  true,  @gesture2, ["gesture2:dragging"], [10,10,-2,-292]]
+      ["mouseup",   10, 10,  true,  undefined, [], undefined]
+      ["mousemove", 15, 300, true,  undefined, ["gesture2:mouseenter"], [15,300,5,290]]
+      ["mousemove", 16, 301, true,  undefined, [], undefined]
+      ["mousemove", 16, 501, true,  undefined, ["gesture2:mouseleave"], undefined]
+      ["mousemove", 0,  0,   true,  undefined, ["gesture1:mouseenter"], [0,0,-16,-501]]
+      ["mousedown", 10, 300, false, @gesture2, ["gesture1:mouseleave"], undefined]
+      ["mouseup",   10, 300, false, undefined, ["gesture2:click"], [10,300,0,0]]
+      ["mousemove", 0,  0,   true,  undefined, ["gesture1:mouseenter"], [0,0,-10,-300]]
+      ["mousemove", 0,  300, true,  undefined, ["gesture1:mouseleave", "gesture2:mouseenter"], [0,300,0,300]]
+      ["mousemove", 0,  301, true,  undefined, [], undefined]
+      ["mousemove", 0,  501, true,  undefined, ["gesture2:mouseleave"], undefined]
     ]
 
     motions.forEach((motion) =>
+      @action = []
+      @actionMousePos = undefined
+
       event = $.Event(motion[0], {pageX: motion[1], pageY: motion[2]})
       @gestureView.$el.trigger(event)
 
       assert.equal(@gestureView._mouseMoving, motion[3])
       assert.equal(@gestureView.collection._currentGesture, motion[4])
-      assert.equal(@action, motion[5])
+      assert.equal(@action.length, motion[5].length)
+      @action.forEach((action, index) ->
+        assert.equal(action, motion[5][index])
+      )
       if motion[6] == undefined
         assert.equal(@actionMousePos, motion[6])
       else
@@ -118,9 +139,6 @@ describe 'GestureView Class Test', ->
         assert.equal(@actionMousePos.currentPos.y, motion[6][1])
         assert.equal(@actionMousePos.differencePos.x, motion[6][2])
         assert.equal(@actionMousePos.differencePos.y, motion[6][3])
-
-      @action = ""
-      @actionMousePos = undefined
     )
 
   it 'event test mouse motion(repeat)', ->
@@ -135,18 +153,21 @@ describe 'GestureView Class Test', ->
 
     assert.equal(@gestureView._mouseMoving, true)
     assert.equal(@gestureView.collection._currentGesture, @gesture1)
-    assert.equal(@action, "gesture1:repeat")
+    assert.equal(@action.length, 2)
+    assert.equal(@action[0], "gesture1:dragStart")
+    assert.equal(@action[1], "gesture1:repeat")
     assert.equal(@actionMousePos.currentPos.x, 1)
     assert.equal(@actionMousePos.currentPos.y, 1)
     assert.equal(@actionMousePos.differencePos.x, 1)
     assert.equal(@actionMousePos.differencePos.y, 1)
 
-    @action = ""
+    @action = []
     @actionMousePos = undefined
 
     clock.tick(200)
 
-    assert.equal(@action, "gesture1:repeat")
+    assert.equal(@action.length, 1)
+    assert.equal(@action[0], "gesture1:repeat")
     assert.equal(@actionMousePos.currentPos.x, 1)
     assert.equal(@actionMousePos.currentPos.y, 1)
     assert.equal(@actionMousePos.differencePos.x, 1)

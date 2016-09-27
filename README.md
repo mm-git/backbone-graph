@@ -108,7 +108,7 @@ Smoothed graph
 
 - Magnification
 
-    You can change the graph magnification to click the plus / minus button at top of the graph.
+    You can change the graph magnification to click the plus / minus button at the top of the graph.
     The magnification can be changed every 50%, and maximum is 800%.
 
 
@@ -153,9 +153,7 @@ console.log(lineData.smoothStatictics.drop);     // you can get total drop
 lineData.unsmooth(); 
 ```
 
-## LineData properties
-
-### Graph.LineData.max
+## Properties
 
 | class                            | property         | type        | detail                                |
 |----------------------------------|------------------|-------------|---------------------------------------|
@@ -239,3 +237,12 @@ Graph.LineData.smoothStatistics = {
   }
 };
 ```
+
+## Event
+
+| class           | event           | parameter        | when event triggers                                      |
+|-----------------------------------|------------------|----------------------------------------------------------|
+| Graph.LineData  | changeSelection | none             | Selected range is changed or unselected                  |
+| Graph.PointData | click           | index, screenPos | Point is clicked                                         |
+|                 | mouseenter      | index, screenPos | Mouse cursor enter the point                             |
+|                 | mouseleave      | index            | Mouse cursor leave from the point or any area is clicked |

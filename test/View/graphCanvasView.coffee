@@ -79,11 +79,11 @@ describe 'GraphCanvasView/GraphLineView/GraphPointView Class Test', ->
     assert.equal(@graphCanvas.$wrap.prop('tagName'), 'DIV')
     assert.equal(@graphCanvas.$el.parent()[0], @graphCanvas.$wrap[0])
 
-    assert.equal(@graphCanvas._subView.length, 2)
-    assert.equal(@graphCanvas._subView[0].xAxis, @xAxis)
-    assert.equal(@graphCanvas._subView[0].yAxis, @yAxis)
-    assert.equal(@graphCanvas._subView[1].xAxis, @xAxis)
-    assert.equal(@graphCanvas._subView[1].yAxis, @yAxis)
+    assert.equal(@graphCanvas.subView.length, 2)
+    assert.equal(@graphCanvas.subView[0].xAxis, @xAxis)
+    assert.equal(@graphCanvas.subView[0].yAxis, @yAxis)
+    assert.equal(@graphCanvas.subView[1].xAxis, @xAxis)
+    assert.equal(@graphCanvas.subView[1].yAxis, @yAxis)
 
   it 'function test render()', ->
     expectList = [

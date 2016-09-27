@@ -3,6 +3,7 @@
 # Date: 2016/05/24
 #
 assert = require('assert')
+sinon = require('sinon')
 
 GraphPointData = require('../../src/Model/graphPointData.coffee')
 GraphPoint = require('../../src/Model/graphPoint.coffee')
@@ -79,4 +80,23 @@ describe 'GraphPointData Class Test', ->
     assert.equal(pointData.max.x, 0)
     assert.equal(pointData.max.y, 0)
     assert.equal(pointData.xMax, 0)
-    
+
+  it 'function test triggerEvent()', ->
+    pointData = new GraphPointData({
+      pointColor: "#0000ff"
+    })
+    pointData.addPoint(new GraphPoint(0, 10))
+    pointData.addPoint(new GraphPoint(10, 20))
+
+    trigger = sinon.spy pointData, 'trigger'
+
+    mousePos = {x:10, y:20}
+    pointData.triggerEvent('click', 1, mousePos)
+
+    assert.equal(trigger.calledOnce, true)
+    assert.equal(trigger.getCall(0).args.length, 3)
+    assert.equal(trigger.getCall(0).args[0], "click")
+    assert.equal(trigger.getCall(0).args[1], 1)
+    assert.equal(trigger.getCall(0).args[2], mousePos)
+
+    trigger.restore()
