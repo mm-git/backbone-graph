@@ -10,6 +10,7 @@ class GestureDataCollection extends Backbone.Collection
     @_currentGesture = undefined
     @_repeatMousePos = undefined 
     @_repeatTimer = undefined
+    @_lastMouseEnter = undefined
 
   selectCurrentGesture: (x, y) ->
     if @_currentGesture?
@@ -17,6 +18,9 @@ class GestureDataCollection extends Backbone.Collection
     @_currentGesture = @models.slice().reverse().find((model) ->
       model.isInsideActionRegion(x, y)
     )
+    if @_lastMouseEnter
+      @_lastMouseEnter.trigger("mouseleave")
+      @_lastMouseEnter = undefined
 
   deselectCurrentGesture: ->
     @_stopRepeat()
@@ -43,10 +47,7 @@ class GestureDataCollection extends Backbone.Collection
       if index >= 0
         @_startRepeat(mousePos, index)
     else
-      targetModel = @models.slice().reverse().find((model) ->
-        model.isInsideActionRegion(mousePos.currentPos.x, mousePos.currentPos.y)
-      )
-      targetModel?.triggerWithRoundPos("over", mousePos)
+      @_mouseOver(mousePos)
 
   move: (mousePos) ->
     if @_currentGesture?
@@ -59,10 +60,7 @@ class GestureDataCollection extends Backbone.Collection
         @_stopRepeat()
       
     else
-      targetModel = @models.slice().reverse().find((model) ->
-        model.isInsideActionRegion(mousePos.currentPos.x, mousePos.currentPos.y)
-      )
-      targetModel?.triggerWithRoundPos("over", mousePos)
+      @_mouseOver(mousePos)
 
   moveEnd: (mousePos) ->
     if @_currentGesture?
@@ -83,4 +81,19 @@ class GestureDataCollection extends Backbone.Collection
       clearInterval(@_repeatTimer)
     @_repeatTimer = undefined
 
+  _mouseOver: (mousePos) ->
+    targetModel = @models.slice().reverse().find((model) ->
+      model.isInsideActionRegion(mousePos.currentPos.x, mousePos.currentPos.y)
+    )
+    if targetModel?
+      if targetModel != @_lastMouseEnter
+        if @_lastMouseEnter
+          @_lastMouseEnter.trigger("mouseleave")
+        targetModel?.triggerWithRoundPos("mouseenter", mousePos)
+        @_lastMouseEnter = targetModel        
+    else
+      if @_lastMouseEnter
+        @_lastMouseEnter.trigger("mouseleave")
+        @_lastMouseEnter = undefined 
+    
 module.exports = GestureDataCollection

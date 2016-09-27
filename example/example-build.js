@@ -51,16 +51,75 @@
 
 	var LINE_COLOR = "#ffcc00";
 	var PEAK_COLOR = "#ff0000";
+	var POINT_COLOR = "#ff3333";
 	var AXIS_COLOR = "#7bbcd8";
+
+	var writeInformation = function(){
+	  var info = "max : " + lineGraph.max.y.toFixed(0) + "(x=" + lineGraph.max.x + ")<br/>" +
+	    "min : " + lineGraph.min.y.toFixed(0) + "(x=" + lineGraph.min.x + ")<br/><br/>";
+
+	  if (lineGraph.isSmooth) {
+	    var smooth = lineGraph.smoothStatistics;
+
+	    info =
+	      "max : " + smooth.max.y.toFixed(0) + "(x=" + smooth.max.x + ")<br/>" +
+	      "min : " + smooth.min.y.toFixed(0) + "(x=" + smooth.min.x + ")<br/>" +
+	      "total gain : " + smooth.gain.toFixed(0) + "<br/>" +
+	      "total drop : " + smooth.drop.toFixed(0) + "<br/>" +
+	      "max incline : " + (smooth.incline.max.incline).toFixed(1) + "% (x=" + smooth.incline.max.point.x + ")<br/>" +
+	      "min incline : " + (smooth.incline.min.incline).toFixed(1) + "% (x=" + smooth.incline.min.point.x + ")<br/>" +
+	      "ave incline : " + (smooth.incline.ave).toFixed(1) + "%<br/><br/>";
+	  }
+
+	  if (lineGraph.isRangeSelected && lineGraph.isSmooth) {
+	    var range = lineGraph.rangeStatistics;
+
+	    info = info +
+	      "range : " + range.start + " - " + range.end + "<br/>" +
+	      "max : " + range.max.y.toFixed(0) + "(x=" + range.max.x + ")<br/>" +
+	      "min : " + range.min.y.toFixed(0) + "(x=" + range.min.x + ")<br/>" +
+	      "gain : " + range.gain.toFixed(0) + "<br/>" +
+	      "drop : " + range.drop.toFixed(0) + "<br/>";
+
+	    if (range.incline !== undefined) {
+	      info = info +
+	        "max incline : " + (range.incline.max.incline).toFixed(1) + "% (x=" + range.incline.max.point.x + ")<br/>" +
+	        "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/>" +
+	        "ave incline : " + (range.incline.ave).toFixed(1) + "%<br/>";
+	    }
+	  }
+
+	  $('#information').html(info)
+	};
 
 	var lineGraph = new Graph.LineData({
 	  lineColor: LINE_COLOR,
 	  peakColor: PEAK_COLOR
+	})
+	.on({
+	  changeSelection :function(){
+	    writeInformation();
+	  }
 	});
 
-	var graphCollection = new Graph.Collection([lineGraph]);
+	var pointGraph = new Graph.PointData({
+	  pointColor: POINT_COLOR
+	})
+	.on({
+	  click: function(index, screenPos){
+	    console.log("click point index=" + index + " , pos=" + JSON.stringify(screenPos))
+	  },
+	  mouseenter: function(index, screenPos){
+	    console.log("mouseenter point index=" + index + " , pos=" + JSON.stringify(screenPos))
+	  },
+	  mouseleave: function(index){
+	    console.log("mouseleave point index=" + index)
+	  }
+	});
 
-	var graphSample = [
+	var graphCollection = new Graph.Collection([lineGraph, pointGraph]);
+
+	var lineGraphSample = [
 	  [0, 100],
 	  [10, 200],
 	  [20, 400],
@@ -74,8 +133,26 @@
 	  [100, 300]
 	];
 
-	graphSample.forEach(function (point){
+	lineGraphSample.forEach(function (point){
 	  lineGraph.addPoint(new Graph.Point(point[0], point[1]));
+	});
+
+	var pointGraphSample = [
+	  [0, 800],
+	  [10, 700],
+	  [20, 600],
+	  [30, 500],
+	  [40, 500],
+	  [50, 400],
+	  [60, 500],
+	  [70, 700],
+	  [80, 800],
+	  [90, 900],
+	  [100, 700],
+	];
+
+	pointGraphSample.forEach(function (point){
+	  pointGraph.addPoint(new Graph.Point(point[0], point[1]));
 	});
 
 	var graphView = new Graph.GraphView({
@@ -119,51 +196,8 @@
 	  }
 	});
 
-	lineGraph.on({
-	  changeSelection :function(){
-	    writeInformation();
-	  }
-	});
-
-	var writeInformation = function(){
-	  var info = "max : " + lineGraph.max.y.toFixed(0) + "(x=" + lineGraph.max.x + ")<br/>" +
-	             "min : " + lineGraph.min.y.toFixed(0) + "(x=" + lineGraph.min.x + ")<br/><br/>";
-
-	  if (lineGraph.isSmooth) {
-	    var smooth = lineGraph.smoothStatistics;
-
-	    info =
-	      "max : " + smooth.max.y.toFixed(0) + "(x=" + smooth.max.x + ")<br/>" +
-	      "min : " + smooth.min.y.toFixed(0) + "(x=" + smooth.min.x + ")<br/>" +
-	      "total gain : " + smooth.gain.toFixed(0) + "<br/>" +
-	      "total drop : " + smooth.drop.toFixed(0) + "<br/>" +
-	      "max incline : " + (smooth.incline.max.incline).toFixed(1) + "% (x=" + smooth.incline.max.point.x + ")<br/>" +
-	      "min incline : " + (smooth.incline.min.incline).toFixed(1) + "% (x=" + smooth.incline.min.point.x + ")<br/>" +
-	      "ave incline : " + (smooth.incline.ave).toFixed(1) + "%<br/><br/>";
-	  }
-
-	  if (lineGraph.isRangeSelected && lineGraph.isSmooth) {
-	    var range = lineGraph.rangeStatistics;
-
-	    info = info +
-	      "range : " + range.start + " - " + range.end + "<br/>" +
-	      "max : " + range.max.y.toFixed(0) + "(x=" + range.max.x + ")<br/>" +
-	      "min : " + range.min.y.toFixed(0) + "(x=" + range.min.x + ")<br/>" +
-	      "gain : " + range.gain.toFixed(0) + "<br/>" +
-	      "drop : " + range.drop.toFixed(0) + "<br/>";
-
-	    if (range.incline !== undefined) {
-	      info = info +
-	        "max incline : " + (range.incline.max.incline).toFixed(1) + "% (x=" + range.incline.max.point.x + ")<br/>" +
-	        "min incline : " + (range.incline.min.incline).toFixed(1) + "% (x=" + range.incline.min.point.x + ")<br/>" +
-	        "ave incline : " + (range.incline.ave).toFixed(1) + "%<br/>";
-	    }
-	  }
-
-	  $('#information').html(info)
-	};
-
 	writeInformation();
+
 
 
 /***/ },
@@ -13957,7 +13991,7 @@
 	      var endIndex, peakList, startIndex;
 	      this._rangeStatistics = range;
 	      if (this._rangeStatistics.selected === false || this._smoothList.length === 0) {
-	        this.trigger('changeSelection', this);
+	        this.trigger('changeSelection');
 	        return;
 	      }
 	      startIndex = 0;
@@ -14003,7 +14037,7 @@
 	        __.extend(this._rangeStatistics, this._calculateTotalGainAndDrop(peakList));
 	        __.extend(this._rangeStatistics, this._calculateIncline(startIndex, endIndex, this._xyRatio));
 	      }
-	      return this.trigger('changeSelection', this);
+	      return this.trigger('changeSelection');
 	    };
 
 	    return GraphLineData;
@@ -14090,6 +14124,10 @@
 	      }
 	    });
 
+	    GraphPointData.prototype.triggerEvent = function(eventName, index, screenPos) {
+	      return this.trigger(eventName, index, screenPos);
+	    };
+
 	    return GraphPointData;
 
 	  })(GraphData);
@@ -14105,7 +14143,7 @@
 
 	// Generated by CoffeeScript 1.10.0
 	(function() {
-	  var AxisData, Backbone, GestureData, GestureDataCollection, GestureView, GraphCanvasView, GraphView, OffsetData, RangeData, RangeView, RectRegion, ScaleChangeView, ScaleData, XAxisView, YAxisView, __,
+	  var AxisData, Backbone, GestureData, GestureDataCollection, GestureView, GraphCanvasView, GraphPointView, GraphView, OffsetData, RangeData, RangeView, RectRegion, ScaleChangeView, ScaleData, XAxisView, YAxisView, __,
 	    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	    hasProp = {}.hasOwnProperty;
 
@@ -14118,6 +14156,8 @@
 	  YAxisView = __webpack_require__(15);
 
 	  GraphCanvasView = __webpack_require__(16);
+
+	  GraphPointView = __webpack_require__(18);
 
 	  ScaleChangeView = __webpack_require__(19);
 
@@ -14140,7 +14180,7 @@
 	  GestureDataCollection = __webpack_require__(30);
 
 	  GraphView = (function(superClass) {
-	    var _graphOptions, _rangeGestures;
+	    var _graphOptions, _pointGestures, _rangeGestures;
 
 	    extend(GraphView, superClass);
 
@@ -14244,7 +14284,8 @@
 	          _this._graphCanvasView.render();
 	          _this._xAxisView.render();
 	          _this._rangeView.render();
-	          return _this._registerRangeGesture();
+	          _this._registerRangeGesture();
+	          return _this._registerPointGesture();
 	        };
 	      })(this));
 	      this.listenTo(this._xScaleData, "change", (function(_this) {
@@ -14253,7 +14294,8 @@
 	          _this._graphCanvasView.render();
 	          _this._xAxisView.render();
 	          _this._rangeView.render();
-	          return _this._registerRangeGesture();
+	          _this._registerRangeGesture();
+	          return _this._registerPointGesture();
 	        };
 	      })(this));
 	      this.listenTo(this._xOffsetData, "change", (function(_this) {
@@ -14308,7 +14350,8 @@
 	        })(this),
 	        dragEnd: (function(_this) {
 	          return function(mousePos) {
-	            return _this._registerRangeGesture();
+	            _this._registerRangeGesture();
+	            return _this._registerPointGesture();
 	          };
 	        })(this),
 	        repeat: (function(_this) {
@@ -14336,7 +14379,8 @@
 	        })(this),
 	        dragEnd: (function(_this) {
 	          return function(mousePos) {
-	            return _this._registerRangeGesture();
+	            _this._registerRangeGesture();
+	            return _this._registerPointGesture();
 	          };
 	        })(this)
 	      });
@@ -14371,7 +14415,8 @@
 	            })(this),
 	            dragEnd: (function(_this) {
 	              return function(mousePos) {
-	                return _this._registerRangeGesture();
+	                _this._registerRangeGesture();
+	                return _this._registerPointGesture();
 	              };
 	            })(this),
 	            repeat: (function(_this) {
@@ -14410,7 +14455,8 @@
 	            })(this),
 	            dragEnd: (function(_this) {
 	              return function(mousePos) {
-	                return _this._registerRangeGesture();
+	                _this._registerRangeGesture();
+	                return _this._registerPointGesture();
 	              };
 	            })(this),
 	            repeat: (function(_this) {
@@ -14441,7 +14487,8 @@
 	            })(this),
 	            dragEnd: (function(_this) {
 	              return function(mousePos) {
-	                return _this._registerRangeGesture();
+	                _this._registerRangeGesture();
+	                return _this._registerPointGesture();
 	              };
 	            })(this),
 	            repeat: (function(_this) {
@@ -14464,6 +14511,43 @@
 	          return _rangeGestures.push(rangeGesture);
 	        }
 	      }
+	    };
+
+	    _pointGestures = [];
+
+	    GraphView.prototype._registerPointGesture = function() {
+	      this._gestureCollection.remove(_pointGestures);
+	      _pointGestures = [];
+	      return this._graphCanvasView.subView.forEach((function(_this) {
+	        return function(subView) {
+	          if (subView instanceof GraphPointView) {
+	            return subView.drawPointList.forEach(function(drawPoint, index) {
+	              var pointGesture, pointRegion;
+	              if (_this._rangeRegion.isInside(drawPoint.x + GraphView.ORIGIN_OFFSET_X + _this._xOffsetData.offset, drawPoint.y)) {
+	                pointRegion = new RectRegion(drawPoint.x + GraphView.ORIGIN_OFFSET_X + _this._xOffsetData.offset - 5, drawPoint.y - 7, drawPoint.x + GraphView.ORIGIN_OFFSET_X + _this._xOffsetData.offset + 5, drawPoint.y);
+	                pointGesture = new GestureData({
+	                  actionRegion: pointRegion,
+	                  roundRegion: pointRegion,
+	                  cursor: "pointer",
+	                  repeat: []
+	                }).on({
+	                  click: function(mousePos) {
+	                    return subView.model.triggerEvent('click', index, mousePos.currentPos);
+	                  },
+	                  mouseenter: function(mousePos) {
+	                    return subView.model.triggerEvent('mouseenter', index, mousePos.currentPos);
+	                  },
+	                  mouseleave: function(mousePos) {
+	                    return subView.model.triggerEvent('mouseleave', index);
+	                  }
+	                });
+	                _this._gestureCollection.add(pointGesture);
+	                return _pointGestures.push(pointGesture);
+	              }
+	            });
+	          }
+	        };
+	      })(this));
 	    };
 
 	    return GraphView;
@@ -14782,7 +14866,7 @@
 	    GraphCanvasView.prototype.initialize = function(options) {
 	      GraphCanvasView.__super__.initialize.call(this, options);
 	      __.extend(this, __.pick(options, _graphCanvasOptions));
-	      this._subView = this.collection.map((function(_this) {
+	      this.subView = this.collection.map((function(_this) {
 	        return function(model) {
 	          var subView;
 	          subView = null;
@@ -14830,7 +14914,7 @@
 	      ye = GraphView.ORIGIN_OFFSET_Y;
 	      context.clearRect(0, 0, w, h);
 	      this._drawAxis(context, xs, xe, ys, ye);
-	      this._subView.forEach((function(_this) {
+	      this.subView.forEach((function(_this) {
 	        return function(subView) {
 	          return subView.render();
 	        };
@@ -15000,7 +15084,8 @@
 	    _graphPointOptions = ['xAxis', 'yAxis'];
 
 	    GraphPointView.prototype.initialize = function(options) {
-	      return __.extend(this, __.pick(options, _graphPointOptions));
+	      __.extend(this, __.pick(options, _graphPointOptions));
+	      return this.drawPointList = [];
 	    };
 
 	    GraphPointView.prototype.render = function() {
@@ -15017,6 +15102,7 @@
 	    };
 
 	    GraphPointView.prototype._drawPoint = function(context, xs, xe, ys, ye) {
+	      this.drawPointList = [];
 	      if (this.model.pointList.length === 0) {
 	        return;
 	      }
@@ -15030,7 +15116,11 @@
 	          context.moveTo(xp - 5, yp - 7);
 	          context.lineTo(xp + 5, yp - 7);
 	          context.lineTo(xp, yp);
-	          return context.fill();
+	          context.fill();
+	          return _this.drawPointList.push({
+	            x: xp,
+	            y: yp
+	          });
 	        };
 	      })(this));
 	    };
@@ -16045,16 +16135,21 @@
 	    GestureDataCollection.prototype.initialize = function(options) {
 	      this._currentGesture = void 0;
 	      this._repeatMousePos = void 0;
-	      return this._repeatTimer = void 0;
+	      this._repeatTimer = void 0;
+	      return this._lastMouseEnter = void 0;
 	    };
 
 	    GestureDataCollection.prototype.selectCurrentGesture = function(x, y) {
 	      if (this._currentGesture != null) {
 	        return;
 	      }
-	      return this._currentGesture = this.models.slice().reverse().find(function(model) {
+	      this._currentGesture = this.models.slice().reverse().find(function(model) {
 	        return model.isInsideActionRegion(x, y);
 	      });
+	      if (this._lastMouseEnter) {
+	        this._lastMouseEnter.trigger("mouseleave");
+	        return this._lastMouseEnter = void 0;
+	      }
 	    };
 
 	    GestureDataCollection.prototype.deselectCurrentGesture = function() {
@@ -16080,7 +16175,7 @@
 	    };
 
 	    GestureDataCollection.prototype.moveStart = function(mousePos) {
-	      var index, targetModel;
+	      var index;
 	      if (this._currentGesture != null) {
 	        this._currentGesture.triggerWithRoundPos("dragStart", mousePos);
 	        index = this._currentGesture.getInsideRepeatIndex(mousePos.currentPos.x, mousePos.currentPos.y);
@@ -16088,15 +16183,12 @@
 	          return this._startRepeat(mousePos, index);
 	        }
 	      } else {
-	        targetModel = this.models.slice().reverse().find(function(model) {
-	          return model.isInsideActionRegion(mousePos.currentPos.x, mousePos.currentPos.y);
-	        });
-	        return targetModel != null ? targetModel.triggerWithRoundPos("over", mousePos) : void 0;
+	        return this._mouseOver(mousePos);
 	      }
 	    };
 
 	    GestureDataCollection.prototype.move = function(mousePos) {
-	      var index, targetModel;
+	      var index;
 	      if (this._currentGesture != null) {
 	        this._currentGesture.triggerWithRoundPos("dragging", mousePos);
 	        index = this._currentGesture.getInsideRepeatIndex(mousePos.currentPos.x, mousePos.currentPos.y);
@@ -16106,10 +16198,7 @@
 	          return this._stopRepeat();
 	        }
 	      } else {
-	        targetModel = this.models.slice().reverse().find(function(model) {
-	          return model.isInsideActionRegion(mousePos.currentPos.x, mousePos.currentPos.y);
-	        });
-	        return targetModel != null ? targetModel.triggerWithRoundPos("over", mousePos) : void 0;
+	        return this._mouseOver(mousePos);
 	      }
 	    };
 
@@ -16136,6 +16225,29 @@
 	        clearInterval(this._repeatTimer);
 	      }
 	      return this._repeatTimer = void 0;
+	    };
+
+	    GestureDataCollection.prototype._mouseOver = function(mousePos) {
+	      var targetModel;
+	      targetModel = this.models.slice().reverse().find(function(model) {
+	        return model.isInsideActionRegion(mousePos.currentPos.x, mousePos.currentPos.y);
+	      });
+	      if (targetModel != null) {
+	        if (targetModel !== this._lastMouseEnter) {
+	          if (this._lastMouseEnter) {
+	            this._lastMouseEnter.trigger("mouseleave");
+	          }
+	          if (targetModel != null) {
+	            targetModel.triggerWithRoundPos("mouseenter", mousePos);
+	          }
+	          return this._lastMouseEnter = targetModel;
+	        }
+	      } else {
+	        if (this._lastMouseEnter) {
+	          this._lastMouseEnter.trigger("mouseleave");
+	          return this._lastMouseEnter = void 0;
+	        }
+	      }
 	    };
 
 	    return GestureDataCollection;

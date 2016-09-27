@@ -3,9 +3,30 @@
 # Date: 2016/05/25
 #
 assert = require('assert')
+sinon = require('sinon')
 
 GraphLineData = require('../../src/Model/graphLineData.coffee')
 GraphPoint = require('../../src/Model/graphPoint.coffee')
+
+createTestData = ->
+  pointData = new GraphLineData({
+    lineColor: "#00ff00"
+    peakColor: "#ff0000"
+  })
+
+  pointData.addPoint(new GraphPoint(0,  100))
+  pointData.addPoint(new GraphPoint(10,  200))
+  pointData.addPoint(new GraphPoint(20,  400))
+  pointData.addPoint(new GraphPoint(30,  350))
+  pointData.addPoint(new GraphPoint(40,  500))
+  pointData.addPoint(new GraphPoint(50,  600))
+  pointData.addPoint(new GraphPoint(60,  550))
+  pointData.addPoint(new GraphPoint(70,  1000))
+  pointData.addPoint(new GraphPoint(80,  200))
+  pointData.addPoint(new GraphPoint(90,  50))
+  pointData.addPoint(new GraphPoint(100, 300))
+
+  return pointData
 
 describe 'GraphLineData Class Test', ->
   it 'constructor test', ->
@@ -32,7 +53,8 @@ describe 'GraphLineData Class Test', ->
 
   it 'function test addPoint()', ->
     pointData = new GraphLineData({
-      pointColor: "#0000ff"
+      lineColor: "#00ff00"
+      peakColor: "#ff0000"
     })
 
     pointData.addPoint(new GraphPoint(0, 10))
@@ -73,7 +95,8 @@ describe 'GraphLineData Class Test', ->
 
   it 'function test clear()', ->
     pointData = new GraphLineData({
-      pointColor: "#0000ff"
+      lineColor: "#00ff00"
+      peakColor: "#ff0000"
     })
 
     pointData.addPoint(new GraphPoint(0, 10))
@@ -95,21 +118,7 @@ describe 'GraphLineData Class Test', ->
     assert.equal(pointData.rangeStatistics.end, 0)
 
   it 'function test smooth()', ->
-    pointData = new GraphLineData({
-      pointColor: "#0000ff"
-    })
-
-    pointData.addPoint(new GraphPoint(0,  100))
-    pointData.addPoint(new GraphPoint(10,  200))
-    pointData.addPoint(new GraphPoint(20,  400))
-    pointData.addPoint(new GraphPoint(30,  350))
-    pointData.addPoint(new GraphPoint(40,  500))
-    pointData.addPoint(new GraphPoint(50,  600))
-    pointData.addPoint(new GraphPoint(60,  550))
-    pointData.addPoint(new GraphPoint(70,  1000))
-    pointData.addPoint(new GraphPoint(80,  200))
-    pointData.addPoint(new GraphPoint(90,  50))
-    pointData.addPoint(new GraphPoint(100, 300))
+    pointData = createTestData()
 
     pointData.smooth(1, 5, 1000, 0.01)
     assert.equal(pointData.pointList.length, 101)
@@ -143,22 +152,7 @@ describe 'GraphLineData Class Test', ->
     assert.equal(pointData.smoothStatistics.incline.ave.toFixed(3), "0.112")
 
   it 'function test unsmooth()', ->
-    pointData = new GraphLineData({
-      pointColor: "#0000ff"
-    })
-
-    pointData.addPoint(new GraphPoint(0,  100))
-    pointData.addPoint(new GraphPoint(10,  200))
-    pointData.addPoint(new GraphPoint(20,  400))
-    pointData.addPoint(new GraphPoint(30,  350))
-    pointData.addPoint(new GraphPoint(40,  500))
-    pointData.addPoint(new GraphPoint(50,  600))
-    pointData.addPoint(new GraphPoint(60,  550))
-    pointData.addPoint(new GraphPoint(70,  1000))
-    pointData.addPoint(new GraphPoint(80,  200))
-    pointData.addPoint(new GraphPoint(90,  50))
-    pointData.addPoint(new GraphPoint(100, 300))
-
+    pointData = createTestData()
     pointData.smooth(1, 5, 1000, 0.01)
     pointData.unsmooth()
 
@@ -177,22 +171,7 @@ describe 'GraphLineData Class Test', ->
     assert.equal(pointData.rangeStatistics.end, 0)
 
   it 'function test getAutoRange()', ->
-    pointData = new GraphLineData({
-      pointColor: "#0000ff"
-    })
-
-    pointData.addPoint(new GraphPoint(0,  100))
-    pointData.addPoint(new GraphPoint(10,  200))
-    pointData.addPoint(new GraphPoint(20,  400))
-    pointData.addPoint(new GraphPoint(30,  350))
-    pointData.addPoint(new GraphPoint(40,  500))
-    pointData.addPoint(new GraphPoint(50,  600))
-    pointData.addPoint(new GraphPoint(60,  550))
-    pointData.addPoint(new GraphPoint(70,  1000))
-    pointData.addPoint(new GraphPoint(80,  200))
-    pointData.addPoint(new GraphPoint(90,  50))
-    pointData.addPoint(new GraphPoint(100, 300))
-
+    pointData = createTestData()
     pointData.smooth(1, 5, 1000, 0.01)
 
     result = pointData.getAutoRange(0)
@@ -224,22 +203,7 @@ describe 'GraphLineData Class Test', ->
     assert.equal(result.end, 100)
 
   it 'function test setRange()', ->
-    pointData = new GraphLineData({
-      pointColor: "#0000ff"
-    })
-
-    pointData.addPoint(new GraphPoint(0,  100))
-    pointData.addPoint(new GraphPoint(10,  200))
-    pointData.addPoint(new GraphPoint(20,  400))
-    pointData.addPoint(new GraphPoint(30,  350))
-    pointData.addPoint(new GraphPoint(40,  500))
-    pointData.addPoint(new GraphPoint(50,  600))
-    pointData.addPoint(new GraphPoint(60,  550))
-    pointData.addPoint(new GraphPoint(70,  1000))
-    pointData.addPoint(new GraphPoint(80,  200))
-    pointData.addPoint(new GraphPoint(90,  50))
-    pointData.addPoint(new GraphPoint(100, 300))
-
+    pointData = createTestData()
     pointData.smooth(1, 5, 1000, 0.01)
 
     pointData.setRange({start:0, end:100, selected:true})
@@ -369,3 +333,17 @@ describe 'GraphLineData Class Test', ->
     assert.equal(pointData.rangeStatistics.incline.min.incline.toFixed(3), "-0.136")
     assert.equal(pointData.rangeStatistics.incline.min.point.x, 26)
     assert.equal(pointData.rangeStatistics.incline.ave.toFixed(3), "-0.045")
+
+  it 'function test setRange() event', ->
+    pointData = createTestData()
+    pointData.smooth(1, 5, 1000, 0.01)
+
+    trigger = sinon.spy pointData, 'trigger'
+
+    pointData.setRange({start:0, end:100, selected:true})
+
+    assert.equal(trigger.calledOnce, true)
+    assert.equal(trigger.getCall(0).args.length, 1)
+    assert.equal(trigger.getCall(0).args[0], "changeSelection")
+
+    trigger.restore()

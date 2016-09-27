@@ -4,6 +4,7 @@ Backbone = require('backbone')
 XAxisView = require('./xAxisView')
 YAxisView = require('./yAxisView')
 GraphCanvasView = require('./graphCanvasView')
+GraphPointView = require('./graphPointView')
 ScaleChangeView = require('./scaleChangeView')
 RangeView = require('./rangeView')
 GestureView = require('./gestureView')
@@ -118,6 +119,7 @@ class GraphView extends Backbone.View
       @_xAxisView.render()
       @_rangeView.render()
       @_registerRangeGesture()
+      @_registerPointGesture()
     )
 
     @listenTo(@_xScaleData, "change", =>
@@ -126,6 +128,7 @@ class GraphView extends Backbone.View
       @_xAxisView.render()
       @_rangeView.render()
       @_registerRangeGesture()
+      @_registerPointGesture()
     )
 
     @listenTo(@_xOffsetData, "change", =>
@@ -171,6 +174,7 @@ class GraphView extends Backbone.View
         @_xRangeData.selectEndX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X)
       dragEnd: (mousePos) =>
         @_registerRangeGesture()
+        @_registerPointGesture()
       repeat: (mousePos, index) =>
         if index == 0
           @_xOffsetData.scroll(GraphView.SCROLL_WIDTH)
@@ -192,6 +196,7 @@ class GraphView extends Backbone.View
         @_xOffsetData.scroll(mousePos.differencePos.x)
       dragEnd: (mousePos) =>
         @_registerRangeGesture()
+        @_registerPointGesture()
     })
 
     @_gestureCollection = new GestureDataCollection([rangeGesture, scrollGesture])
@@ -227,6 +232,7 @@ class GraphView extends Backbone.View
             @_xRangeData.selectStartX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X)
           dragEnd: (mousePos) =>
             @_registerRangeGesture()
+            @_registerPointGesture()
           repeat: (mousePos, index) =>
             if index == 0
               @_xOffsetData.scroll(GraphView.SCROLL_WIDTH)
@@ -261,6 +267,7 @@ class GraphView extends Backbone.View
             @_xRangeData.selectEndX(mousePos.roundPos.x - GraphView.ORIGIN_OFFSET_X)
           dragEnd: (mousePos) =>
             @_registerRangeGesture()
+            @_registerPointGesture()
           repeat: (mousePos, index) =>
             if index == 0
               @_xOffsetData.scroll(GraphView.SCROLL_WIDTH)
@@ -288,6 +295,7 @@ class GraphView extends Backbone.View
             @_xRangeData.shiftX(mousePos.differencePos.x)
           dragEnd: (mousePos) =>
             @_registerRangeGesture()
+            @_registerPointGesture()
           repeat: (mousePos, index) =>
             if index == 0
               if @_xRangeData.start > 0
@@ -301,6 +309,41 @@ class GraphView extends Backbone.View
 
         @_gestureCollection.add(rangeGesture)
         _rangeGestures.push(rangeGesture)
+
+  _pointGestures = []
+  _registerPointGesture: ->
+    @_gestureCollection.remove(_pointGestures)
+    _pointGestures = []
+
+    @_graphCanvasView.subView.forEach((subView) =>
+      if subView instanceof GraphPointView
+        subView.drawPointList.forEach((drawPoint, index) =>
+          if @_rangeRegion.isInside(drawPoint.x + GraphView.ORIGIN_OFFSET_X + @_xOffsetData.offset, drawPoint.y)
+            pointRegion = new RectRegion(
+              drawPoint.x + GraphView.ORIGIN_OFFSET_X + @_xOffsetData.offset - 5
+            , drawPoint.y - 7
+            , drawPoint.x + GraphView.ORIGIN_OFFSET_X + @_xOffsetData.offset + 5
+            , drawPoint.y
+            )
+            pointGesture = new GestureData({
+              actionRegion: pointRegion
+              roundRegion: pointRegion
+              cursor: "pointer"
+              repeat: []
+            })
+            .on({
+              click: (mousePos) =>
+                subView.model.triggerEvent('click', index, mousePos.currentPos)
+              mouseenter: (mousePos) =>
+                subView.model.triggerEvent('mouseenter', index, mousePos.currentPos)
+              mouseleave: (mousePos) =>
+                subView.model.triggerEvent('mouseleave', index)
+            })
+
+            @_gestureCollection.add(pointGesture)
+            _pointGestures.push(pointGesture)
+        )
+    )
 
 module.exports = GraphView
 
