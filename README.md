@@ -28,6 +28,12 @@ var lineData = new Graph.LineData({
   peakColor: "#ffffff"
 });
 
+// You can also use Graph.PointData() for drawing point graph.
+var pointData = new Graph.PointData({
+  pointColor: "#ff0000"                                // This is the default color of each point
+  pointShape: Graph.PointData.SHAPE.DOWNWARD_TRIANGLE  // This is the default shape of each point
+});
+
 // add point to graph data
 var graphSample = [
   [0, 100],
@@ -44,10 +50,14 @@ var graphSample = [
 ];
 graphSample.forEach(function (point){
   lineData.addPoint(new Graph.Point(point[0], point[1]));
+  pointData.addPoint(new Graph.Point(point[0], point[1]))
+
+  // if you want to set each point color and shape
+  //   pointData.addPoint(new Graph.Point(point[0], point[1]), "#RRGGBB", Graph.PointData.SHAPE.CIRCLE)
 });
 
 // add graph data to collection
-var graphCollection = new Graph.Collection([lineData]);
+var graphCollection = new Graph.Collection([lineData, pointData]);
 
 // initialize graph view
 var graphView = new Graph.GraphView({

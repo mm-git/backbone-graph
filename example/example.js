@@ -57,7 +57,8 @@ var lineGraph = new Graph.LineData({
 });
 
 var pointGraph = new Graph.PointData({
-  pointColor: POINT_COLOR
+  pointColor: POINT_COLOR,
+  pointShape: Graph.PointData.SHAPE.DOWNWARD_TRIANGLE
 })
 .on({
   click: function(index, screenPos){
@@ -92,21 +93,21 @@ lineGraphSample.forEach(function (point){
 });
 
 var pointGraphSample = [
-  [0, 800],
-  [10, 700],
-  [20, 600],
-  [30, 500],
-  [40, 500],
-  [50, 400],
-  [60, 500],
-  [70, 700],
-  [80, 800],
-  [90, 900],
-  [100, 700],
+  [0, 800, "#ff0000", Graph.PointData.SHAPE.CIRCLE],
+  [10, 700, "#ff3333", Graph.PointData.SHAPE.CIRCLE],
+  [20, 600, "#ff6666", Graph.PointData.SHAPE.TRIANGLE],
+  [30, 500, "#ff9999", Graph.PointData.SHAPE.TRIANGLE],
+  [40, 500, "#ffcccc", Graph.PointData.SHAPE.DOWNWARD_TRIANGLE],
+  [50, 400, "#ffffff", Graph.PointData.SHAPE.DOWNWARD_TRIANGLE],
+  [60, 500, "#ffcccc", Graph.PointData.SHAPE.SQUARE],
+  [70, 700, "#ff9999", Graph.PointData.SHAPE.SQUARE],
+  [80, 800, "#ff6666", Graph.PointData.SHAPE.DIAMOND],
+  [90, 900, "#ff3333", Graph.PointData.SHAPE.DIAMOND],
+  [100, 700, "#ff0000", undefined]
 ];
 
 pointGraphSample.forEach(function (point){
-  pointGraph.addPoint(new Graph.Point(point[0], point[1]));
+  pointGraph.addPoint(new Graph.Point(point[0], point[1]), point[2], point[3]);
 });
 
 var graphView = new Graph.GraphView({

@@ -323,7 +323,7 @@ class GraphView extends Backbone.View
               drawPoint.x + GraphView.ORIGIN_OFFSET_X + @_xOffsetData.offset - 5
             , drawPoint.y - 7
             , drawPoint.x + GraphView.ORIGIN_OFFSET_X + @_xOffsetData.offset + 5
-            , drawPoint.y
+            , drawPoint.y + 7
             )
             pointGesture = new GestureData({
               actionRegion: pointRegion

@@ -3,7 +3,10 @@ GraphData = require('./graphData')
 GraphPoint = require('./graphPoint')
 
 class GraphLineData extends GraphData
-  # options = {lineColor: "#RRGGBB", peakColor: "#RRGGBB"}
+  default:
+    lineColor: "#ffcc00"
+    peakColor: "#ff0000"
+
   initialize: (options) ->
     super(options)
     @set('type', GraphData.TYPE.LINE)
