@@ -30,6 +30,7 @@ class GraphLineView extends Backbone.View
     context.beginPath()
     xp = xs + (xe - xs) * @model.pointList[0].x / @xAxis.max
     yp = ys + (ye - ys) * @model.pointList[0].y / @yAxis.max
+    xpFirst = xp
     context.moveTo(xp, yp)
     @model.pointList.forEach((point, index) =>
       if index > 0
@@ -38,7 +39,7 @@ class GraphLineView extends Backbone.View
         context.lineTo(xp, yp)
     )
     context.lineTo(xp, ys)
-    context.lineTo(xs, ys)
+    context.lineTo(xpFirst, ys)
     context.closePath()
     context.fill()
     context.stroke()
