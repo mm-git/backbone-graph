@@ -75,7 +75,6 @@ var pointGraph = new Graph.PointData({
 var graphCollection = new Graph.Collection([lineGraph, pointGraph]);
 
 var lineGraphSample = [
-  [0, 100],
   [10, 200],
   [20, 400],
   [30, 350],
