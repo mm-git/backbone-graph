@@ -121,7 +121,6 @@
 	var graphCollection = new Graph.Collection([lineGraph, pointGraph]);
 
 	var lineGraphSample = [
-	  [0, 100],
 	  [10, 200],
 	  [20, 400],
 	  [30, 350],
@@ -13826,7 +13825,7 @@
 
 	    GraphLineData.prototype._reSampling = function(interval, range) {
 	      var end, i, incline, index, j, k, newPointList, rangeIndex, ref, ref1, ref2, ref3, start, xp, yTotal, yp;
-	      xp = 0;
+	      xp = this._pointList[0].x;
 	      newPointList = [];
 	      for (index = i = 1, ref = this._pointList.length; 1 <= ref ? i < ref : i > ref; index = 1 <= ref ? ++i : --i) {
 	        incline = (this._pointList[index].y - this._pointList[index - 1].y) / (this._pointList[index].x - this._pointList[index - 1].x);
@@ -14155,6 +14154,11 @@
 	        return this._attributeList;
 	      }
 	    });
+
+	    GraphPointData.prototype.clear = function() {
+	      GraphPointData.__super__.clear.call(this);
+	      return this._attributeList = [];
+	    };
 
 	    GraphPointData.prototype.addPoint = function(point, color, shape) {
 	      GraphPointData.__super__.addPoint.call(this, point);
@@ -15046,7 +15050,7 @@
 	    };
 
 	    GraphLineView.prototype._drawLine = function(context, xs, xe, ys, ye) {
-	      var xp, yp;
+	      var xp, xpFirst, yp;
 	      if (this.model.pointList.length === 0) {
 	        return;
 	      }
@@ -15055,6 +15059,7 @@
 	      context.beginPath();
 	      xp = xs + (xe - xs) * this.model.pointList[0].x / this.xAxis.max;
 	      yp = ys + (ye - ys) * this.model.pointList[0].y / this.yAxis.max;
+	      xpFirst = xp;
 	      context.moveTo(xp, yp);
 	      this.model.pointList.forEach((function(_this) {
 	        return function(point, index) {
@@ -15066,7 +15071,7 @@
 	        };
 	      })(this));
 	      context.lineTo(xp, ys);
-	      context.lineTo(xs, ys);
+	      context.lineTo(xpFirst, ys);
 	      context.closePath();
 	      context.fill();
 	      return context.stroke();

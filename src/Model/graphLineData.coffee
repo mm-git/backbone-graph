@@ -114,7 +114,7 @@ class GraphLineData extends GraphData
 
   _reSampling: (interval, range) ->
     # interval 間隔でグラフデータをリサンプリングする
-    xp = 0
+    xp = @_pointList[0].x
     newPointList = []
     for index in [1 ... @_pointList.length]
       incline = (@_pointList[index].y - @_pointList[index-1].y) / (@_pointList[index].x - @_pointList[index-1].x)
