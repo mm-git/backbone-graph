@@ -251,7 +251,7 @@ Graph.LineData.smoothStatistics = {
 ## Event
 
 | class           | event           | parameter        | when event triggers                                      |
-|-----------------------------------|------------------|----------------------------------------------------------|
+|-----------------|-----------------|------------------|----------------------------------------------------------|
 | Graph.LineData  | changeSelection | none             | Selected range is changed or unselected                  |
 | Graph.PointData | click           | index, screenPos | Point is clicked                                         |
 |                 | mouseenter      | index, screenPos | Mouse cursor enter the point                             |
